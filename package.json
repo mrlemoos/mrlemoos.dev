@@ -1,0 +1,44 @@
+{
+  "name": "mrlemoos",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "database:migrate": "npx prisma migrate dev",
+    "db:migrate": "yarn run database:migrate",
+    "database:generate": "npx prisma generate",
+    "db:generate": "yarn run database:generate",
+    "database:seed": "npx tsc prisma/seed.ts && node ./prisma/seed.js && rimraf -rf ./prisma/seed.js",
+    "db:seed": "yarn run database:seed"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.0.13",
+    "@prisma/client": "^4.5.0",
+    "@radix-ui/react-dialog": "^1.0.2",
+    "@radix-ui/react-tooltip": "^1.0.2",
+    "@types/node": "^18.11.9",
+    "@types/react": "18.0.24",
+    "@types/react-dom": "18.0.8",
+    "grabkit": "^0.2.1",
+    "next": "13.0.1",
+    "prisma": "^4.5.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "^4.8.4"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.26.0",
+    "postcss": "^8.4.18",
+    "prettier": "^2.7.1",
+    "stylelint": "^14.14.0",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-recommended": "^9.0.0",
+    "stylelint-config-standard": "^29.0.0",
+    "tailwindcss": "^3.2.1",
+    "ts-node": "^10.9.1"
+  }
+}
