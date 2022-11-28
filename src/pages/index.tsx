@@ -11,7 +11,6 @@ import Text from '../components/Text';
 import Tooltip from '../components/Tooltip';
 import Tag from '../components/Tag';
 import Spinner from '../components/Spinner';
-import fetchPosts, { FetchPostsFailedContract, FetchPostsSuccessfulContract } from '../services/fetchPosts';
 
 // MARK: - Types
 interface HomepageProps {
