@@ -30,6 +30,7 @@ model Author {
   id       String  @id @default(uuid())
   email    String  @unique
   name     String?
+  bio      String?
   photoURL String?
 
   posts Post[]
