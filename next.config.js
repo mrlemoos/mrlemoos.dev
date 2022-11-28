@@ -5,6 +5,16 @@ const nextConfig = {
   images: {
     domains: ['github.com'],
   },
+  experimental: {
+    swcPlugins: [
+      [
+        'next-superjson-plugin',
+        {
+          excluded: [],
+        },
+      ],
+    ],
+  },
 };
 
 module.exports = nextConfig;
