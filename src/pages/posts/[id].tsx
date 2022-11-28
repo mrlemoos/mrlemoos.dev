@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import Post from '../../models/Post';
 import Author from '../../models/Author';
 import PostBody from '../../components/PostBody';
+import Image from 'next/image';
 
 interface PostByIdProps {
   contract: { post?: Post & { author: Author } };
@@ -57,6 +58,14 @@ const PostById: NextPage<PostByIdProps> = ({ contract: { post } }) => {
 
         {typeof post.author.name === 'string' && <meta name='author' content={post.author.name} />}
       </Head>
+      {typeof post.bannerPhotoURL === 'string' && (
+        <div className='relative w-full h-96'>
+          <Image
+            src={post.bannerPhotoURL}
+            alt={`${post.title} banner photo by ${post.bannerPhotoCredits ?? 'unknown artist'}`}
+          />
+        </div>
+      )}
       <main className='mt-60'>
         <PostBody post={post} />
       </main>

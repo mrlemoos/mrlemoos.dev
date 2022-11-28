@@ -55,7 +55,7 @@ const MetaSearchEngineOptimization = (): ReactElement => (
     <meta name='msapplication-TileColor' content={themeColor} />
     <meta name='robots' content='index, follow' />
 
-    <meta http-equiv='Content-Type' content='text/html; charset: utf-8' />
+    <meta httpEquiv='Content-Type' content='text/html; charset: utf-8' />
   </Fragment>
 );
 
