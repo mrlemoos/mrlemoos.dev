@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, Fragment } from 'react';
 
 import { DefaultSeo as NextSEO } from 'next-seo';
 import { OpenGraph, Twitter } from 'next-seo/lib/types';
@@ -36,15 +36,27 @@ const twitter: Twitter = {
 };
 
 const MetaSearchEngineOptimization = (): ReactElement => (
-  <NextSEO
-    openGraph={openGraph}
-    title={title}
-    description={description}
-    themeColor={themeColor}
-    defaultTitle={title}
-    twitter={twitter}
-    canonical={canonical}
-  />
+  <Fragment>
+    <NextSEO
+      openGraph={openGraph}
+      title={title}
+      description={description}
+      themeColor={themeColor}
+      defaultTitle={title}
+      twitter={twitter}
+      canonical={canonical}
+    />
+
+    <meta name='application-name' content='mrlemoos' />
+    <meta name='apple-mobile-web-app-title' content='mrlemoos' />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+    <meta name='mobile-web-app-capable' content='yes' />
+    <meta name='msapplication-TileColor' content={themeColor} />
+    <meta name='robots' content='index, follow' />
+
+    <meta http-equiv='Content-Type' content='text/html; charset: utf-8' />
+  </Fragment>
 );
 
 export default MetaSearchEngineOptimization;

@@ -1,8 +1,10 @@
 import { useCallback, MouseEvent as ReactMouseEvent, useMemo, useState } from 'react';
 
-import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { NextPage } from 'next';
+import { PrismaClient } from '@prisma/client';
 
+import Anchor from '../components/Anchor';
 import Avatar from '../components/Avatar';
 import CallToAction from '../components/CallToAction';
 import Card from '../components/Card';
@@ -11,10 +13,12 @@ import Text from '../components/Text';
 import Tooltip from '../components/Tooltip';
 import Tag from '../components/Tag';
 import Spinner from '../components/Spinner';
+import Post from '../models/Post';
+import Author from '../models/Author';
 
 // MARK: - Types
 interface HomepageProps {
-  contract: [FetchPostsSuccessfulContract, FetchPostsFailedContract];
+  contract: [{ posts: (Post & { author: Author })[] }, { error?: Error }];
 }
 
 // MARK: - Constants
@@ -46,7 +50,7 @@ const Homepage: NextPage<HomepageProps> = ({ contract: [{ posts }, { error }] })
     [posts]
   );
 
-  const hasError = useMemo(() => typeof error === 'string', [error]);
+  const hasError = useMemo(() => typeof error?.message === 'string', [error]);
 
   return (
     <main className='min-h-[100vh]'>
@@ -75,7 +79,7 @@ const Homepage: NextPage<HomepageProps> = ({ contract: [{ posts }, { error }] })
           {hasError && (
             <div className='bg-white border-2 dark:bg-gray-700 border-red-100 rounded-lg p-3 flex items-center gap-2 text-red-800 dark:text-red-200'>
               <Icon path='ExclamationTriangleIcon' height={28} width={28} />
-              <Text>{error}</Text>
+              <Text>{error!.message}</Text>
             </div>
           )}
           <div id={latestArticlesId} className='flex flex-col sm:flex-row items-center justify-center gap-3'>
@@ -91,34 +95,36 @@ const Homepage: NextPage<HomepageProps> = ({ contract: [{ posts }, { error }] })
                   axis='center'
                   content={<Text>Click to read this article</Text>}
                 >
-                  <Card className='select-none md:w-[330px] h-[240px] flex flex-col justify-between'>
-                    <div className=''>
-                      <Text as='h4' className='font-semibold text-black dark:text-white text-xl text-start'>
-                        {title}
-                      </Text>
-                      <Text
-                        as='p'
-                        className='text-gray-600 dark:text-gray-200 text-md text-start max-h-[70px] overflow-hidden'
-                      >
-                        {`${teaser}...`}
-                      </Text>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      {typeof author.photoURL === 'string' && (
-                        <div className='flex items-center gap-2 md:mt-3' key={author.id}>
-                          <Avatar src={author.photoURL} alt={`${author.name}'s photo`} height={28} width={28} />
-                          <Text className='text-gray-500 dark:text-gray-100 text-xs'>{author.name}</Text>
-                        </div>
-                      )}
-                    </div>
-                    <div className='flex items-center justify-end gap-1'>
-                      {tags?.split(', ').map((tag) => (
-                        <Tag>
-                          <Text>{tag}</Text>
-                        </Tag>
-                      ))}
-                    </div>
-                  </Card>
+                  <Anchor rel='noreferrer' target='_self' href={`/posts/${id}`}>
+                    <Card className='select-none md:w-[330px] h-[240px] flex flex-col justify-between'>
+                      <div className=''>
+                        <Text as='h4' className='font-semibold text-black dark:text-white text-xl text-start'>
+                          {title}
+                        </Text>
+                        <Text
+                          as='p'
+                          className='text-gray-600 dark:text-gray-200 text-md text-start max-h-[70px] overflow-hidden'
+                        >
+                          {`${teaser}...`}
+                        </Text>
+                      </div>
+                      <div className='flex justify-between items-center'>
+                        {typeof author.photoURL === 'string' && (
+                          <div className='flex items-center gap-2 md:mt-3' key={author.id}>
+                            <Avatar src={author.photoURL} alt={`${author.name}'s photo`} height={28} width={28} />
+                            <Text className='text-gray-500 dark:text-gray-100 text-xs'>{author.name}</Text>
+                          </div>
+                        )}
+                      </div>
+                      <div className='flex items-center justify-end gap-1'>
+                        {tags?.split(', ').map((tag) => (
+                          <Tag key={tag}>
+                            <Text>{tag}</Text>
+                          </Tag>
+                        ))}
+                      </div>
+                    </Card>
+                  </Anchor>
                 </Tooltip>
               );
             })}
@@ -129,14 +135,35 @@ const Homepage: NextPage<HomepageProps> = ({ contract: [{ posts }, { error }] })
   );
 };
 
-export const getStaticProps = async () => {
-  const contract = await fetchPosts();
+export const getStaticProps = async (): Promise<{
+  props: HomepageProps;
+}> => {
+  const client = new PrismaClient();
 
-  return {
-    props: {
-      contract,
-    },
-  };
+  try {
+    const posts = await client.post.findMany({
+      include: {
+        author: true,
+      },
+      where: {
+        published: true,
+      },
+    });
+
+    return {
+      props: {
+        contract: [{ posts }, {}],
+      },
+    };
+  } catch (error_: unknown) {
+    const error = error_ instanceof Error ? error_ : new Error(String(error_), { cause: error_ });
+
+    return {
+      props: {
+        contract: [{ posts: [] }, { error }],
+      },
+    };
+  }
 };
 
 export default Homepage;

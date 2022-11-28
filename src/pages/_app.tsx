@@ -13,6 +13,7 @@ import '../styles/globals.css';
 const App = ({ Component, pageProps }: AppProps<object>): ReactElement => (
   <>
     <Head>
+      <title>mrlemoos - Homepage</title>
       <meta name='viewport' content='width=device-width, initial-scale=1' />
 
       <MetaSearchEngineOptimization />
