@@ -27,6 +27,17 @@ const HeaderWithActions = (): ReactElement => (
       </div>
     </Tooltip>
     <div className={concat(classes.actionArea, 'hidden sm:flex items-center justify-items-center gap-1')}>
+      <Anchor href='/donate' target='_self' rel='noreferrer'>
+        <HeaderButton
+          className={concat(
+            classes.button,
+            'mrl-header-with-actions__header-button__donate',
+            'bg-amber-400 text-amber-900 hover:bg-amber-200'
+          )}
+        >
+          Donate
+        </HeaderButton>
+      </Anchor>
       <Anchor href='/' target='_self' rel='noreferrer'>
         <HeaderButton className={concat(classes.button, 'mrl-header-with-actions__header-button__home')}>
           Home
