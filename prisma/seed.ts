@@ -27,7 +27,11 @@ async function seed() {
     },
   });
 
-  const postIds = ['b698c603-c13e-490c-ba96-1e1400059b8a', 'c1557636-b6fc-4ac3-87a7-9064ea21ef6b'];
+  const postIds = [
+    'b698c603-c13e-490c-ba96-1e1400059b8a',
+    'c1557636-b6fc-4ac3-87a7-9064ea21ef6b',
+    'ba1ecea5-0ecd-4c9e-9eca-a131dd48264e',
+  ];
 
   await client.post.upsert({
     where: { id: postIds[0] },
@@ -71,6 +75,39 @@ A table:
       updatedAt: new Date(),
       authorId: author.id,
       tags: 'MongoDB, Postgres, Prisma, ORM',
+      published: true,
+    },
+  });
+
+  await client.post.upsert({
+    where: { id: postIds[2] },
+    update: {},
+    create: {
+      id: postIds[2],
+      title: 'Lorem Ipsum 💬',
+      content: `Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est repudiandae corporis aspernatur ut. Placeat repellendus excepturi porro nisi voluptatibus voluptate aliquam aspernatur, et architecto molestiae exercitationem quas in maxime rem!
+
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est repudiandae corporis aspernatur ut.
+
+~~~js
+
+const lorem = 'ipsum';
+
+~~~
+
+### Lorem ipsum
+
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est repudiandae corporis aspernatur ut. Placeat repellendus excepturi porro nisi voluptatibus voluptate aliquam aspernatur, et architecto molestiae exercitationem quas in maxime rem!
+
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est repudiandae corporis aspernatur ut. 📜
+
+
+
+`,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      authorId: author.id,
+      tags: 'Lorem, Ipsum, Dolor, Sit, Amet',
       published: true,
     },
   });
