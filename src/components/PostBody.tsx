@@ -110,7 +110,10 @@ const PostBody = ({ post: { author, ...post }, className, ...attributes }: PostB
       {...attributes}
     >
       <h1
-        className={concat(classes.title, 'font-medium text-black dark:text-white font-sans mb-1 text-3xl text-center')}
+        className={concat(
+          classes.title,
+          'font-medium text-black dark:text-white font-sans mb-1 text-3xl text-center dark:font-semibold'
+        )}
       >
         {post.title}
       </h1>
