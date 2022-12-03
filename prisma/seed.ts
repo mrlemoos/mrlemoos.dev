@@ -2,6 +2,18 @@ import { PrismaClient } from '@prisma/client';
 
 const client = new PrismaClient();
 
+async function drop() {
+  try {
+    await client.post.deleteMany();
+    await client.author.deleteMany();
+    await client.$disconnect();
+  } catch (error_) {
+    console.error(error_);
+    await client.$disconnect();
+    process.exit(1);
+  }
+}
+
 async function seed() {
   const author = await client.author.upsert({
     where: { email: 'leo.lemos.ds@icloud.com' },
@@ -22,22 +34,26 @@ async function seed() {
     update: {},
     create: {
       id: postIds[0],
-      title: 'Hello World',
-      content: `
-        This is my first post! It is important to have a summary at the beginning of the post hence the front-end
-        will be able to display a summary of the post in the blog's homepage. That's the tip!
+      title: 'Hello World 🌎',
+      content: `A paragraph with *emphasis* and **strong importance**.
 
-        Hope you like it! :smile:
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
 
-        ## Next Steps
+* Lists
+* [ ] todo
+* [x] done
 
-        - [ ] Add comments
-        - [ ] Add likes
-        
-      `,
+A table:
+
+| a | b |
+| - | - |
+`,
       createdAt: new Date(),
       updatedAt: new Date(),
       authorId: author.id,
+      bannerPhotoURL:
+        'https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2148&q=80',
+      bannerPhotoCredits: 'Kevin Ku; Unsplash',
       tags: 'React, TypeScript, NextJS',
       published: true,
     },
@@ -62,6 +78,7 @@ async function seed() {
 
 async function main() {
   try {
+    await drop();
     await seed();
     await client.$disconnect();
   } catch (error_) {
