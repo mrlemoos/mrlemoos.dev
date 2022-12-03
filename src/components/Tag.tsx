@@ -14,7 +14,7 @@ const classes = {
 
 const Tag = memo<TagProps>(({ children, className, ...attributes }) => (
   <div
-    className={concat(classes.root, 'rounded-xl bg-gray-200 text-gray-500 text-sm py-1 px-2 w-fit', className)}
+    className={concat(classes.root, 'rounded-xl bg-gray-200 text-gray-700 text-sm py-1 px-2 w-fit', className)}
     {...attributes}
   >
     {children}

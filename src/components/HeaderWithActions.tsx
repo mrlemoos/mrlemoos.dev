@@ -21,7 +21,7 @@ const HeaderWithActions = (): ReactElement => (
   <Header className={classes.root}>
     <Tooltip side='bottom' axis='end' content={<span className='font-normal text-black'>Return to homepage</span>}>
       <div>
-        <Anchor href='/' target='_self' rel='noreferrer'>
+        <Anchor href='/' target='_self' rel='noreferrer' aria-label='Back to home' role='button'>
           <Emblem height={18} width={18} className='text-emerald-500' />
         </Anchor>
       </div>

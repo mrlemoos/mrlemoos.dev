@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import Head from 'next/head';
 import { GetStaticProps, NextPage, GetStaticPaths } from 'next';
@@ -12,8 +12,21 @@ interface PostByIdProps {
   contract: { post?: Post & { author: Author } };
 }
 
-const PostById: NextPage<PostByIdProps> = ({ contract: { post } }) => {
-  if (!post) {
+const PostById: NextPage<PostByIdProps> = ({ contract }) => {
+  const postDescription = useMemo(() => {
+    if (!contract?.post?.content) {
+      return 'The metadata for this post could not be found.';
+    }
+
+    return contract?.post.content.slice(0, 100);
+  }, [contract?.post?.content]);
+
+  const postURL = useMemo(
+    () => (contract?.post?.id ? `https://mrlemoos.dev/posts/${contract?.post?.id}` : 'https://mrlemoos.dev/404'),
+    [contract?.post?.id]
+  );
+
+  if (!contract?.post) {
     return (
       <Fragment>
         <Head>
@@ -30,41 +43,45 @@ const PostById: NextPage<PostByIdProps> = ({ contract: { post } }) => {
   return (
     <Fragment>
       <Head>
-        <title>{`mrlemoos - ${post.title}`}</title>
-        {typeof post.content === 'string' && (
+        <title>{`mrlemoos - ${contract.post.title}`}</title>
+        {typeof contract.post.content === 'string' && (
           <Fragment>
-            <meta name='description' content={post.content.slice(0, 100)} />
-            <meta property='og:description' content={post.content.slice(0, 100)} />
-            <meta name='twitter:description' content={post.content.slice(0, 100)} />
+            <meta name='description' content={postDescription} />
+            <meta property='og:description' content={postDescription} />
+            <meta name='twitter:description' content={postDescription} />
           </Fragment>
         )}
 
         <meta name='viewport' content='width=device-width, initial-scale=1' />
 
-        <meta property='og:title' content={post.title} />
-        {/* <meta property='og:image' content={post.imageURL} /> */}
-        <meta property='og:image:alt' content={post.title} />
+        <meta property='og:title' content={contract.post.title} />
+        <meta property='og:image:alt' content={contract.post.title} />
         <meta property='og:image:width' content='1200' />
 
         <meta property='og:type' content='article' />
-        <meta property='og:url' content={`https://mrlemoos.com/posts/${post.id}`} />
+        <meta property='og:url' content={postURL} />
 
-        <meta name='twitter:title' content={post.title} />
-        {/* <meta name='twitter:image' content={post.imageURL} /> */}
-        <meta name='twitter:image:alt' content={post.title} />
+        <meta name='twitter:title' content={contract.post.title} />
+        {typeof contract.post.bannerPhotoURL === 'string' && (
+          <>
+            <meta name='twitter:image' content={contract.post.bannerPhotoURL} />
+            <meta property='og:image' content={contract.post.bannerPhotoURL} />
+          </>
+        )}
+        <meta name='twitter:image:alt' content={contract.post.title} />
 
-        <link rel='canonical' href={`https://mrlemoos.com/posts/${post.id}`} />
+        <link rel='canonical' href={postURL} />
 
-        {typeof post.author.name === 'string' && <meta name='author' content={post.author.name} />}
+        {typeof contract.post.author.name === 'string' && <meta name='author' content={contract.post.author.name} />}
       </Head>
-      {typeof post.bannerPhotoURL === 'string' && (
+      {typeof contract.post.bannerPhotoURL === 'string' && (
         <div
-          className='w-full h-56 bg-cover bg-center absolute top-4 -z-10 bg-gradient-to-t dark:from-gray-900 from-white to-transparent'
-          style={{ backgroundImage: `url(${post.bannerPhotoURL})` }}
+          className='w-full h-24 md:h-72 bg-cover bg-center top-4 -z-10 bg-gradient-to-t dark:from-gray-900 from-white to-transparent'
+          style={{ backgroundImage: `url(${contract.post.bannerPhotoURL})` }}
         />
       )}
-      <main className='mt-60'>
-        <PostBody post={post} />
+      <main className={contract.post.bannerPhotoURL ? 'mt-24' : 'mt-60'}>
+        <PostBody post={contract.post} />
       </main>
     </Fragment>
   );
@@ -96,9 +113,8 @@ export const getStaticProps: GetStaticProps<PostByIdPropsGetStaticPropsContextRe
     };
   }
 
-  const client = new PrismaClient();
-
   try {
+    const client = new PrismaClient();
     const post = await client.post.findFirst({
       where: {
         published: true,

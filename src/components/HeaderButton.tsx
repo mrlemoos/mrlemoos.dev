@@ -16,7 +16,9 @@ const HeaderButton = memo<HeaderButtonProps>(({ children, className, ...props })
   <button
     className={concat(
       classes.root,
-      'py-3 px-5 100 bg-indigo-200 text-indigo-900 hover:bg-indigo-300 transition-all h-8 rounded-lg font-medium flex items-center justify-center',
+      'px-2 py-1 100 bg-indigo-200 text-indigo-900 hover:bg-indigo-300',
+      'transition-all rounded-lg text-sm font-regular flex items-center justify-center',
+      'dark:bg-white dark:text-black dark:hover:bg-indigo-200',
       className
     )}
     {...props}

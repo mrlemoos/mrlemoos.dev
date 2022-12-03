@@ -17,7 +17,8 @@ const Header = ({ children, className, ...props }: HeaderProps): ReactElement =>
   <div
     className={concat(
       classes.root,
-      'fixed inset-0 flex items-center justify-between gap-1 shadow-md p-6 rounded-b-lg bg-white dark:bg-gray-700 h-10 mx-auto',
+      'fixed inset-0 flex items-center justify-between gap-3 shadow-md p-6 rounded-b-lg',
+      'bg-white dark:bg-black h-10 mx-auto',
       className
     )}
     {...props}

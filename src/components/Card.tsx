@@ -19,7 +19,8 @@ const Card = ({ children, className, ...attributes }: CardProps): ReactElement =
   <div
     className={concat(
       classes.root,
-      'p-3 md:p-6 bg-white dark:bg-black border-2 border-gray-100 rounded-xl min-h-[200px] min-w-[200px] shadow-md hover:shadow-xl transition-all cursor-pointer',
+      'p-3 md:p-6 bg-white dark:bg-indigo-700 border-2 border-gray-100 dark:border-indigo-700',
+      'rounded-xl min-h-[200px] min-w-[200px] shadow-md hover:shadow-xl transition-all cursor-pointer',
       className
     )}
     {...attributes}
