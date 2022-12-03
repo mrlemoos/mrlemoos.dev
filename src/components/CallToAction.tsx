@@ -25,7 +25,8 @@ const CallToAction = memo<CallToActionProps>(({ children, className, disabled, .
       'font-medium',
       'outline-none border-none bg-indigo-600 text-white hover:bg-indigo-800 transition-colors dark:bg-gray-900 dark:hover:bg-black',
       'flex items-center justify-center gap-1 px-4 py-2 rounded-md',
-      disabled && 'opacity-50'
+      disabled && 'opacity-50',
+      className
     )}
     disabled={disabled}
     {...attributes}
