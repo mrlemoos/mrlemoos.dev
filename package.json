@@ -30,9 +30,13 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-markdown": "^8.0.3",
+    "react-syntax-highlighter": "^15.5.0",
+    "remark-gfm": "^3.0.1",
+    "sharp": "^0.31.2",
     "typescript": "^4.8.4"
   },
   "devDependencies": {
+    "@types/react-syntax-highlighter": "^15.5.5",
     "autoprefixer": "^10.4.13",
     "eslint": "^8.26.0",
     "next-superjson-plugin": "^0.4.9",
