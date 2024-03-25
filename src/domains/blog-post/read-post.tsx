@@ -4,6 +4,7 @@ import {
 	type RenderNode,
 	documentToReactComponents,
 } from '@contentful/rich-text-react-renderer';
+import { BLOCKS } from '@contentful/rich-text-types';
 
 import Badge from '~/components/badge/badge';
 import Image from '~/components/image/image';
@@ -32,7 +33,7 @@ const INSTAPAPER_URL = 'https://instapaper.com' as const;
  *  				 contains the render functions for each type of node.
  */
 const renderNode: RenderNode = {
-	'embedded-asset-block': ({
+	[BLOCKS.EMBEDDED_ASSET]: ({
 		data: {
 			target: {
 				fields: {
@@ -42,10 +43,20 @@ const renderNode: RenderNode = {
 			},
 		},
 	}) => {
-		const src = `https://${url}`;
+		const timestamp = Date.now();
+		const src = `https:${url}?timestamp=${timestamp}`;
 
 		return (
 			<Image
+				// NOTE: The "?timestamp=${timestamp}" above is the only workaround to
+				//       fix the issue with the `next/image` component not rendering the
+				//       assets from Contentful. This is a known issue with the
+				//       `next/image` component and a few remote Content Delivery
+				//       Networks (CDNs) like Contentful's. It works on the local
+				//       environment, however, when we deploy the changes to the Vercel
+				//       cloud, the error occurs. The following discussion on GitHub
+				//       explains the problem and the workaround:
+				//       https://github.com/vercel/next.js/discussions/20138
 				src={src}
 				alt={title}
 				width={600}
