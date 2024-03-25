@@ -6,12 +6,38 @@ import merge from '~/styles/merge';
 
 type Next$LinkProps = ComponentPropsWithoutRef<typeof Next$Link>;
 
+/**
+ * The `LinkVariant` is a string literal that determines the appearance of the
+ * link component.
+ */
 export type LinkVariant = 'primary' | 'secondary' | 'opaque';
 
+/**
+ * The props for the `Link` component.
+ */
 export interface LinkProps extends Next$LinkProps {
+	/**
+	 * The `variant` property is a string literal which determines the appearance
+	 * of the link.
+	 *
+	 * - `primary`: The primary variant is used for primary actions with a purple
+	 *   text/foreground colour.
+	 * - `secondary`: The secondary variant is used for secondary actions with a
+	 *   black text/foreground colour.
+	 * - `opaque`: The opaque variant is used for tertiary actions with a zinc
+	 *   text/foreground colour.
+	 *
+	 * @default 'primary'
+	 */
 	variant?: LinkVariant;
 }
 
+/**
+ * The `Link` is a React component that composes the link element, applying
+ * the necessary styles and defining variants.
+ *
+ * @props {@link LinkProps}
+ */
 function Link({
 	children,
 	className,

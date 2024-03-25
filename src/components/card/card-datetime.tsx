@@ -4,6 +4,13 @@ import merge from '~/styles/merge';
 
 export type CardDatetimeProps = ComponentPropsWithoutRef<'div'>;
 
+/**
+ * The `CardDatetime` component composes the text for the card's datetime.
+ *
+ * This component is meant to be used with the `Card` component.
+ *
+ * @props {@link CardDatetime}
+ */
 function CardDatetime({
 	children,
 	className,

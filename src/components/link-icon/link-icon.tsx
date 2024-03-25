@@ -9,11 +9,41 @@ import merge from '~/styles/merge';
 type PickedIconProps = Pick<IconProps, 'height' | 'width'>;
 type PickedLinkProps = Omit<LinkProps, 'variant'>;
 
+/**
+ * The props for the `LinkIcon` component.
+ */
 export interface LinkIconProps extends PickedLinkProps, PickedIconProps {
+	/**
+	 * The children of the link icon component which should be an icon element. In
+	 * fact, this property should only carry one child element which renders an
+	 * element via the `Icon` component.
+	 *
+	 * @example
+	 * ```tsx
+	 * <LinkIcon>
+	 *   <ArrowRightIcon />
+	 * </Link>
+	 * ```
+	 */
 	children: ReactElement<IconProps>;
+	/**
+	 * The content of the tooltip element that wraps the link icon. If not
+	 * provided, this property defaults to `null` and is not created in the DOM.
+	 *
+	 * See {@link TooltipProps.content | `TooltipProps.content`} for more
+	 * information on the accepted kinds of values.
+	 *
+	 * @default null
+	 */
 	tooltipContent?: TooltipProps['content'];
 }
 
+/**
+ * The `LinkIcon` is a React component that composes the link element displaying
+ * an icon and optionally wrapped in a tooltip.
+ *
+ * @props {@link LinkProps}
+ */
 function LinkIcon({
 	children,
 	className,

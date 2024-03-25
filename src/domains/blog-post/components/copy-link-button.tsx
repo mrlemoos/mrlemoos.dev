@@ -1,6 +1,6 @@
 'use client';
 
-import { type ButtonHTMLAttributes, Fragment, type JSX } from 'react';
+import type { ButtonHTMLAttributes, JSX } from 'react';
 
 import Button from '~/components/button/button';
 import useClipboardEventHandler from '~/hooks/use-clipboard-event-handler';
@@ -35,25 +35,25 @@ function CopyLinkButton({
 	const handleCopyLinkToClipboard = useClipboardEventHandler();
 
 	return (
-		<Fragment>
+		<div className='flex flex-col gap-3 sm:flex-row sm:items-center mb-3'>
 			<span>
 				<input
 					readOnly={true}
 					value={href}
-					className='font-mono text-xs p-2 rounded-md bg-zinc-100 dark:bg-zinc-900 w-full'
+					className='font-mono text-xs p-2 rounded-md bg-zinc-100 dark:bg-zinc-900 w-full cursor-default'
 				/>
 			</span>
 			<Button
 				onClick={handleCopyLinkToClipboard(href)}
 				size='sm'
 				variant='secondary'
-				className='max-w-56'
+				className='sm:max-w-56'
 				type={type}
 				{...props}
 			>
 				Copy Link
 			</Button>
-		</Fragment>
+		</div>
 	);
 }
 

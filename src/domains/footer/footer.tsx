@@ -2,13 +2,12 @@ import type { JSX } from 'react';
 
 import { GitHubLogoIcon, LinkedInLogoIcon } from '@radix-ui/react-icons';
 
-import Author from '~/constants/author';
-import LinkedIn from '~/constants/linked-in';
-import GitHub from '~/constants/github';
-import WildcardFooter from '~/components/wildcard-footer/wildcard-footer';
 import LinkIcon from '~/components/link-icon/link-icon';
-
-const CURRENT_YEAR = new Date().getFullYear();
+import WildcardFooter from '~/components/wildcard-footer/wildcard-footer';
+import Author from '~/constants/author';
+import CURRENT_YEAR from '~/constants/current-year';
+import GitHub from '~/constants/github';
+import LinkedIn from '~/constants/linked-in';
 
 /**
  * The `Footer` is a React component that composes the footer section of the

@@ -2,8 +2,16 @@ import type { JSX } from 'react';
 
 import Image from 'next/image';
 
+import CURRENT_YEAR from '~/constants/current-year';
+
+/**
+ * The `WorkExperienceYear` type is a string representation of a year.
+ */
 export type WorkExperienceYear = `${number}`;
 
+/**
+ * The props for the `WorkExperienceTile` component.
+ */
 export interface WorkExperienceTileProps {
 	imageURL: string;
 	companyName: string;
@@ -12,8 +20,12 @@ export interface WorkExperienceTileProps {
 	endYear: WorkExperienceYear | 'Present';
 }
 
-const CURRENT_YEAR = `${new Date().getFullYear()}`;
-
+/**
+ * The `WorkExperienceTile` is a React component that displays a single work
+ * experience entry.
+ *
+ * @props {@link WorkExperienceTileProps}
+ */
 function WorkExperienceTile({
 	imageURL,
 	companyName,
@@ -50,7 +62,9 @@ function WorkExperienceTile({
 				>
 					<time dateTime={startYear}>{startYear}</time>
 					<span aria-hidden='true'>-</span>
-					<time dateTime={endYear === 'Present' ? CURRENT_YEAR : endYear}>
+					<time
+						dateTime={endYear === 'Present' ? CURRENT_YEAR.toString() : endYear}
+					>
 						{endYear}
 					</time>
 				</dd>

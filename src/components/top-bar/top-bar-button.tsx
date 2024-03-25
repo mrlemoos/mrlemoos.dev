@@ -31,7 +31,7 @@ function TopBarButton({
 			href={href}
 			target={target}
 			className={merge(
-				'relative block px-3 py-2 transition hover:text-purple-500 dark:hover:text-purple-400',
+				'relative block px-3 py-2 transition hover:text-purple-900 hover:bg-purple-100',
 			)}
 		>
 			{children}

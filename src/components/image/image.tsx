@@ -6,8 +6,17 @@ import merge from '~/styles/merge';
 
 type Next$ImageProps = ComponentPropsWithoutRef<typeof Next$Image>;
 
+/**
+ * The props for the `Image` component.
+ */
 export interface ImageProps extends Next$ImageProps {}
 
+/**
+ * The `Image` is a React component that composes the image element, applying
+ * the necessary styles.
+ *
+ * @props {@link ImageProps}
+ */
 function Image({
 	src,
 	alt,

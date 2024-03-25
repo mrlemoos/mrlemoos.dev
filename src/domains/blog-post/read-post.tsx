@@ -14,6 +14,7 @@ import type BlogPostModel from '~/domains/blog-post/models/blog-post-model';
 import env from '~/domains/environment/env';
 import date from '~/util/date';
 import getHttpProtocol from '~/util/get-http-protocol';
+
 import CopyLinkButton from './components/copy-link-button';
 import createBlogPostPath from './util/create-blog-post-path';
 
@@ -144,8 +145,11 @@ function ReadPost({
 					DOCUMENT_TO_REACT_COMPONENTS_OPTIONS,
 				)}
 			</div>
-			<div className='flex items-center gap-3'>
-				<span>Like this post? Share it with your friends! 😃</span>
+			<div className='flex flex-col sm:flex-row sm:items-center gap-3'>
+				<span>
+					<span className='font-medium'>Like this post?</span>
+					&nbsp;Share it with your friends! 😃
+				</span>
 				<CopyLinkButton href={postURL}>Copy URL</CopyLinkButton>
 			</div>
 			<span>

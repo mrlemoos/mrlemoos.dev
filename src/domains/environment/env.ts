@@ -74,6 +74,11 @@ export interface EnvironmentVariables {
 	 * authenticate with the Contentful Content Delivery API.
 	 */
 	CONTENTFUL_ACCESS_TOKEN: string;
+	/**
+	 * The `GITHUB_USER_PINNED_REPOSITORIES` is the username of the GitHub user
+	 * whose pinned repositories will be fetched.
+	 */
+	GITHUB_USER_PINNED_REPOSITORIES: string;
 }
 
 /**
