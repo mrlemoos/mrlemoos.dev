@@ -64,6 +64,9 @@ devDependencies:
   '@contentful/rich-text-types':
     specifier: ^16.3.5
     version: 16.3.5
+  '@semantic-release/changelog':
+    specifier: ^6.0.3
+    version: 6.0.3(semantic-release@23.0.6)
   '@semantic-release/commit-analyzer':
     specifier: ^12.0.0
     version: 12.0.0(semantic-release@23.0.6)
@@ -2473,6 +2476,19 @@ packages:
       '@seald-io/binary-search-tree': 1.0.3
       localforage: 1.10.0
       util: 0.12.5
+    dev: true
+
+  /@semantic-release/changelog@6.0.3(semantic-release@23.0.6):
+    resolution: {integrity: sha512-dZuR5qByyfe3Y03TpmCvAxCyTnp7r5XwtHRf/8vD9EAn4ZWbavUX8adMtXYzE86EVh0gyLA7lm5yW4IV30XUag==}
+    engines: {node: '>=14.17'}
+    peerDependencies:
+      semantic-release: '>=18.0.0'
+    dependencies:
+      '@semantic-release/error': 3.0.0
+      aggregate-error: 3.1.0
+      fs-extra: 11.2.0
+      lodash: 4.17.21
+      semantic-release: 23.0.6(typescript@5.4.3)
     dev: true
 
   /@semantic-release/commit-analyzer@12.0.0(semantic-release@23.0.6):
