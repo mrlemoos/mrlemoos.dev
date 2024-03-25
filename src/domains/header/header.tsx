@@ -31,18 +31,10 @@ function Header(): JSX.Element {
 					</Link>
 				</Tooltip>
 				<TopBarNavigation>
-					<TopBarButton href='/' target='_blank'>
-						About
-					</TopBarButton>
-					<TopBarButton href='/posts' target='_blank'>
-						Posts
-					</TopBarButton>
-					<TopBarButton href='/projects' target='_blank'>
-						Projects
-					</TopBarButton>
-					<TopBarButton href='/stacks' target='_blank'>
-						Stacks
-					</TopBarButton>
+					<TopBarButton href='/'>About</TopBarButton>
+					<TopBarButton href='/posts'>Posts</TopBarButton>
+					<TopBarButton href='/projects'>Projects</TopBarButton>
+					<TopBarButton href='/stacks'>Stacks</TopBarButton>
 				</TopBarNavigation>
 			</TopBar>
 		</TopCenterCorner>
