@@ -52,6 +52,9 @@ devDependencies:
   '@biomejs/biome':
     specifier: ^1.5.3
     version: 1.6.2
+  '@contentful/rich-text-types':
+    specifier: ^16.3.5
+    version: 16.3.5
   '@semantic-release/commit-analyzer':
     specifier: ^12.0.0
     version: 12.0.0(semantic-release@23.0.6)
@@ -1198,7 +1201,6 @@ packages:
   /@contentful/rich-text-types@16.3.5:
     resolution: {integrity: sha512-ZLq6p5uyQXg+i1XGDFu4tAc2VYS12S1KA/jIOyyZjNgC1DvDajsi1JzuiBuOuMEhi1sKEUy6Ry3Yr9jsQtOKuQ==}
     engines: {node: '>=6.0.0'}
-    dev: false
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.57.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
