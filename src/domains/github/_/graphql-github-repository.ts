@@ -6,6 +6,8 @@ import {
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
+import env from '~/domains/environment/env';
+
 import GitHubRepository from '../github-repository';
 import GitHubPinnedRepositoryModel from '../models/github-pinned-repository-model';
 
@@ -36,6 +38,7 @@ interface PartialGitHubUser {
  * repositories from the GitHub GraphQL API.
  */
 export default class GraphQLGitHubRepository extends GitHubRepository {
+	private readonly GITHUB_ACCESS_TOKEN = env('GITHUB_ACCESS_TOKEN');
 	private readonly HTTP_LINK = createHttpLink({
 		uri: 'https://api.github.com/graphql',
 	});
@@ -43,7 +46,7 @@ export default class GraphQLGitHubRepository extends GitHubRepository {
 		return {
 			headers: {
 				...headers,
-				authorization: `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
+				authorization: `Bearer ${this.GITHUB_ACCESS_TOKEN}`,
 			},
 		};
 	});

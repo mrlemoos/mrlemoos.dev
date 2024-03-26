@@ -75,10 +75,10 @@ export interface EnvironmentVariables {
 	 */
 	CONTENTFUL_ACCESS_TOKEN: string;
 	/**
-	 * The `GITHUB_USER_PINNED_REPOSITORIES` is the username of the GitHub user
-	 * whose pinned repositories will be fetched.
+	 * The `GITHUB_ACCESS_TOKEN` is the personal access token that is used to
+	 * access the GitHub API.
 	 */
-	GITHUB_USER_PINNED_REPOSITORIES: string;
+	GITHUB_ACCESS_TOKEN: string;
 }
 
 /**
