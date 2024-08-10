@@ -1,8 +1,8 @@
 import type { JSX } from 'react';
 
 import {
-	type RenderNode,
 	documentToReactComponents,
+	type RenderNode,
 } from '@contentful/rich-text-react-renderer';
 import { BLOCKS } from '@contentful/rich-text-types';
 
@@ -12,7 +12,7 @@ import Link from '~/components/link/link';
 import Author from '~/constants/author';
 import type BlogPostModel from '~/domains/blog-post/models/blog-post-model';
 import env from '~/domains/environment/env';
-import date from '~/util/date';
+import { date } from '~/util/datetime';
 import getHttpProtocol from '~/util/get-http-protocol';
 
 import CopyLinkButton from './components/copy-link-button';

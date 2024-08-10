@@ -7,7 +7,7 @@ import Card from '~/components/card/card';
 import CardContent from '~/components/card/card-content';
 import CardDatetime from '~/components/card/card-datetime';
 import CardTitle from '~/components/card/card-title';
-import date from '~/util/date';
+import { date } from '~/util/datetime';
 
 import type BlogPostModel from './models/blog-post-model';
 import createBlogPostPath from './util/create-blog-post-path';
