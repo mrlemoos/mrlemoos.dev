@@ -1,4 +1,33 @@
-import useClipboard from './use-clipboard';
+import { useState } from 'react';
+
+/**
+ * The `CopyToClipboardFn` is a function that copies a string to the clipboard.
+ */
+export type CopyToClipboardFunction = (value: string) => void;
+
+/**
+ * The `useClipboard()` function is a custom React hook that returns a tuple
+ * with the `clipboard` value and the `copyToClipboard()` function.
+ *
+ * @example
+ * ```ts
+ * const [clipboard, copyToClipboard] = useClipboard();
+ * ```
+ */
+export function useClipboard(): [string, CopyToClipboardFunction] {
+	const [clipboard, setClipboard] = useState('');
+
+	/**
+	 * The `copyToClipboard()` function is a callback function that copies the
+	 * `value` to the clipboard.
+	 */
+	function copyToClipboard(value: string) {
+		navigator.clipboard.writeText(value);
+		setClipboard(value);
+	}
+
+	return [clipboard, copyToClipboard] as const;
+}
 
 /**
  * The `UseClipboardEventHandler` type defines a function that returns an event
@@ -16,7 +45,7 @@ export type UseClipboardEventHandler = (value: string) => () => void;
  * const copyToClipboard = useClipboardEventHandler();
  * ```
  */
-function useClipboardEventHandler(): UseClipboardEventHandler {
+export function useClipboardEventHandler(): UseClipboardEventHandler {
 	const [, copyToClipboard] = useClipboard();
 
 	/**
@@ -42,5 +71,3 @@ function useClipboardEventHandler(): UseClipboardEventHandler {
 
 	return handleCopyToClipboard;
 }
-
-export default useClipboardEventHandler;

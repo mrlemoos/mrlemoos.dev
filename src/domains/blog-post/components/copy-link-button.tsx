@@ -3,7 +3,7 @@
 import type { ButtonHTMLAttributes, JSX } from 'react';
 
 import Button from '~/components/button/button';
-import useClipboardEventHandler from '~/hooks/use-clipboard-event-handler';
+import { useClipboardEventHandler } from '~/hooks/clipboard';
 
 /**
  * The `CopyLinkButtonProps` interface is an object that represents the props of
