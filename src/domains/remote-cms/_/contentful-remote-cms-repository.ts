@@ -1,11 +1,11 @@
 import 'server-only';
 
 import type { Document as RichTextDocument } from '@contentful/rich-text-types';
-import { type Entry, createClient } from 'contentful';
+import { createClient, type Entry } from 'contentful';
 
 import BlogPostModel from '~/domains/blog-post/models/blog-post-model';
 import env from '~/domains/environment/env';
-import date from '~/util/date';
+import { date } from '~/util/datetime';
 
 import RemoteCMSRepository from '../remote-cms-repository';
 
