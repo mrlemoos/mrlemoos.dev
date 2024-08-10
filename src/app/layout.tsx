@@ -7,7 +7,7 @@ import Paper from '~/components/paper/paper';
 import Author from '~/constants/author';
 import Footer from '~/domains/footer/footer';
 import Header from '~/domains/header/header';
-import FontSans from '~/styles/fonts/font-sans';
+import { fontSans } from '~/styles/fonts';
 import '~/styles/globals.css';
 import merge from '~/styles/merge';
 
@@ -96,7 +96,7 @@ function Layout({ children }: LayoutProps): JSX.Element {
 		<html lang='en'>
 			<body
 				className={merge(
-					FontSans.className,
+					fontSans.className,
 					'bg-zinc-50 text-black dark:bg-black dark:text-white',
 				)}
 			>
