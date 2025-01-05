@@ -79,6 +79,15 @@ export interface EnvironmentVariables {
 	 * access the GitHub API.
 	 */
 	GITHUB_ACCESS_TOKEN: string;
+	/**
+	 * The `OPENAI_API_KEY` is the API key that is used to access the OpenAI API.
+	 */
+	OPENAI_API_KEY: string;
+	/**
+	 * The `INTERNAL_API_KEY` is the API key that is used to access the internal
+	 * API.
+	 */
+	INTERNAL_API_KEY: string;
 }
 
 /**

@@ -5,6 +5,7 @@ import colors from 'tailwindcss/colors';
 
 import Paper from '~/components/paper/paper';
 import Author from '~/constants/author';
+import { ThemeProvider } from '~/contexts/theme';
 import Footer from '~/domains/footer/footer';
 import Header from '~/domains/header/header';
 import { fontSans } from '~/styles/fonts';
@@ -100,13 +101,15 @@ function Layout({ children }: LayoutProps): JSX.Element {
 					'bg-zinc-50 text-black dark:bg-black dark:text-white',
 				)}
 			>
-				<Header />
-				<main className='min-h-[100dvh]'>
-					<Paper className='container mx-auto mt-[12vh] rounded-xl xl:max-w-5xl'>
-						{children}
-						<Footer />
-					</Paper>
-				</main>
+				<ThemeProvider>
+					<Header />
+					<main className='min-h-[100dvh]'>
+						<Paper className='container mx-auto mt-[12vh] rounded-xl xl:max-w-5xl'>
+							{children}
+							<Footer />
+						</Paper>
+					</main>
+				</ThemeProvider>
 			</body>
 		</html>
 	);
