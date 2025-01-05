@@ -17,10 +17,17 @@ function MyExperience(): JSX.Element {
 			</h2>
 			<ul className='mt-6 space-y-4'>
 				<WorkExperienceTile
+					imageURL='/assets/company-logos/credo-ai.png'
+					companyName='Credo AI (via TECLA)'
+					startYear='2024'
+					endYear='Present'
+					position='Senior Frontend Software Engineer'
+				/>
+				<WorkExperienceTile
 					imageURL='/assets/company-logos/bees.png'
 					companyName='BEES (Anheuser-Busch InBev)'
 					startYear='2022'
-					endYear='Present'
+					endYear='2024'
 					position='Frontend Software Engineer'
 				/>
 				<WorkExperienceTile
