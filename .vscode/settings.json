@@ -1,0 +1,19 @@
+{
+  "cSpell.words": [
+    "atrule",
+    "componentisation",
+    "esnext",
+    "geist",
+    "LINKEDIN",
+    "mrlemoos",
+    "opengraph",
+    "turbopack",
+    "unrs"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.ts": "explicit"
+  }
+}

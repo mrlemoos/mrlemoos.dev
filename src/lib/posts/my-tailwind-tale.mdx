@@ -1,0 +1,78 @@
+---
+title: "Tailwind CSS: A Divisive Darling or Just Divisive?"
+date: "2025-04-22"
+description: "A tale told through the lenses of a frontend software engineer battling with a piece of technology that he wasn't paid to play with."
+tags: ["blog", "personal", "next.js", "typescript", "react", "frontend", "software engineer", "tailwindcss", "tailwind", "utility-first", "css"]
+---
+
+Hello, timely wanderer 👋
+
+Let's talk about the elephant in the room, or rather, the ridiculously long string of classes in your JSX: Utility-First CSS, and specifically, Tailwind CSS. You mention it in a room full of frontend engineers, and you'll likely get reactions ranging from evangelical praise to outright horror. There doesn't seem to be much middle ground. (And believe me, I've been on both sides of the fence.)
+
+When I first encountered Tailwind, probably scrolling through X or some Hacker News thread, my initial reaction was... _sceptical_. To put it mildly. Coming from a world of BEM, SCSS modules, and various CSS-in-JS flavours (R.I.P. Stitches & Styled Components), the idea of chucking dozens of tiny, specific classes directly into my markup felt like one step forward, and a hundred and one steps backwards. "Aren't we just writing inline styles with extra steps?" - that was my first thought, probably while wrestling with some obscure CSS specificity issue in another project. Back then, I shared a codebase with other 6 engineers and some random people who committed code without testing in our repo (Company rules, innit?). In my eyes, Tailwind looked messy, verbose, and frankly, a bit chaotic (not that styled can't be, come on, mates) - not exactly appealing when you're trying to build complex, maintainable React apps, especially with TypeScript keeping things tidy elsewhere (I'm looking at you, CSS modules).
+
+### The 10th Circle of Hell?
+
+It's never too much to affirm that Alighieri was a genius. Anyway, back to the topic--
+
+The learning curve wasn't *brutal*, but it was... different. Let me put this way. It was...**DIFFERENT**. 
+
+Instead of thinking about semantic class names for components (`.product-card__image-container`, anyone? No, yeah, we don't have to go back to early 2010s, do we?), I had to memorise or constantly look up utility classes for margins, padding, flexbox, colours, and whatnot (because I didn't know there was a Code/Cursor extension for that). 
+
+My JSX started looking like Shakespeare at the most energetic peak of his word-making abilities: 
+
+```tsx
+<div className="mt-4 p-6 bg-white rounded-lg shadow-md flex items-center justify-between" />
+```
+
+"Readability took a nosedive" (that's what past Leo thought). 
+
+Debugging styles felt weird (because adding a red border always felt like a good idea, looking at you, person who added a red border to the button that was used in a disabled state); instead of inspecting `.my-component` in dev tools, I was deciphering a long list of utilities. It felt like trading one set of problems (CSS architecture [CSS and architecture are two different things, I'm looking at you, (again) person who added a red border to the button that was used in a disabled state], naming collisions, specificity wars - not battles, battles you can win) for another (markup verbosity, etcetera).
+
+### The Click: Finding Method in the Madness
+
+So, when did I convert from a sceptic to... well, someone who actually *chooses* to use it on large codebases? It happened gradually, but the penny dropped when working on a particularly component-heavy dashboard application (that was actually a personal project of mine, I threw it away after a while. Dashboards, Leo? Come on).
+
+After a while, I got the hang of it. I started to see the benefits. So here's a breakdown of why I think it's a good idea to use Tailwind on enterprise-level codebases:
+
+1. **Speed:** Once you get fluent with the core utilities (and please, install the Tailwind CSS IntelliSense (or whatever they call it) extension), development speed *skyrockets*. Need to nudge an element? `ml-2` (Don't do that, use gap). Centre align items? `items-center`. Change background colour on hover? `hover:bg-blue-600`. No more switching files, no more inventing slightly different class names for minor variations (Yeah, you know what I'm talking about), no more hunting down which CSS rule is overriding the one I wrote last week and was working just fine until 2 hours ago. Tailwind is direct, and that's a _good thing_. For those "Abstraction is always your friend in software engineering" people: maybe if you're in the back end, but not here. Front ends are always too complex to be abstracted away on the UI layer, that is built on Tailwind CSS, which is partially rendered on the server side, which is modified (still on the server) by data, and which is rendered on the client side, which is an abstraction mess (looking at you Next.js ❤️).
+
+2. **Consistency:** Tailwind's configuration acts as a built-in design system (especially after v4, where you configure the theme in a CSS file). You're working with a predefined scale for spacing, colours, fonts, and all that jazzy jazz. Don't get me wrong, it's opinionated, but you don't have to figure everything out by yourself, Mr Architect. No more slightly-off shades of grey or random padding values creeping in. It imposes **constraints**, which (paradoxically) is liberating.
+
+3. **Refactoring Confidence:** This was a big one. With traditional CSS, refactoring or deleting a component always carried the risk of breaking styles elsewhere if CSS was shared or selectors were too broad (Once, I modified anchors across a B2B e-commerce because I was changing a button's hover state on an account page; clap to the web architects from that company who didn't know what the hell they were doing forcing us to use CSS because their in-house transpiler didn't work). With Tailwind, styles are colocated with the markup. You refactor or delete a React component, and its styles go with it (magic, innit?). This is *huge* for maintainability in large codebases and bundle size.
+
+4. **Component Encapsulation:** You build a component, style it directly with utilities, and that component is largely self-contained, visually speaking. Need a variation? Pass a prop that conditionally applies different utility classes. "Oh, okay, now I need six different variations of this component, Leo, you want me to make a mess of my codebase?" - nope, you can just use [cva](https://npmjs.com/package/cva) or [tailwind-variants](https://npmjs.com/package/tailwind-variants) to make your life easier. (Thank me later).
+
+### Under Perjury: Honesty about the Trade-Offs
+
+It's all sunny always, innit? LOL, as if you, software engineer, saw the sun every now and then.
+
+- **The Class String Scourge:** Yes, those long class strings *can* still be an eyesore and daunting for people who are new to the project or Tailwind itself. Good component abstraction helps massively here - breaking things down into smaller, reusable components hides the declarative soup within. (Tailwind won't save you from yourself, bad engineer who builds components with gazillions of classes styling the children and grandchildren elements). Linters and formatters (like the official Tailwind Prettier plugin) are also essential for keeping things manageable. (Why not use it, right? You might have configured a linter stricter than the teacher in the "Another Brick in the Wall" song).
+-  **Thinking _Declaratively_:** It requires a mental shift. You stop thinking about "what this component *is*" semantically for styling, and start thinking about "what this element *looks like*". This doesn't sit right with everyone. For me, it's a matter of declarative styling. It's like iOS development when Apple launched SwiftUI. "Nah, I'll never use this odd thing, I have UIKit, thank you". Yeah, said the eng now migrating to SwiftUI.
+-  **Not Always the Best Fit?:** For very small, simple sites, or projects where unique, complex, non-reusable styling is the absolute norm, the overhead *may* not be worth it. Though, honestly, I find the consistency benefits scale down quite well. And I say "may not be" because Tailwind has support for pure HTML (looking at you building a Next.js app for a page saying "Soon").
+
+## The Developer Experience (DX) Verdict
+
+I, as the judge of all things, say that Tailwind CSS is...
+
+...a **divisive darling**.
+
+The learning curve and the sometimes-ugly markup are worth the long-term developer experience. "Oh, you're wrong. I like suffering by writing CSS" - nope, you're wrong. You don't like suffering. You just like writing CSS. Is Tailwind worth the learning curve and hype?
+
+<div className="flex justify-center items-center p-10 bg-gradient-to-r from-blue-500 via-background to-purple-500 rounded-lg text-4xl text-white font-bold">YES</div>
+
+<div className='h-2' />
+
+The speed, the confidence during refactoring, the enforced consistency, and the reduced cognitive load (no more CSS naming debate madness!) outweigh (by far IMHO) the initial awkwardness and the need for good componentisation practices (which you should be doing anyway, right?)...right?
+
+Anyway, it keeps me focused on building the component's structure and logic, with less context-switching-heavy part of the process.
+
+Tailwind isn't a magic wand. 
+
+It **won't fix bad component architecture**. 
+
+It **won't fix a bad architect**. 
+
+But it's a seriously powerful tool that, once mastered, provides a fantastic DX up to the point that you start typing without noticing. (I do that, don't you?) It might look like chaos, but there's a surprisingly effective method to the madness.
+
+Love it or hate it, Tailwind certainly made its mark.
