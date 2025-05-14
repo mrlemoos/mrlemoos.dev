@@ -36,7 +36,7 @@ I didn't want to have to deal with the hassle of writing a Redis client and mayb
 
 One solution would be to use a third-party analytics tool like [PostHog](https://posthog.com/) or [Google Analytics](https://analytics.google.com/).
 
-But come on, both PostHog and Google Analytics are... well, too much for a simple blog. I'm not looking for leads or creating a tunnel through which I can track my users and convert prospects.
+But come on, both PostHog and Google Analytics are... well, too much for a simple blog. That's like using a Kubernetes cluster to host a static HTML page. I'm not chasing leads or building conversion funnels. I'm not trying to A/B test your soul.
 
 > I just want to know how many people read what I write.
 
@@ -55,11 +55,29 @@ I finally decided to give it a shot and click on that bloody "Analytics" tab.
 
 And I'm glad I did.
 
+Here's the entire code I wrote to implement Vercel Analytics on this blog:
+
+```tsx
+// ...
+import { Analytics } from '@vercel/analytics/next';
+
+export default function Layout({ children }: LayoutProps): JSX.Element {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  )
+}
+```
+
 You wanna see the best part?
 
 It's free-_ish_.
 
-I mean, I can look at the number of views on my blog posts, bounce rate, location (country/city), and browser in the last 30 days.
+I mean, I can look at the number of views on my blog posts, bounce rate, location (country/city), and browser **in the last 30 days**.
 
 And that's more than enough for me.
 
