@@ -2,7 +2,6 @@ import { Footer } from "@/components/footer";
 import { cn } from "@/lib/css";
 import { spaceMono } from "@/lib/fonts";
 import { mergeMetadata } from "@/lib/seo";
-import "@/styles/prism.css";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import type { JSX, ReactNode } from "react";

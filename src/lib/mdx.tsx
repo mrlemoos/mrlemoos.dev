@@ -1,3 +1,4 @@
+import { CodeBlock } from "@/components/code-block";
 import type { MDXRemoteProps } from "next-mdx-remote";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,10 +27,13 @@ export const mdxComponents: MDXRemoteProps["components"] = {
       {children}
     </blockquote>
   ),
-  code: ({ children }) => <code className="text-sm">{children}</code>,
-  pre: ({ children }) => (
-    <pre className="p-4 rounded-md border border-gray-500 mb-3">{children}</pre>
-  ),
+  code: ({ children, className }) => {
+    if (className) {
+      return <CodeBlock className={className}>{children}</CodeBlock>;
+    }
+    return <code className="text-sm bg-gray-100 px-1 rounded">{children}</code>;
+  },
+  pre: ({ children }) => <>{children}</>,
   img: ({ src, alt, ...props }) => (
     <Image {...props} src={src} alt={alt} className="w-full h-auto" />
   ),
