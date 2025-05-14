@@ -1,0 +1,66 @@
+---
+title: "I don't know which analytics tool to use"
+date: "2025-05-14"
+description: "I don't track you, I just want to know how many people read my blog posts."
+tags: ["blog", "personal", "next.js", "typescript", "react", "frontend", "software engineer", "tailwindcss", "tailwind", "utility-first", "css", "vercel", "analytics", "vercel-analytics"]
+---
+
+I don't track you, I just want to know how many people read my blog posts.
+
+Those were the words on my mind last night. I wanted to see if I was writing something that people really read, or if I was just talking to myself.
+
+I can be a dev, an engineer, front end, full stack-- but at the end of the day, I'm a storyteller more than any of those things. And the stories I want to tell are the ones that I'm passionate about.
+
+**Problem is...**
+
+I don't know if people are reading what I write.
+
+Not even when I was so deep in the rabbit hole of office politics, I had this feeling that I was just talking to myself.
+
+And all of that because I don't know which analytics tool to use. Or at least, I _did_ not know.
+
+## The Initial Solution
+
+As someone who imagines code fairly easily, I thought: "How hard can it be to implement a Redis-based analytics system?"
+
+I'm not even kidding. I thought: "I'll just use Redis. It's easy. I'll just use the Vercel Redis integration and... _poof_".
+
+Well, it turns out that it's not that easy.
+
+Even [Upstash](https://upstash.com/) does facilitate a bit of the bottlenecks when it comes to the number of requests per minute,
+I didn't want to have to deal with the hassle of writing a Redis client and maybe creating a route in Next.js to handle the analytics.
+
+...So I dropped this idea even before it could see the light of day.
+
+## (Maybe) a Better Solution?
+
+One solution would be to use a third-party analytics tool like [PostHog](https://posthog.com/) or [Google Analytics](https://analytics.google.com/).
+
+But come on, both PostHog and Google Analytics are... well, too much for a simple blog. I'm not looking for leads or creating a tunnel through which I can track my users and convert prospects.
+
+> I just want to know how many people read what I write.
+
+## Enter Vercel Analytics
+
+I've been using Vercel for a while now, and I have received a few emails about the Vercel Analytics tool.
+
+But I always ignored.
+
+Why? Because Vercel sells a product, and I'm kind of sceptical about people selling products. For those of you who use Vercel, did you know there's an "Analytics" tab in the dashboard? Yeah, there is. I thought so much that that was a premium feature for paying customers that I never even bothered to click it-- yeah, _to click it_.
+
+And when, after 4 hours, and one ridiculous attempt of self-hosting a [Plausible community edition](http://plausible.io/open-source-website-analytics).
+(_Yeah, I'm not kidding. I'm not even kidding._ I did try that.)
+
+I finally decided to give it a shot and click on that bloody "Analytics" tab.
+
+And I'm glad I did.
+
+You wanna see the best part?
+
+It's free-_ish_.
+
+I mean, I can look at the number of views on my blog posts, bounce rate, location (country/city), and browser in the last 30 days.
+
+And that's more than enough for me.
+
+**Lesson of the day:** Don't be afraid to do the easy thing (and click the bloody tab!)
