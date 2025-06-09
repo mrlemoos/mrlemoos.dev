@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import type { JSX, ReactNode } from "react";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = mergeMetadata();
 
@@ -23,11 +24,13 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           spaceMono.variable
         )}
       >
-        <div className="flex flex-col min-h-screen">
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
-        <Analytics />
+        <Providers>
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+          <Analytics />
+        </Providers>
       </body>
     </html>
   );

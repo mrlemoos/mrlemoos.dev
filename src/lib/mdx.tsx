@@ -31,7 +31,11 @@ export const mdxComponents: MDXRemoteProps["components"] = {
     if (className) {
       return <CodeBlock className={className}>{children}</CodeBlock>;
     }
-    return <code className="text-sm bg-gray-100 px-1 rounded">{children}</code>;
+    return (
+      <code className="text-sm text-background bg-foreground px-1 rounded">
+        {children}
+      </code>
+    );
   },
   pre: ({ children }) => <>{children}</>,
   img: ({ src, alt, ...props }) => (
