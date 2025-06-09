@@ -3,8 +3,8 @@ import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
 import type { JSX } from "react";
 
-export default function Page(): JSX.Element {
-  const posts = getAllPosts();
+export default async function Page(): Promise<JSX.Element> {
+  const posts = await getAllPosts();
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

@@ -13,56 +13,76 @@ export interface Post {
   tags: string[];
 }
 
-export function getAllPosts(): Post[] {
-  const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData = fileNames
-    .filter((fileName) => fileName.endsWith(".mdx"))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.mdx$/, "");
-      const fullPath = path.join(postsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      const { data, content } = matter(fileContents);
+/**
+ * A function returning all the posts in the posts directory.
+ *
+ * @example
+ * const posts = await getAllPosts();
+ */
+export function getAllPosts(): Promise<Post[]> {
+  return new Promise<Post[]>((resolve) => {
+    const fileNames = fs.readdirSync(postsDirectory);
+    const allPostsData = fileNames
+      .filter((fileName) => fileName.endsWith(".mdx"))
+      .map((fileName) => {
+        const slug = fileName.replace(/\.mdx$/, "");
+        const fullPath = path.join(postsDirectory, fileName);
+        const fileContents = fs.readFileSync(fullPath, "utf8");
+        const { data, content } = matter(fileContents);
 
-      return {
-        slug,
-        title: data.title,
-        date: data.date,
-        description: data.description,
-        content,
-        tags: data.tags,
-      };
-    });
+        return {
+          slug,
+          title: data.title,
+          date: data.date,
+          description: data.description,
+          content,
+          tags: data.tags,
+        };
+      });
 
-  return allPostsData.sort((left, right) => (left.date < right.date ? 1 : -1));
+    resolve(
+      allPostsData.sort((left, right) => (left.date < right.date ? 1 : -1))
+    );
+  });
 }
 
 export interface GetHeadPostDto {
   limit?: number;
 }
 
-export function getHeadPosts({ limit = 3 }: GetHeadPostDto = {}): Post[] {
-  return getAllPosts().slice(0, limit);
+/**
+ * A function returning the top 3 posts by date.
+ *
+ * @example
+ * const posts = await getHeadPosts();
+ */
+export async function getHeadPosts({ limit = 3 }: GetHeadPostDto = {}): Promise<
+  Post[]
+> {
+  return await getAllPosts().then((posts) => posts.slice(0, limit));
 }
 
-export function getPostBySlug(slug: string): Post | null {
-  try {
-    const fullPath = path.join(postsDirectory, `${slug}.mdx`);
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data, content } = matter(fileContents);
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  return await new Promise<Post | null>((resolve) => {
+    try {
+      const fullPath = path.join(postsDirectory, `${slug}.mdx`);
+      const fileContents = fs.readFileSync(fullPath, "utf8");
+      const { data, content } = matter(fileContents);
 
-    return {
-      slug,
-      title: data.title,
-      date: data.date,
-      description: data.description,
-      content,
-      tags: data.tags,
-    };
-  } catch (error) {
-    console.log(
-      "[error] An error occurred while getPostBySlug() was called. Please check if the slug is correct. Here's the error:",
-      error
-    );
-    return null;
-  }
+      resolve({
+        slug,
+        title: data.title,
+        date: data.date,
+        description: data.description,
+        content,
+        tags: data.tags,
+      });
+    } catch (error) {
+      console.log(
+        "[error] An error occurred while getPostBySlug() was called. Please check if the slug is correct. Here's the error:",
+        error
+      );
+      resolve(null);
+    }
+  });
 }

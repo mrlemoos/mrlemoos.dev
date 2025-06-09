@@ -20,7 +20,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   return {
     title: post?.title,
@@ -52,11 +52,8 @@ export async function generateMetadata({
 
 export async function generateStaticParams(): Promise<PageParams[]> {
   try {
-    const posts = getAllPosts();
-
-    return posts.map((post) => ({
-      slug: post.slug,
-    }));
+    const posts = await getAllPosts();
+    return posts.map(({ slug }) => ({ slug }));
   } catch (error) {
     console.error(
       "An error occurred at generateStaticParams() function in blog/[slug]. See the error:",
@@ -70,7 +67,7 @@ export default async function Page({
   params,
 }: PageProps): Promise<JSX.Element> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();

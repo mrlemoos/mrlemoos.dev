@@ -10,6 +10,16 @@ interface BlogPostProps {
   description: string;
 }
 
+/**
+ * A blog post component that displays a blog post's title, date, and description.
+ * @example
+ * <BlogPost
+ *  slug="my-first-post"
+ *  title="My First Post"
+ *  date="2021-01-01"
+ *  description="This is my first post"
+ * />
+ */
 function BlogPost({
   slug,
   title,
@@ -27,8 +37,15 @@ function BlogPost({
   );
 }
 
-export function BlogPosts(): JSX.Element {
-  const posts = getAllPosts();
+/**
+ * A section displaying the latest blog posts.
+ * It doesn't accept any props.
+ *
+ * @example
+ * <BlogPosts />
+ */
+export async function BlogPosts(): Promise<JSX.Element> {
+  const posts = await getAllPosts();
 
   return (
     <section>

@@ -3,11 +3,18 @@ import type { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET(req: NextRequest) {
+/**
+ * A route that generates an image for the Open Graph protocol.
+ *
+ * @example
+ * ```http
+ * GET /og?title=Title%20of%20the%20post
+ * ```
+ */
+export async function GET(req: NextRequest): Promise<Response> {
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const title = searchParams.get("title") || "mrlemoos.dev";
-
     return new ImageResponse(
       (
         <div
