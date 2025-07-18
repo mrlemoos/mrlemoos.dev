@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.x"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
