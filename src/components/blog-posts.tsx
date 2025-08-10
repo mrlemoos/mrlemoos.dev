@@ -29,10 +29,10 @@ function BlogPost({
   return (
     <article className="mb-8">
       <Link href={`/blog/${slug}`}>
-        <h3 className="font-medium mb-1 hover:text-gray-600">{title}</h3>
+        <h3 className="font-semibold mb-1 hover:underline">{title}</h3>
       </Link>
       <p className="text-sm text-gray-500 mb-1">{formatDate(date)}</p>
-      <p className="text-gray-700 text-sm">{description}</p>
+      <p className="text-gray-500">{description}</p>
     </article>
   );
 }
@@ -49,7 +49,7 @@ export async function BlogPosts(): Promise<JSX.Element> {
 
   return (
     <section>
-      <h2 className="text-lg font-medium mb-6">Latest Posts</h2>
+      <h2 className="text-lg font-bold mb-6">Latest Posts</h2>
       <div>
         {posts.map((post) => (
           <BlogPost key={post.slug} {...post} />

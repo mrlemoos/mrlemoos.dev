@@ -56,7 +56,7 @@ function ExperienceItem({
 
 export function Experience(): JSX.Element {
   return (
-    <section className="mb-24">
+    <section className="my-24">
       <h2 className="text-lg font-bold mb-6">Experience</h2>
       <div>
         {experiences.map(
