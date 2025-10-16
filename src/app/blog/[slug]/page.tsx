@@ -7,6 +7,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { JSX } from "react";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 interface PageParams {
   slug: string;
@@ -81,7 +83,16 @@ export default async function Page({
       )}`}</p>
       <p className="text-gray-500">Leo writes:</p>
       <div className="prose prose-lg">
-        <MDXRemote source={post.content} components={mdxComponents} />
+        <MDXRemote
+          source={post.content}
+          components={mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkMath],
+              rehypePlugins: [rehypeKatex],
+            },
+          }}
+        />
       </div>
       <span className="flex flex-col gap-1 pt-4">
         To everyone in this kingdom and beyond,
