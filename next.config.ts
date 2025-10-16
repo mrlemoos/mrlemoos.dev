@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 
 const withMDX = nextMDX({
   extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [],
+  },
 });
 
 const config: NextConfig = {
@@ -10,6 +14,7 @@ const config: NextConfig = {
   experimental: {
     useCache: true,
   },
+  turbopack: {},
 };
 
 export default withMDX(config);
