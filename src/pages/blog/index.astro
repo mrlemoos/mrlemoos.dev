@@ -6,6 +6,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { buildPageMeta } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 import Breadcrumb from "@/components/Breadcrumb.astro";
+import { blogCardArticle, blogCardTitle, cn } from "@/lib/css";
 
 const site = Astro.site!;
 const meta = buildPageMeta(site, {
@@ -19,21 +20,30 @@ const posts = (await getCollection("blog")).sort(
 ---
 
 <BaseLayout {...meta}>
-  <div class="mx-auto max-w-4xl px-4 py-8">
+  <div class="mx-auto max-w-4xl px-4 py-8 md:py-12">
     <Breadcrumb
       items={[{ label: "Home", href: "/" }, { label: "Blog" }]}
     />
-    <h1 class="mb-8 text-4xl font-bold">Blog Posts</h1>
-    <div class="space-y-8">
+    <h1 class="mb-10 font-heading text-4xl tracking-tight text-foreground md:text-5xl">
+      Blog posts
+    </h1>
+    <div class="flex flex-col gap-5">
       {
         posts.map(({ id, data: { title, date, description } }) => (
-          <article class="border-b border-gray-200 pb-8">
-            <a href={`/blog/${id}`}>
-              <h2 class="mb-2 text-2xl font-semibold hover:underline">{title}</h2>
-            </a>
-            <p class="mb-2 text-gray-600 dark:text-gray-400">{formatDate(date)}</p>
-            <p class="text-gray-700 dark:text-gray-300">{description}</p>
-          </article>
+          <a
+            href={`/blog/${id}`}
+            class={cn(
+              blogCardArticle,
+              "block text-left text-inherit no-underline",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            )}
+          >
+            <h2 class={cn(blogCardTitle, "mb-2 text-2xl font-normal md:text-3xl")}>
+              {title}
+            </h2>
+            <p class="mb-2 text-sm text-muted-foreground">{formatDate(date)}</p>
+            <p class="text-muted-foreground">{description}</p>
+          </a>
         ))
       }
     </div>

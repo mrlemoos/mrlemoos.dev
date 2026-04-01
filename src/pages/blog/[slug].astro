@@ -1,7 +1,6 @@
 ---
 export const prerender = true;
 
-import "@fontsource/geist-mono/400.css";
 import "katex/dist/katex.min.css";
 import { getCollection, getEntry, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -19,7 +18,7 @@ import {
   X_URL,
 } from "@/lib/constants";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import { cn, socialNavLink, socialNavRow } from "@/lib/css";
+import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -103,7 +102,7 @@ const meta = buildPageMeta(site, {
 
 <BaseLayout {...meta}>
   <article
-    class="mx-auto max-w-4xl px-4 py-8 lg:mt-[20dvh]"
+    class="mx-auto max-w-4xl px-4 py-8 md:py-12 lg:mt-[12dvh]"
   >
     <Breadcrumb
       items={[
@@ -112,29 +111,31 @@ const meta = buildPageMeta(site, {
         { label: post.data.title },
       ]}
     />
-    <h1 class="mb-2 text-center text-3xl font-bold">{post.data.title}</h1>
-    <p class="mb-8 text-center text-gray-600 dark:text-gray-400">
+    <h1 class="mb-3 text-center font-heading text-4xl font-normal leading-tight tracking-tight text-foreground md:text-5xl">
+      {post.data.title}
+    </h1>
+    <p class="mb-10 text-center text-muted-foreground">
       {`Published on ${formatDate(post.data.date)}`}
     </p>
-    <p class="text-gray-600 dark:text-gray-400">Leo writes:</p>
+    <p class="text-muted-foreground">Leo writes:</p>
     <div
-      class="prose prose-lg dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0"
+      class="prose prose-lg dark:prose-invert mt-4 max-w-none text-foreground prose-pre:bg-transparent prose-pre:p-0 prose-a:text-foreground prose-a:underline prose-a:decoration-zinc-400/70 prose-a:underline-offset-4 hover:prose-a:decoration-foreground"
     >
       <Content />
     </div>
-    <span class="mt-4 flex flex-col gap-1 pt-4">
+    <span class="mt-6 flex flex-col gap-1 pt-6 text-muted-foreground">
       To everyone in this kingdom and beyond,
       <br />
       Leo
     </span>
     <div
-      class="mt-12 flex flex-col gap-4 border-t border-gray-200 pt-8 dark:border-gray-800"
+      class="mt-12 flex flex-col gap-4 border-t border-border pt-8"
     >
-      <a href="/" class="text-gray-700 underline-offset-4 hover:underline dark:text-gray-300">
+      <a href="/" class={textLink}>
         Liked it? Hated it and want to shout at me? Learn more about me here.
       </a>
       <div class="flex flex-col gap-2">
-        <span class="text-gray-600 dark:text-gray-400">Connect with me</span>
+        <span class="text-muted-foreground">Connect with me</span>
         <div class={cn(socialNavRow, "justify-start")}>
           <a
             href={LINKEDIN_URL}

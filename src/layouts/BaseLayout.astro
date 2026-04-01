@@ -1,7 +1,8 @@
 ---
 import "@/styles/global.css";
-import spaceMonoLatin400 from "@fontsource/space-mono/files/space-mono-latin-400-normal.woff2?url";
-import spaceMonoLatin700 from "@fontsource/space-mono/files/space-mono-latin-700-normal.woff2?url";
+import geistSansLatin400 from "@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url";
+import geistSansLatin500 from "@fontsource/geist-sans/files/geist-sans-latin-500-normal.woff2?url";
+import instrumentSerifLatin400 from "@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url";
 import { cn } from "@/lib/css";
 import Footer from "@/components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
@@ -34,14 +35,21 @@ const twitterHandle = `@${X_USERNAME}`;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
       rel="preload"
-      href={spaceMonoLatin400}
+      href={geistSansLatin400}
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href={spaceMonoLatin700}
+      href={geistSansLatin500}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href={instrumentSerifLatin400}
       as="font"
       type="font/woff2"
       crossorigin
@@ -94,7 +102,7 @@ const twitterHandle = `@${X_USERNAME}`;
   </head>
   <body
     class={cn(
-      "min-h-screen bg-background font-mono text-foreground antialiased"
+      "min-h-screen bg-background font-sans text-foreground antialiased"
     )}
   >
     <div class="flex min-h-screen flex-col">

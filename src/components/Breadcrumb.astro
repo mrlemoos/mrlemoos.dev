@@ -9,22 +9,25 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+const crumbClass =
+  "rounded-sm text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 ---
 
-<nav aria-label="Breadcrumb" class="mb-6">
+<nav aria-label="Breadcrumb" class="mb-8">
   <ol
-    class="m-0 flex list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm text-gray-600 dark:text-gray-400"
+    class="m-0 flex list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm text-muted-foreground"
   >
     {
       items.map((item, index) => (
         <li class="inline-flex items-center gap-x-1.5">
           {index > 0 && (
-            <span class="text-gray-500 select-none dark:text-gray-500" aria-hidden="true">
+            <span class="select-none text-zinc-400 dark:text-zinc-600" aria-hidden="true">
               /
             </span>
           )}
           {item.href ? (
-            <a href={item.href} class="hover:underline">
+            <a href={item.href} class={crumbClass}>
               {item.label}
             </a>
           ) : (

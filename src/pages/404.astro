@@ -3,6 +3,7 @@ export const prerender = true;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { buildPageMeta } from "@/lib/seo";
+import { textLink } from "@/lib/css";
 
 const site = Astro.site!;
 const meta = buildPageMeta(site, {
@@ -13,10 +14,12 @@ const meta = buildPageMeta(site, {
 ---
 
 <BaseLayout {...meta}>
-  <div class="mx-auto max-w-4xl px-4 py-16 text-center">
-    <h1 class="text-2xl font-bold">404</h1>
-    <p class="mt-4 text-gray-600 dark:text-gray-400">
-      <a href="/" class="hover:underline">Back home</a>
+  <div class="mx-auto max-w-4xl px-4 py-24 text-center md:py-32">
+    <h1 class="font-heading text-5xl font-normal tracking-tight text-foreground md:text-6xl">
+      404
+    </h1>
+    <p class="mt-6 text-muted-foreground">
+      <a href="/" class={textLink}>Back home</a>
     </p>
   </div>
 </BaseLayout>

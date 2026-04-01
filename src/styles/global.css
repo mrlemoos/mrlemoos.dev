@@ -1,33 +1,105 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@import "@fontsource/space-mono/400.css";
-@import "@fontsource/space-mono/700.css";
+@import "@fontsource/geist-sans/latin-400.css";
+@import "@fontsource/geist-sans/latin-500.css";
+@import "@fontsource/instrument-serif/latin-400.css";
+@import "@fontsource/geist-mono/400.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --font-space-mono: "Space Mono", ui-monospace, monospace;
+  --font-geist-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-instrument-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --font-geist-mono: "Geist Mono", ui-monospace, monospace;
+
+  --background: #fafafa;
+  --foreground: #18181b;
+  --muted-foreground: #52525b;
+  --border: #e4e4e7;
+  --card: #ffffff;
+  --ring: #a1a1aa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-space-mono);
-  --font-mono: var(--font-space-mono);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans);
+  --font-heading: var(--font-instrument-serif);
+  --font-mono: var(--font-geist-mono);
   --font-code: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #09090b;
+    --foreground: #fafafa;
+    --muted-foreground: #a1a1aa;
+    --border: #27272a;
+    --card: #18181b;
+    --ring: #71717a;
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-animate {
+  animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+.hero-animate-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.hero-animate-delay-2 {
+  animation-delay: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-animate,
+  .hero-animate-delay-1,
+  .hero-animate-delay-2 {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-space-mono);
+  font-family: var(--font-geist-sans);
+}
+
+/* Prose: serif headings, sans body, mono code */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--foreground);
+}
+
+.prose :where(h1, h2, h3, h4):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-instrument-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-geist-mono);
+}
+
+.prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-geist-mono);
 }

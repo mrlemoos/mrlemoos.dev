@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { formatDate } from "@/lib/date";
+import { blogCardArticle, blogCardTitle, cn, textLink } from "@/lib/css";
 
 const allPosts = await getCollection("blog");
 const posts = allPosts
@@ -8,26 +9,30 @@ const posts = allPosts
   .slice(0, 3);
 ---
 
-<section>
-  <h2 class="mb-6 text-lg font-bold">Latest Posts</h2>
-  <div>
+<section class="border-t border-border pt-16">
+  <h2 class="mb-8 font-heading text-2xl tracking-tight text-foreground md:text-3xl">
+    Latest posts
+  </h2>
+  <div class="flex flex-col gap-5">
     {
       posts.map((post) => (
-        <article class="mb-8">
-          <a href={`/blog/${post.id}`}>
-            <h3 class="mb-1 font-semibold hover:underline">{post.data.title}</h3>
-          </a>
-          <p class="mb-1 text-sm text-gray-600 dark:text-gray-400">
+        <a
+          href={`/blog/${post.id}`}
+          class={cn(
+            blogCardArticle,
+            "block text-left text-inherit no-underline",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          )}
+        >
+          <h3 class={cn(blogCardTitle, "mb-2 font-normal")}>{post.data.title}</h3>
+          <p class="mb-2 text-sm text-muted-foreground">
             {formatDate(post.data.date)}
           </p>
-          <p class="text-gray-700 dark:text-gray-400">{post.data.description}</p>
-        </article>
+          <p class="text-muted-foreground">{post.data.description}</p>
+        </a>
       ))
     }
-    <a
-      href="/blog"
-      class="inline-flex min-h-12 items-center text-sm text-gray-700 underline-offset-2 hover:text-gray-900 hover:underline dark:text-gray-300 dark:hover:text-gray-100"
-    >
+    <a href="/blog" class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}>
       View all posts →
     </a>
   </div>

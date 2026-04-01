@@ -10,17 +10,12 @@ import { cn, socialNavLink, socialNavRow } from "@/lib/css";
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-gray-200 py-8 dark:border-gray-800">
+<footer class="border-t border-border bg-card/30 py-10 dark:bg-card/20">
   <div class="container mx-auto px-4">
     <div
-      class="flex flex-col items-center gap-4 text-sm text-gray-600 dark:text-gray-400"
+      class="flex flex-col items-center gap-5 text-sm text-muted-foreground"
     >
-      <div
-        class={cn(
-          socialNavRow,
-          "[&>a]:transition-colors [&>a]:hover:text-gray-900 dark:[&>a]:hover:text-gray-200"
-        )}
-      >
+      <div class={cn(socialNavRow, "justify-center")}>
         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class={socialNavLink}
           >GitHub</a
         >
@@ -35,7 +30,7 @@ const currentYear = new Date().getFullYear();
         >
         <a href={EMAIL_URL} class={socialNavLink}>Email</a>
       </div>
-      <div>
+      <div class="text-center text-muted-foreground">
         Copyright {currentYear} © Leonardo Lemos. All rights reserved.
       </div>
     </div>
