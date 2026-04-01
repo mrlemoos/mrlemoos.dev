@@ -1,0 +1,21 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { buildPageMeta } from "@/lib/seo";
+
+const site = Astro.site!;
+const meta = buildPageMeta(site, {
+  title: "Not found | Leonardo Lemos",
+  description: "The page you requested could not be found.",
+});
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-4xl px-4 py-16 text-center">
+    <h1 class="text-2xl font-bold">404</h1>
+    <p class="mt-4 text-gray-500">
+      <a href="/" class="hover:underline">Back home</a>
+    </p>
+  </div>
+</BaseLayout>

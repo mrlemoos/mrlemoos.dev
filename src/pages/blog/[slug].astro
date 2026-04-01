@@ -1,0 +1,90 @@
+---
+export const prerender = true;
+
+import { getCollection, getEntry, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { buildPageMeta, ogImageForPost } from "@/lib/seo";
+import { formatDate } from "@/lib/date";
+import {
+  EMAIL_URL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  X_URL,
+} from "@/lib/constants";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await getEntry("blog", slug!);
+
+if (!post) {
+  return Astro.redirect("/404");
+}
+
+const { Content } = await render(post);
+const site = Astro.site!;
+const publishedISO = post.data.date.toISOString();
+const meta = buildPageMeta(site, {
+  title: post.data.title,
+  description: post.data.description,
+  keywords: post.data.tags,
+  ogImage: ogImageForPost(site, post.data.title),
+  articlePublishedTime: publishedISO,
+  articleModifiedTime: publishedISO,
+});
+---
+
+<BaseLayout {...meta}>
+  <article
+    class="mx-auto max-w-4xl px-4 py-8 lg:mt-[20dvh]"
+  >
+    <Breadcrumb
+      items={[
+        { label: "Home", href: "/" },
+        { label: "Blog", href: "/blog" },
+        { label: post.data.title },
+      ]}
+    />
+    <h1 class="mb-2 text-center text-3xl font-bold">{post.data.title}</h1>
+    <p class="mb-8 text-center text-gray-500">
+      {`Published on ${formatDate(post.data.date)}`}
+    </p>
+    <p class="text-gray-500">Leo writes:</p>
+    <div
+      class="prose prose-lg dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0"
+    >
+      <Content />
+    </div>
+    <span class="mt-4 flex flex-col gap-1 pt-4">
+      To everyone in this kingdom and beyond,
+      <br />
+      Leo
+    </span>
+    <div
+      class="mt-12 flex flex-col gap-4 border-t border-gray-200 pt-8"
+    >
+      <a href="/" class="hover:underline">
+        Liked it? Hated it and want to shout at me? Learn more about me here.
+      </a>
+      <div class="flex flex-col gap-2">
+        <span>Connect with me</span>
+        <div class="flex flex-row gap-4">
+          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer"
+            >LinkedIn</a
+          >
+          <a href={X_URL} target="_blank" rel="noopener noreferrer">X</a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer"
+            >GitHub</a
+          >
+          <a href={EMAIL_URL}>Email</a>
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

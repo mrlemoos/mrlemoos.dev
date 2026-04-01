@@ -1,9 +1,16 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+@import "@fontsource/geist-mono/400.css";
 @import "katex/dist/katex.min.css";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-space-mono: "Space Mono", ui-monospace, monospace;
+  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
 }
 
 @theme inline {

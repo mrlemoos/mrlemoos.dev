@@ -13,14 +13,19 @@
 # testing
 /coverage
 
-# next.js
+# next.js (legacy)
 /.next/
 /out/
+
+# astro
+dist/
+.astro/
 
 # production
 /build
 
 # misc
+.cursor/
 .DS_Store
 *.pem
 

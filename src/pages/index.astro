@@ -1,0 +1,20 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogPosts from "@/components/BlogPosts.astro";
+import Experience from "@/components/Experience.astro";
+import Hero from "@/components/Hero.astro";
+import { buildPageMeta } from "@/lib/seo";
+
+const site = Astro.site!;
+const meta = buildPageMeta(site);
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-4xl px-4 py-8">
+    <Hero />
+    <BlogPosts />
+    <Experience />
+  </div>
+</BaseLayout>

@@ -1,0 +1,30 @@
+---
+import {
+  EMAIL_URL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  X_URL,
+} from "@/lib/constants";
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-gray-800 py-8">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col items-center gap-4 text-sm text-gray-400">
+      <div
+        class="flex gap-4 [&>*]:transition-colors [&>*]:hover:text-gray-300"
+      >
+        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href={X_URL} target="_blank" rel="noopener noreferrer">X</a>
+        <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer"
+          >LinkedIn</a
+        >
+        <a href={EMAIL_URL}>Email</a>
+      </div>
+      <div>
+        Copyright {currentYear} © Leonardo Lemos. All rights reserved.
+      </div>
+    </div>
+  </div>
+</footer>

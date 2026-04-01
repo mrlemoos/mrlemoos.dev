@@ -1,0 +1,38 @@
+---
+import { experiences } from "@/lib/data/experience";
+---
+
+<section class="my-24">
+  <h2 class="mb-6 text-lg font-bold">Experience</h2>
+  <div>
+    {
+      experiences.map(
+        ({ company, companyURL, title, period, description, skills }) => (
+          <div class="mb-8">
+            <div class="mb-1 flex items-baseline justify-between">
+              <h3 class="font-medium">{title}</h3>
+              <span class="text-sm text-gray-500">{period}</span>
+            </div>
+            <a
+              href={companyURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rounded-md pb-2.5 text-gray-600 transition-colors hover:text-gray-500"
+            >
+              {company}
+            </a>
+            <ul class="mb-2 list-inside list-disc text-gray-400">
+              {description.map((line) => (
+                <li class="mb-1">{line}</li>
+              ))}
+            </ul>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-gray-500">Skills:</span>
+              <span class="text-sm text-gray-500">{skills.join(", ")}</span>
+            </div>
+          </div>
+        )
+      )
+    }
+  </div>
+</section>

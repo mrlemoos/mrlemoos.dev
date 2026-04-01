@@ -1,0 +1,41 @@
+---
+export const prerender = true;
+
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { buildPageMeta } from "@/lib/seo";
+import { formatDate } from "@/lib/date";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+
+const site = Astro.site!;
+const meta = buildPageMeta(site, {
+  title: "Blog | Leonardo Lemos",
+  description: "Posts on frontend engineering, architecture, and the web.",
+});
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-4xl px-4 py-8">
+    <Breadcrumb
+      items={[{ label: "Home", href: "/" }, { label: "Blog" }]}
+    />
+    <h1 class="mb-8 text-4xl font-bold">Blog Posts</h1>
+    <div class="space-y-8">
+      {
+        posts.map(({ id, data: { title, date, description } }) => (
+          <article class="border-b border-gray-200 pb-8">
+            <a href={`/blog/${id}`}>
+              <h2 class="mb-2 text-2xl font-semibold hover:underline">{title}</h2>
+            </a>
+            <p class="mb-2 text-gray-500">{formatDate(date)}</p>
+            <p class="text-gray-600">{description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>
