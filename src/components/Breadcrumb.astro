@@ -13,13 +13,13 @@ const { items } = Astro.props;
 
 <nav aria-label="Breadcrumb" class="mb-6">
   <ol
-    class="m-0 flex list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm text-gray-500"
+    class="m-0 flex list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm text-gray-600 dark:text-gray-400"
   >
     {
       items.map((item, index) => (
         <li class="inline-flex items-center gap-x-1.5">
           {index > 0 && (
-            <span class="text-gray-400 select-none" aria-hidden="true">
+            <span class="text-gray-500 select-none dark:text-gray-500" aria-hidden="true">
               /
             </span>
           )}

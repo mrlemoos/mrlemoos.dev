@@ -3,8 +3,6 @@
 
 @import "@fontsource/space-mono/400.css";
 @import "@fontsource/space-mono/700.css";
-@import "@fontsource/geist-mono/400.css";
-@import "katex/dist/katex.min.css";
 
 :root {
   --background: #ffffff;

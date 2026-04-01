@@ -31,8 +31,8 @@ const posts = (await getCollection("blog")).sort(
             <a href={`/blog/${id}`}>
               <h2 class="mb-2 text-2xl font-semibold hover:underline">{title}</h2>
             </a>
-            <p class="mb-2 text-gray-500">{formatDate(date)}</p>
-            <p class="text-gray-600">{description}</p>
+            <p class="mb-2 text-gray-600 dark:text-gray-400">{formatDate(date)}</p>
+            <p class="text-gray-700 dark:text-gray-300">{description}</p>
           </article>
         ))
       }

@@ -1,9 +1,12 @@
 ---
 import "@/styles/global.css";
+import spaceMonoLatin400 from "@fontsource/space-mono/files/space-mono-latin-400-normal.woff2?url";
+import spaceMonoLatin700 from "@fontsource/space-mono/files/space-mono-latin-700-normal.woff2?url";
 import { cn } from "@/lib/css";
 import Footer from "@/components/Footer.astro";
 import Analytics from "@vercel/analytics/astro";
-import type { PageMeta } from "@/lib/seo";
+import { X_USERNAME } from "@/lib/constants";
+import { SITE_BRAND_NAME, type PageMeta } from "@/lib/seo";
 
 type Props = PageMeta;
 
@@ -14,23 +17,43 @@ const {
   ogImage,
   articlePublishedTime,
   articleModifiedTime,
+  robots: robotsProp,
+  structuredData,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const robots = robotsProp ?? "index, follow";
+const twitterHandle = `@${X_USERNAME}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href={spaceMonoLatin400}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href={spaceMonoLatin700}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords.join(", ")} />
     <meta name="author" content="Leonardo Lemos" />
     <link rel="canonical" href={canonicalURL} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:site_name" content={SITE_BRAND_NAME} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -53,10 +76,21 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       )
     }
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={twitterHandle} />
+    <meta name="twitter:creator" content={twitterHandle} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={robots} />
+    {
+      structuredData && (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData)}
+        />
+      )
+    }
   </head>
   <body
     class={cn(

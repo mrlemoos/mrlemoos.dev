@@ -8,13 +8,14 @@ const site = Astro.site!;
 const meta = buildPageMeta(site, {
   title: "Not found | Leonardo Lemos",
   description: "The page you requested could not be found.",
+  robots: "noindex, nofollow",
 });
 ---
 
 <BaseLayout {...meta}>
   <div class="mx-auto max-w-4xl px-4 py-16 text-center">
     <h1 class="text-2xl font-bold">404</h1>
-    <p class="mt-4 text-gray-500">
+    <p class="mt-4 text-gray-600 dark:text-gray-400">
       <a href="/" class="hover:underline">Back home</a>
     </p>
   </div>

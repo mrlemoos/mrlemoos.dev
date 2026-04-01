@@ -1,9 +1,16 @@
 ---
 export const prerender = true;
 
+import "@fontsource/geist-mono/400.css";
+import "katex/dist/katex.min.css";
 import { getCollection, getEntry, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { buildPageMeta, ogImageForPost } from "@/lib/seo";
+import {
+  buildPageMeta,
+  ogImageForPost,
+  SITE_BRAND_NAME,
+  titleWithBrand,
+} from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 import {
   EMAIL_URL,
@@ -12,6 +19,7 @@ import {
   X_URL,
 } from "@/lib/constants";
 import Breadcrumb from "@/components/Breadcrumb.astro";
+import { cn, socialNavLink, socialNavRow } from "@/lib/css";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -30,13 +38,66 @@ if (!post) {
 const { Content } = await render(post);
 const site = Astro.site!;
 const publishedISO = post.data.date.toISOString();
+const pageUrl = new URL(`/blog/${slug}`, site).href;
+const ogImageHref = ogImageForPost(site, post.data.title);
 const meta = buildPageMeta(site, {
-  title: post.data.title,
+  title: titleWithBrand(post.data.title),
   description: post.data.description,
   keywords: post.data.tags,
-  ogImage: ogImageForPost(site, post.data.title),
+  ogImage: ogImageHref,
   articlePublishedTime: publishedISO,
   articleModifiedTime: publishedISO,
+  structuredData: {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        headline: post.data.title,
+        description: post.data.description,
+        datePublished: publishedISO,
+        dateModified: publishedISO,
+        image: ogImageHref,
+        url: pageUrl,
+        author: {
+          "@type": "Person",
+          name: SITE_BRAND_NAME,
+          url: site.origin,
+        },
+        publisher: {
+          "@type": "Person",
+          name: SITE_BRAND_NAME,
+          url: site.origin,
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": pageUrl,
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: site.origin,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: new URL("/blog", site).href,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.data.title,
+            item: pageUrl,
+          },
+        ],
+      },
+    ],
+  },
 });
 ---
 
@@ -52,10 +113,10 @@ const meta = buildPageMeta(site, {
       ]}
     />
     <h1 class="mb-2 text-center text-3xl font-bold">{post.data.title}</h1>
-    <p class="mb-8 text-center text-gray-500">
+    <p class="mb-8 text-center text-gray-600 dark:text-gray-400">
       {`Published on ${formatDate(post.data.date)}`}
     </p>
-    <p class="text-gray-500">Leo writes:</p>
+    <p class="text-gray-600 dark:text-gray-400">Leo writes:</p>
     <div
       class="prose prose-lg dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0"
     >
@@ -67,22 +128,30 @@ const meta = buildPageMeta(site, {
       Leo
     </span>
     <div
-      class="mt-12 flex flex-col gap-4 border-t border-gray-200 pt-8"
+      class="mt-12 flex flex-col gap-4 border-t border-gray-200 pt-8 dark:border-gray-800"
     >
-      <a href="/" class="hover:underline">
+      <a href="/" class="text-gray-700 underline-offset-4 hover:underline dark:text-gray-300">
         Liked it? Hated it and want to shout at me? Learn more about me here.
       </a>
       <div class="flex flex-col gap-2">
-        <span>Connect with me</span>
-        <div class="flex flex-row gap-4">
-          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer"
-            >LinkedIn</a
+        <span class="text-gray-600 dark:text-gray-400">Connect with me</span>
+        <div class={cn(socialNavRow, "justify-start")}>
+          <a
+            href={LINKEDIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={socialNavLink}>LinkedIn</a
           >
-          <a href={X_URL} target="_blank" rel="noopener noreferrer">X</a>
-          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer"
-            >GitHub</a
+          <a href={X_URL} target="_blank" rel="noopener noreferrer" class={socialNavLink}
+            >X</a
           >
-          <a href={EMAIL_URL}>Email</a>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={socialNavLink}>GitHub</a
+          >
+          <a href={EMAIL_URL} class={socialNavLink}>Email</a>
         </div>
       </div>
     </div>

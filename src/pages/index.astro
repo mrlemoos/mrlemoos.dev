@@ -5,10 +5,37 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import BlogPosts from "@/components/BlogPosts.astro";
 import Experience from "@/components/Experience.astro";
 import Hero from "@/components/Hero.astro";
-import { buildPageMeta } from "@/lib/seo";
+import { GITHUB_URL, LINKEDIN_URL, X_URL } from "@/lib/constants";
+import {
+  buildPageMeta,
+  DEFAULT_DESCRIPTION,
+  SITE_BRAND_NAME,
+} from "@/lib/seo";
 
 const site = Astro.site!;
-const meta = buildPageMeta(site);
+const siteOrigin = site.origin;
+const meta = buildPageMeta(site, {
+  structuredData: {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteOrigin}/#website`,
+        url: siteOrigin,
+        name: SITE_BRAND_NAME,
+        description: DEFAULT_DESCRIPTION,
+        publisher: { "@id": `${siteOrigin}/#person` },
+      },
+      {
+        "@type": "Person",
+        "@id": `${siteOrigin}/#person`,
+        name: SITE_BRAND_NAME,
+        url: siteOrigin,
+        sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL],
+      },
+    ],
+  },
+});
 ---
 
 <BaseLayout {...meta}>

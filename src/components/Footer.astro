@@ -5,22 +5,35 @@ import {
   LINKEDIN_URL,
   X_URL,
 } from "@/lib/constants";
+import { cn, socialNavLink, socialNavRow } from "@/lib/css";
 
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-gray-800 py-8">
+<footer class="border-t border-gray-200 py-8 dark:border-gray-800">
   <div class="container mx-auto px-4">
-    <div class="flex flex-col items-center gap-4 text-sm text-gray-400">
+    <div
+      class="flex flex-col items-center gap-4 text-sm text-gray-600 dark:text-gray-400"
+    >
       <div
-        class="flex gap-4 [&>*]:transition-colors [&>*]:hover:text-gray-300"
+        class={cn(
+          socialNavRow,
+          "[&>a]:transition-colors [&>a]:hover:text-gray-900 dark:[&>a]:hover:text-gray-200"
+        )}
       >
-        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href={X_URL} target="_blank" rel="noopener noreferrer">X</a>
-        <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer"
-          >LinkedIn</a
+        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class={socialNavLink}
+          >GitHub</a
         >
-        <a href={EMAIL_URL}>Email</a>
+        <a href={X_URL} target="_blank" rel="noopener noreferrer" class={socialNavLink}
+          >X</a
+        >
+        <a
+          href={LINKEDIN_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={socialNavLink}>LinkedIn</a
+        >
+        <a href={EMAIL_URL} class={socialNavLink}>Email</a>
       </div>
       <div>
         Copyright {currentYear} © Leonardo Lemos. All rights reserved.
