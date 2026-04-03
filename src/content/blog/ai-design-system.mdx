@@ -1,0 +1,131 @@
+---
+title: "The AI Design System You Should Actually Build"
+date: "2026-04-03"
+description: "Don't fall into the trap of AI-does-it-all-for-you. MVPs are great, but they're not the only way to build a product."
+tags: ["blog", "personal", "next.js", "typescript", "react", "frontend", "software engineer", "software engineering", "ai", "ai-driven-development", "ai-driven-engineering", "ai-driven-product-development", "ai-driven-product-engineering", "mindset"]
+---
+
+Let me tell you about a problem we're quietly living with: _design systems decay_.
+
+The tokens drift. Components rot. Documentation goes stale in ways no-one notices until a new engineer joins and asks an innocent question, and everyone in the room exchanges a very specific look. The backlog grows faster than the team can manage, and, meanwhile, the people building the thing are spending more time _maintaining consistency_ than delivering value.
+
+We built systems to create consistency, and we spend all our time fighting entropy (a word I've been using a lot lately).
+
+And I know this. Deeply.
+
+## Stop Before You Think You Know What This Is About.
+
+You've heard the phrase "AI design system" before, and I'll bet good money your brain jumped to one of the following: Figma copilots (or whatever they call it), chatbots that scaffold boilerplate, or some tool that generates components from screenshots.
+
+That's understandable. That's also the wrong frame.
+
+What you're thinking of is AI **using** design systems. That's a thing, and it's fine. What I'm interested in is AI **maintaining** them. And there's a meaningful difference between the two.
+
+The first category is about consumption. A product engineer pastes a Figma frame into a prompt and gets a component back. Useful, sure. But it doesn't help you with the token drift, the migration backlog, the prop deprecation you keep promising to write up, or the stories no one's updated since the button component got a redesign two sprints ago.
+
+The second category is about maintenance. And that's where things get interesting.
+
+## The Key to a New Realm
+
+Me always hinting at my passion for European history and monarchical figures again. But yeah, that's sort of a realm. But this "key" is quite single: **A well-documented design system is already a set of machine-readable rules and constraints.** It just hasn't been connected to an AI agent yet.
+
+Think about it. JSDoc annotations are a standard, which means they're a contract. Stories (as in [Storybook](https://storybook.js.org), not as in Instagram) are acceptance criteria. Token schemas are specifications. Design guidelines are policy documents (or what we usually call "Rules" in the agentic engineering world). Migration guidelines are transformation specs (or, you could consider them a set of "Skills" for a specific set of changes).
+
+Every piece of structured documentation your team has written (or, honestly, *hasn't written and should have*)
+is already in the format an AI agent needs to reason about your system.
+
+That's the 'reframe' or the reinterpretation. Agents grep through your code anyway, whether you have an `AGENTS.md` or not. So why not make it more "greppable".
+
+## What an AI Design System Actually Is
+
+I'll define with a bit of care because the term is getting thrown around loosely and I'd rather nail it down.
+
+An AI design system is a design system that can be **maintained** by a human-supervised AI, powered by the system's own rules, documentation, API contracts, and self-assessment infrastructure.
+
+Four layers make this work.
+
+The first is **governance**: your design principles, naming conventions, accessibility requirements, and contribution policies. These define the boundaries within which an agent operates. A rule like "avoid importing Lucide directly; use the Icon component" is a _constraint_ that prevents an agent from doing something technically okay but architecturally forbidden. That's governance in its plainest definition.
+
+The second is **knowledge**: your API contracts, token schemas, and component specs. This is what the agent reads (top-to-bottom, by the way) to understand the system's intent. Here's where JSDoc earns its keep beyond "TypeScript's bastard cousin". Rich prop docs with defaults, allowed values, behavioural rules, usage examples, and Markdown headings give the agent the same guardrails they give your engineers. The wizardry here is to balance that with not stuffing your context window with useless/unnecessary information. Poor/no JSDoc often translates to "AI guessing", while good JSDoc means the AI _knows_. We used to do this less in the pre-agentic era because it used to be hard to update. But now, the agents themselves update the annotation. This brings me to the following cyclical behaviour: A better AI environment is a compelling reason to write better docs.
+
+The third is **transformation**: your migration guides, API changelogs, codemod docs, and prop deprecation paths. This is the layer most teams already have but in the wrong format: a Confluence page that everyone half-reads/skims through, skips, and quietly ignores. Structured as transformation rules instead of narrative wiki entries; API mapping documents, versioned deprecation paths, codemod instructions written the way Next.js breaking changes are written. They just write them for humans who won't read them fully. Write them for skimming. Make them structured enough that an agent can execute them when you can't/don't want to.
+
+The fourth is **verification**: Storybook as a visual test 'harness' (to use a GPT word), linting, type-checking, and visual regression. This is how the agent checks its own work before a human ever sees it (more on this in a moment).
+
+## The Feedback Loops in Practice
+
+Let me make this more tangible.
+
+Say you have a `.cursor/rules` directory (and I know 100% of your rules aren't apply-all). Each file in it (`icons.mdc`, `forms.mdc`, `code-patterns.mdc`, et al) is a constraint the agent must follow. Three lines in `icons.mdc`: (1) call the Icon component, (2) use the `name` prop, (3) never import from `lucide-react` directly. One artefact, two consumers: the human who reads it and understands the convention, and the agent who reads it and is limited by it.
+
+Now take your components. A `Button` with minimal JSDoc and an almost useless props interface:
+
+```ts
+interface ButtonProps {
+  variant?: string
+  size?: string
+  loading?: boolean
+}
+```
+
+This doesn't give the agent a lot. It can only guess what variants are valid, what `loading` changes visually, or what the defaults are. No guardrails = more hallucination.
+
+Unless you want a contract change every Claude Code session, you might benefit from adopting something more...professional:
+
+```ts
+interface ButtonProps {
+  /**
+   * The variant that modifies the background and foreground colours in every state except disabled.
+   * @default "primary"
+   */
+  variant?: ButtonVariant
+  /**
+   * The text that replaces the button label when the `loading` prop is true.
+   * The loading text becomes invisible if `size` is `icon`.
+   */
+  loadingText?: ReactNode
+  // ...
+}
+```
+
+This gives the agent the same understanding a new engineer would get from reading the source. One investment, two outputs (And yes, I don't understand why engineers hate writing docs. Come on.)
+
+Now for the migrations. Instead of a wiki page saying "We're moving from Mantine to our design system. Good luck 👍", you write "MUI Button variant 'contained' -> design system Button variant 'default'" in a command file that you can invoke when you're working on the migration.
+
+And Storybook. This is the most novel of all. An AI can render its own work in Storybook, visually inspect it, check accessibility, and iterate before the engineer sees the result. The feedback loop is: **learn the standard** → **read the component** → **write stories** → **run Storybook** → **check a11y** → **fix errors** → **iterate**. The human wrote the _process_; the agent executes the _task_. If an agent modifies the Combobox and the States story breaks visually, that's a failing criterion (even without formal assertions).
+
+## Where You Still Matter (A Lot)
+
+I want to be clear here, because I'm sceptical of the fully-autonomous-AI narrative (I've been watching the OpenClaw-style experiments with the healthy suspicion they deserve.) This model doesn't replace engineers or designers. Not because I need to say that, but because it's actually true and the distinction matters for how you adopt this.
+
+**The AI handles the toil**: migrations, token updates, prop deprecations, documentation generation, consistency checks. The boring, tedious, perfectly-structured and repetitive work that eats a design system team's time and morale in equal measure. And believe me—I've worn these boots.
+
+**You handle the judgment**: architectural decisions, reviewing output, setting the constraints, making the calls that require context an agent can't have. The primitives architecture (React Aria, Radix, Base UI, Ark, et al) matters here precisely because it reduces the AI's surface area. It only needs to reason about your design system's layer, not about tooltip positioning logic or keyboard navigation from the ground up. Constrain the problem and you constrain the failure probability.
+
+The agent reads the rules and docs, proposes a change, infrastructure verifies, human supervises the direction-- this feedback loop only works if the human is genuinely in the loop, not rubber-stamping outputs at 5pm on a Friday.
+
+## How to Start (No Excuses)
+
+This doesn't require a new tool, a new framework, or a company-wide initiative. There's a tiered adoption path and you can start at whichever level doesn't terrify you.
+
+**Enrich your docs**. Add machine-readable intent to your JSDoc, meaning concise, directional, with examples and Markdown structure. Write stories as acceptance criteria. Structure token files as self-describing schemas. This costs you almost nothing and is the foundation everything else builds on.
+
+**Structure your migrations**. Next time you write a migration guide, write it as structured API mapping. Document prop deprecation with their substitutes. Keep it skimmable and machine-parseable. You'll thank yourself even if you never connect an agent to it.
+
+**Build the feedback loop**. Connect Storybook, linting, and visual regression to an agent workflow where the lifecycle is explicit: propose → verify → submit for your review. Create commands for repetitive tasks (`add-stories`, `add-unit-tests`) that assume your testing guidelines and Storybook patterns are already defined.
+
+**Adopt a primitive-first architecture**. Build on Base UI, use shadcn/ui, or a similar abstraction so the agent surface area is well-bounded and the separation between behaviour and presentation is unambiguous. This is good architecture independent of agent. The agent angle just makes it obviously worth doing.
+
+## What Changes When You Do This
+
+The design system team stops being a bottleneck and becomes a governance body.
+
+Contribution gets easier because agents help external contributors become familiar with the rules without needing a member of the core team to babysit.
+
+Documentation stops being an afterthought and becomes the system's source of truth and the agent's operating manual. The AI that depends on it also maintains it, which is the most compelling virtuous cycle I've seen in this space.
+
+And the design system becomes, in a real sense, antifragile. It gets better as it's used. Every iteration, every migration, every agent-executed task that updates the docs means the next task starts from a better baseline.
+
+You don't need to wait for a new tool.
+
+Your design system has everything it needs. Start by making your docs simple, clear, and **embedded**.

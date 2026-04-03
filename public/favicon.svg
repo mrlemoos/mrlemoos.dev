@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <rect width="64" height="64" rx="18" fill="#161616"/>
-  <text x="32" y="24" fill="#efefef" font-family="monospace" font-size="28" font-weight="900" text-anchor="middle" transform="rotate(90 32 24)">L</text>
-  <text x="32" y="48" fill="#efefef" font-family="monospace" font-size="28" font-weight="900" text-anchor="middle" transform="rotate(-90 32 48)">L</text>
+  <!-- Outlined bold "L" shapes (no text) for consistent favicon / raster export -->
+  <g fill="#efefef">
+    <g transform="rotate(90 32 24)">
+      <path d="M 24 8 h 6 v 26 h 12 v 6 H 24 Z" />
+    </g>
+    <g transform="rotate(-90 32 48)">
+      <path d="M 24 32 h 6 v 26 h 12 v 6 H 24 Z" />
+    </g>
+  </g>
 </svg>
