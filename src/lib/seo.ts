@@ -1,36 +1,35 @@
-export const DEFAULT_TITLE = "Leonardo Lemos | Frontend Engineer";
+export const DEFAULT_TITLE =
+  "Leonardo Lemos | Frontend engineer, architecture & the modern web";
 
 /** Used in Open Graph `og:site_name` and title suffixes for articles. */
 export const SITE_BRAND_NAME = "Leonardo Lemos" as const;
+
+/** Matches `/og` ImageResponse in `src/pages/og.ts`. */
+export const OG_IMAGE_WIDTH = 1200;
+export const OG_IMAGE_HEIGHT = 630;
 
 export function titleWithBrand(articleTitle: string): string {
   return `${articleTitle} | ${SITE_BRAND_NAME}`;
 }
 
 export const DEFAULT_DESCRIPTION =
-  "Frontend engineer, software architecture enthusiast, and open-source contributor. I'm Leo, a frontend engineer with a passion for building accessible, scalable, and performant web applications. I thrive in environments where resilience and innovation are encouraged." as const;
+  "I'm Leo: a frontend engineer focused on accessible, scalable interfaces, software architecture, and open source. Writing on design systems, Tailwind, Astro, and how we build for the long haul." as const;
+
+/** Visible hero line; keep aligned with `DEFAULT_DESCRIPTION`. */
+export const HERO_TAGLINE =
+  "Frontend engineer, architecture enthusiast, and open-source contributor—building accessible, scalable web software." as const;
 
 export const DEFAULT_KEYWORDS = [
-  "frontend",
-  "engineer",
-  "software",
-  "tech",
-  "technology",
-  "architecture",
-  "enthusiast",
-  "open-source",
-  "contributor",
-  "leo",
+  "Leonardo Lemos",
+  "frontend engineer",
+  "software architecture",
+  "design systems",
+  "Astro",
+  "Tailwind CSS",
+  "TypeScript",
+  "open source",
   "mrlemoos",
-  "mrlemoos.dev",
-  "astro",
-  "tailwindcss",
-  "typescript",
-  "javascript",
-  "web",
-  "applications",
-  "resilience",
-  "innovation",
+  "web development",
 ] as const;
 
 export interface PageMeta {

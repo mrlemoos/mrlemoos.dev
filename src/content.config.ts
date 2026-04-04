@@ -6,6 +6,8 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    /** When set, used for `article:modified_time` and JSON-LD `dateModified`. */
+    updated: z.coerce.date().optional(),
     description: z.string(),
     tags: z.array(z.string()),
   }),

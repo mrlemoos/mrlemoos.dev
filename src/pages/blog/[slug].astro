@@ -37,41 +37,58 @@ if (!post) {
 const { Content } = await render(post);
 const site = Astro.site!;
 const publishedISO = post.data.date.toISOString();
+const modifiedISO = (post.data.updated ?? post.data.date).toISOString();
 const pageUrl = new URL(`/blog/${slug}`, site).href;
 const ogImageHref = ogImageForPost(site, post.data.title);
+
+const genericTags = new Set(["blog", "personal"]);
+const articleSection =
+  post.data.tags.find((t) => !genericTags.has(t.toLowerCase())) ??
+  post.data.tags[0];
+
+const wordCount = post.body
+  ? post.body.trim().split(/\s+/).filter(Boolean).length
+  : undefined;
+
+const blogPosting: Record<string, unknown> = {
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: publishedISO,
+  dateModified: modifiedISO,
+  image: ogImageHref,
+  url: pageUrl,
+  articleSection,
+  author: {
+    "@type": "Person",
+    name: SITE_BRAND_NAME,
+    url: site.origin,
+  },
+  publisher: {
+    "@type": "Person",
+    name: SITE_BRAND_NAME,
+    url: site.origin,
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+if (wordCount !== undefined) {
+  blogPosting.wordCount = wordCount;
+}
+
 const meta = buildPageMeta(site, {
   title: titleWithBrand(post.data.title),
   description: post.data.description,
   keywords: post.data.tags,
   ogImage: ogImageHref,
   articlePublishedTime: publishedISO,
-  articleModifiedTime: publishedISO,
+  articleModifiedTime: modifiedISO,
   structuredData: {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "BlogPosting",
-        headline: post.data.title,
-        description: post.data.description,
-        datePublished: publishedISO,
-        dateModified: publishedISO,
-        image: ogImageHref,
-        url: pageUrl,
-        author: {
-          "@type": "Person",
-          name: SITE_BRAND_NAME,
-          url: site.origin,
-        },
-        publisher: {
-          "@type": "Person",
-          name: SITE_BRAND_NAME,
-          url: site.origin,
-        },
-        mainEntityOfPage: {
-          "@type": "WebPage",
-          "@id": pageUrl,
-        },
-      },
+      blogPosting,
       {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -115,7 +132,12 @@ const meta = buildPageMeta(site, {
       {post.data.title}
     </h1>
     <p class="mb-10 text-center text-muted-foreground">
-      {`Published on ${formatDate(post.data.date)}`}
+      {
+        post.data.updated &&
+        post.data.updated.getTime() !== post.data.date.getTime()
+          ? `Published ${formatDate(post.data.date)} · Updated ${formatDate(post.data.updated)}`
+          : `Published on ${formatDate(post.data.date)}`
+      }
     </p>
     <p class="text-muted-foreground">Leo writes:</p>
     <div
@@ -131,6 +153,9 @@ const meta = buildPageMeta(site, {
     <div
       class="mt-12 flex flex-col gap-4 border-t border-border pt-8"
     >
+      <a href="/blog" class={textLink}>
+        More posts on the blog
+      </a>
       <a href="/" class={textLink}>
         Liked it? Hated it and want to shout at me? Learn more about me here.
       </a>

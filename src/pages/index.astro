@@ -14,6 +14,17 @@ import {
 
 const site = Astro.site!;
 const siteOrigin = site.origin;
+const knowsAbout = [
+  "Frontend engineering",
+  "Software architecture",
+  "Design systems",
+  "TypeScript",
+  "Tailwind CSS",
+  "Astro",
+  "Web accessibility",
+  "Open-source software",
+] as const;
+
 const meta = buildPageMeta(site, {
   structuredData: {
     "@context": "https://schema.org",
@@ -25,12 +36,15 @@ const meta = buildPageMeta(site, {
         name: SITE_BRAND_NAME,
         description: DEFAULT_DESCRIPTION,
         publisher: { "@id": `${siteOrigin}/#person` },
+        inLanguage: "en-GB",
       },
       {
         "@type": "Person",
         "@id": `${siteOrigin}/#person`,
         name: SITE_BRAND_NAME,
         url: siteOrigin,
+        jobTitle: "Frontend engineer",
+        knowsAbout: [...knowsAbout],
         sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL],
       },
     ],

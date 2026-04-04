@@ -9,14 +9,84 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import { blogCardArticle, blogCardTitle, cn } from "@/lib/css";
 
 const site = Astro.site!;
-const meta = buildPageMeta(site, {
-  title: "Blog | Leonardo Lemos",
-  description: "Posts on frontend engineering, architecture, and the web.",
-});
+const siteOrigin = site.origin;
+const blogUrl = new URL("/blog", site).href;
 
 const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
+
+const meta = buildPageMeta(site, {
+  title: "Blog | Leonardo Lemos",
+  description:
+    "Articles on frontend engineering, design systems and AI, Tailwind CSS, analytics, and shipping resilient web software—by Leonardo Lemos.",
+  keywords: [
+    "frontend blog",
+    "design systems",
+    "Tailwind CSS",
+    "Astro",
+    "software engineering",
+    "Leonardo Lemos",
+  ],
+  structuredData: {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${blogUrl}#webpage`,
+        url: blogUrl,
+        name: "Blog | Leonardo Lemos",
+        description:
+          "Articles on frontend engineering, design systems, Tailwind CSS, analytics, and resilient web software.",
+        isPartOf: { "@id": `${siteOrigin}/#website` },
+        breadcrumb: { "@id": `${blogUrl}#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${blogUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: siteOrigin,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: blogUrl,
+          },
+        ],
+      },
+      {
+        "@type": "Blog",
+        "@id": `${blogUrl}#blog`,
+        url: blogUrl,
+        name: "Leonardo Lemos — blog",
+        description:
+          "Frontend engineering, design systems, and practical notes on building for the web.",
+        publisher: { "@id": `${siteOrigin}/#person` },
+        blogPost: posts.map((p) => ({
+          "@type": "BlogPosting",
+          headline: p.data.title,
+          url: new URL(`/blog/${p.id}`, site).href,
+        })),
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${blogUrl}#itemlist`,
+        numberOfItems: posts.length,
+        itemListElement: posts.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.data.title,
+          url: new URL(`/blog/${p.id}`, site).href,
+        })),
+      },
+    ],
+  },
+});
 ---
 
 <BaseLayout {...meta}>
