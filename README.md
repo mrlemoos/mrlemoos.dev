@@ -1,91 +1,92 @@
-# mrlemoos.dev - Personal Portfolio
+<p align="center">
+  <img src="./assets/frame_safari_light.png" alt="mrlemoos.dev blog — The AI Design System You Should Actually Build, dark theme with serif headings and sans body copy" width="900" />
+</p>
 
-A modern, responsive personal portfolio website built with Next.js, TypeScript, and Tailwind CSS. This portfolio showcases professional experience, skills, and projects in a clean, minimalist design.
+<h1 align="center">mrlemoos.dev</h1>
+
+<p align="center">
+  Personal portfolio and blog — Astro, TypeScript, and Tailwind CSS — deployed on Vercel.
+</p>
+
+## About
+
+Source for [mrlemoos.dev](https://mrlemoos.dev): a prerendered portfolio with a content-driven blog. Posts live in Astro content collections under `src/content/blog`; MDX supports maths via remark-math and rehype-katex. Typography uses Geist for body and UI, Instrument Serif for headings, with a grey-first palette and light motion for a calm, editorial feel.
 
 ## Features
 
-- 🚀 Built with Next.js 15 and React 19
-- 📱 Fully responsive design
-- 🎨 Modern UI with Tailwind CSS
-- 📝 MDX support for blog posts
-- 🖼️ Dynamic OpenGraph image generation
-- 🔍 SEO optimized
-- 🎯 TypeScript for type safety
-- 🎨 Space Mono font for a unique typography style
+- Astro 6 with the Vercel adapter (`@astrojs/vercel`), hybrid/server output and dynamic routes where needed
+- Blog and MDX with KaTeX-ready markdown pipeline
+- Tailwind CSS v4 via the Vite plugin
+- Dynamic Open Graph images (`@vercel/og`)
+- Sitemap integration (`@astrojs/sitemap`)
+- TypeScript and ESLint
 
-## Tech Stack
+## Tech stack
 
-- **Framework**: Next.js 15
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Content**: MDX
-- **Font**: Space Mono
-- **Deployment**: Vercel
+| Area        | Choice                                      |
+| ----------- | ------------------------------------------- |
+| Framework   | Astro 6                                     |
+| Language    | TypeScript                                  |
+| Styling     | Tailwind CSS v4, `@tailwindcss/typography`  |
+| Content     | MDX, Astro content collections              |
+| Fonts       | Geist Sans / Mono, Instrument Serif (npm)   |
+| Analytics   | Vercel Analytics                            |
+| Deployment  | Vercel                                      |
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- Node.js 24.x or newer
+- [pnpm](https://pnpm.io/) (version pinned in `package.json`)
 
-- Node.js (latest LTS version)
-- pnpm (package manager)
+## Getting started
 
-### Installation
+```bash
+git clone https://github.com/mrlemoos/mrlemoos.dev.git && cd mrlemoos.dev
+pnpm install
+pnpm dev
+```
 
-1. Clone the repository:
+Open [http://localhost:4321](http://localhost:4321) (Astro’s default dev port).
 
-   ```bash
-   git clone https://github.com/mrlemoos/mrlemoos.dev.git && cd mrlemoos.dev
-   ```
+## Scripts
 
-2. Install dependencies:
+| Command       | Description              |
+| ------------- | ------------------------ |
+| `pnpm dev`    | Start Astro dev server   |
+| `pnpm build`  | Production build         |
+| `pnpm preview`| Preview production build |
+| `pnpm lint`   | Run ESLint               |
+| `pnpm check`  | Run `astro check`        |
 
-   ```bash
-   pnpm install
-   ```
-
-3. Run the development server:
-
-   ```bash
-   pnpm run dev
-   ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
+## Project structure
 
 ```
 src/
-├── app/              # Next.js app directory
-├── components/       # React components
-├── lib/             # Utility functions and data
-├── styles/          # Global styles
+├── content/blog/     # MDX posts (content collections)
+├── pages/            # Routes (including `og` route)
+├── layouts/          # Page shells
+├── components/       # Astro components
+├── lib/              # SEO, OG image, data, helpers
+└── styles/           # Global CSS
 ```
-
-## Available Scripts
-
-- `pnpm run dev` - Start development server with Turbopack
-- `pnpm run build` - Build for production
-- `pnpm run start` - Start production server
-- `pnpm run lint` - Run ESLint
 
 ## Customisation
 
-- Update personal information in `src/lib/data/`
-- Modify styles in `src/styles/`
-- Add new components in `src/components/`
-- Create blog posts using MDX in the appropriate directory
+- Site URL and build options: `astro.config.mjs`
+- New posts: add MDX under `src/content/blog/` and match the collection schema in `content.config.ts`
+- Shared layout and metadata: `src/layouts/BaseLayout.astro`, `src/lib/seo.ts`
+- Home and listing pages: `src/pages/index.astro`, `src/pages/blog/`
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please open a pull request with a short description of the change.
 
-## License
+## Licence
 
-This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-- [Next.js](https://nextjs.org/)
+- [Astro](https://astro.build/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Space Mono](https://fonts.google.com/specimen/Space+Mono)
 - [Vercel](https://vercel.com/)
