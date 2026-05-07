@@ -30,6 +30,7 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const robots = robotsProp ?? "index, follow";
 const twitterHandle = `@${X_USERNAME}`;
+const loadGoogleAds = import.meta.env.PROD;
 ---
 
 <!doctype html>
@@ -108,6 +109,15 @@ const twitterHandle = `@${X_USERNAME}`;
           is:inline
           type="application/ld+json"
           set:html={JSON.stringify(structuredData)}
+        />
+      )
+    }
+    {
+      loadGoogleAds && (
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7238420365748340"
+          crossorigin="anonymous"
         />
       )
     }
