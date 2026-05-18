@@ -1,0 +1,32 @@
+---
+/**
+ * Runs in <head> before any Google tag. Consent Mode v2 defaults must load
+ * first so AdSense and future Google tags receive correct signals.
+ */
+import { GOOGLE_CONSENT_WAIT_FOR_UPDATE_MS } from "@/lib/consent";
+
+const enabled = import.meta.env.PROD;
+---
+
+{
+  enabled && (
+    <script
+      is:inline
+      define:vars={{ waitMs: GOOGLE_CONSENT_WAIT_FOR_UPDATE_MS }}
+    >
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function gtag() {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag("consent", "default", {
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+        analytics_storage: "denied",
+        functionality_storage: "denied",
+        personalization_storage: "denied",
+        security_storage: "granted",
+      }, { wait_for_update: waitMs });
+    </script>
+  )
+}

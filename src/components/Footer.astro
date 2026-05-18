@@ -5,7 +5,7 @@ import {
   LINKEDIN_URL,
   X_URL,
 } from "@/lib/constants";
-import { cn, socialNavLink, socialNavRow } from "@/lib/css";
+import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
 
 const currentYear = new Date().getFullYear();
 ---
@@ -30,8 +30,23 @@ const currentYear = new Date().getFullYear();
         >
         <a href={EMAIL_URL} class={socialNavLink}>Email</a>
       </div>
-      <div class="text-center text-muted-foreground">
-        Copyright {currentYear} © Leonardo Lemos. All rights reserved.
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-muted-foreground">
+        <a href="/privacy" class={textLink}>
+          Privacy
+        </a>
+        <span aria-hidden="true">·</span>
+        <button
+          type="button"
+          id="cookie-settings"
+          class={cn(
+            textLink,
+            "cursor-pointer border-0 bg-transparent p-0 font-inherit"
+          )}
+        >
+          Cookie settings
+        </button>
+        <span aria-hidden="true">·</span>
+        <span>Copyright {currentYear} © Leonardo Lemos</span>
       </div>
     </div>
   </div>

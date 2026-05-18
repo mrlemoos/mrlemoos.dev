@@ -4,7 +4,9 @@ import geistSansLatin400 from "@fontsource/geist-sans/files/geist-sans-latin-400
 import geistSansLatin500 from "@fontsource/geist-sans/files/geist-sans-latin-500-normal.woff2?url";
 import instrumentSerifLatin400 from "@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url";
 import { cn } from "@/lib/css";
+import CookieConsent from "@/components/CookieConsent.astro";
 import Footer from "@/components/Footer.astro";
+import GoogleConsentModeInit from "@/components/GoogleConsentModeInit.astro";
 import Analytics from "@vercel/analytics/astro";
 import { X_USERNAME } from "@/lib/constants";
 import {
@@ -30,13 +32,13 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const robots = robotsProp ?? "index, follow";
 const twitterHandle = `@${X_USERNAME}`;
-const loadGoogleAds = import.meta.env.PROD;
 ---
 
 <!doctype html>
 <html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
+    <GoogleConsentModeInit />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -112,15 +114,6 @@ const loadGoogleAds = import.meta.env.PROD;
         />
       )
     }
-    {
-      loadGoogleAds && (
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7238420365748340"
-          crossorigin="anonymous"
-        />
-      )
-    }
   </head>
   <body
     class={cn(
@@ -134,5 +127,6 @@ const loadGoogleAds = import.meta.env.PROD;
       <Footer />
     </div>
     <Analytics />
+    <CookieConsent />
   </body>
 </html>

@@ -1,0 +1,189 @@
+---
+import { cn, textLink } from "@/lib/css";
+import {
+  CONSENT_STORAGE_KEY,
+  GOOGLE_ADS_CLIENT,
+} from "@/lib/consent";
+
+const loadAdsInProd = import.meta.env.PROD;
+---
+
+{
+  loadAdsInProd && (
+    <>
+      <div
+        id="cookie-consent-banner"
+        class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-border bg-card/95 p-4 shadow-lg backdrop-blur-sm md:p-5"
+        role="dialog"
+        aria-labelledby="cookie-consent-title"
+        aria-describedby="cookie-consent-desc"
+      >
+        <div class="container mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div class="max-w-2xl">
+            <p
+              id="cookie-consent-title"
+              class="text-sm font-medium text-foreground"
+            >
+              Cookies on this site
+            </p>
+            <p
+              id="cookie-consent-desc"
+              class="mt-1 text-sm text-muted-foreground"
+            >
+              I use optional cookies for Google AdSense advertising. Analytics
+              run without personalised ads. See the{" "}
+              <a href="/privacy" class={textLink}>
+                privacy policy
+              </a>
+              .
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-wrap gap-2">
+            <button
+              type="button"
+              id="cookie-consent-reject"
+              class={cn(
+                "rounded-md border border-border bg-background px-4 py-2 text-sm text-foreground transition-colors",
+                "hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              )}
+            >
+              Reject
+            </button>
+            <button
+              type="button"
+              id="cookie-consent-accept"
+              class={cn(
+                "rounded-md bg-foreground px-4 py-2 text-sm text-background transition-opacity",
+                "hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              )}
+            >
+              Accept
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script
+        is:inline
+        define:vars={{
+          consentKey: CONSENT_STORAGE_KEY,
+          adsClient: GOOGLE_ADS_CLIENT,
+        }}
+      >
+        (function () {
+          const AD_SCRIPT_ID = "google-adsense-script";
+
+          function getConsent() {
+            try {
+              return localStorage.getItem(consentKey);
+            } catch {
+              return null;
+            }
+          }
+
+          function setConsent(value) {
+            try {
+              localStorage.setItem(consentKey, value);
+            } catch {
+              /* storage unavailable */
+            }
+          }
+
+          function hideBanner() {
+            const banner = document.getElementById("cookie-consent-banner");
+            if (banner) banner.classList.add("hidden");
+          }
+
+          function showBanner() {
+            const banner = document.getElementById("cookie-consent-banner");
+            if (banner) banner.classList.remove("hidden");
+          }
+
+          function fillAdSlots() {
+            const slots = document.querySelectorAll("ins.adsbygoogle");
+            for (let i = 0; i < slots.length; i += 1) {
+              if (slots[i].getAttribute("data-adsbygoogle-status")) continue;
+              (window.adsbygoogle = window.adsbygoogle || []).push({});
+            }
+          }
+
+          function loadGoogleAds() {
+            if (document.getElementById(AD_SCRIPT_ID)) {
+              fillAdSlots();
+              return;
+            }
+            const script = document.createElement("script");
+            script.id = AD_SCRIPT_ID;
+            script.async = true;
+            script.crossOrigin = "anonymous";
+            script.src =
+              "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" +
+              encodeURIComponent(adsClient);
+            script.onload = fillAdSlots;
+            document.head.appendChild(script);
+          }
+
+          function setGoogleConsentMode(value) {
+            if (typeof window.gtag !== "function") return;
+            if (value === "granted") {
+              window.gtag("consent", "update", {
+                ad_storage: "granted",
+                ad_user_data: "granted",
+                ad_personalization: "granted",
+              });
+            } else {
+              window.gtag("consent", "update", {
+                ad_storage: "denied",
+                ad_user_data: "denied",
+                ad_personalization: "denied",
+              });
+            }
+          }
+
+          function applyConsent(value) {
+            hideBanner();
+            setGoogleConsentMode(value);
+            if (value === "granted") {
+              loadGoogleAds();
+            }
+            document.dispatchEvent(
+              new CustomEvent("cookie-consent-change", { detail: { value } })
+            );
+          }
+
+          window.__openCookieSettings = function () {
+            showBanner();
+          };
+
+          const stored = getConsent();
+          if (stored === "granted" || stored === "denied") {
+            setGoogleConsentMode(stored);
+            if (stored === "granted") loadGoogleAds();
+          } else {
+            showBanner();
+          }
+
+          document
+            .getElementById("cookie-consent-accept")
+            ?.addEventListener("click", function () {
+              setConsent("granted");
+              applyConsent("granted");
+            });
+
+          document
+            .getElementById("cookie-consent-reject")
+            ?.addEventListener("click", function () {
+              setConsent("denied");
+              applyConsent("denied");
+            });
+
+          document
+            .getElementById("cookie-settings")
+            ?.addEventListener("click", function () {
+              window.__openCookieSettings?.();
+            });
+        })();
+      </script>
+    </>
+  )
+}

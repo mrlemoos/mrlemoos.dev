@@ -1,0 +1,150 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import { EMAIL, EMAIL_URL } from "@/lib/constants";
+import { GOOGLE_PARTNERS_URL } from "@/lib/consent";
+import { buildPageMeta, titleWithBrand } from "@/lib/seo";
+import { textLink } from "@/lib/css";
+
+const site = Astro.site!;
+const lastUpdated = "18 May 2026";
+
+const meta = buildPageMeta(site, {
+  title: titleWithBrand("Privacy policy"),
+  description:
+    "How mrlemoos.dev collects and uses data, including cookies for advertising and analytics.",
+  keywords: ["privacy policy", "cookies", "AdSense", "Leonardo Lemos"],
+});
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-3xl px-4 py-8 md:py-12">
+    <Breadcrumb
+      items={[
+        { label: "Home", href: "/" },
+        { label: "Privacy policy" },
+      ]}
+    />
+    <h1
+      class="mb-3 font-heading text-4xl font-normal tracking-tight text-foreground md:text-5xl"
+    >
+      Privacy policy
+    </h1>
+    <p class="mb-10 text-muted-foreground">Last updated: {lastUpdated}</p>
+
+    <div
+      class="prose prose-lg dark:prose-invert max-w-none text-foreground prose-a:text-foreground prose-a:underline prose-a:decoration-zinc-400/70 prose-a:underline-offset-4 hover:prose-a:decoration-foreground"
+    >
+      <p>
+        This policy explains how <strong>Leonardo Lemos</strong> (“I”, “me”)
+        collects and uses information when you visit
+        <a href={site.origin}>mrlemoos.dev</a> (the “site”).
+      </p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        The site is operated by Leonardo Lemos. For privacy questions, contact me
+        at <a href={EMAIL_URL}>{EMAIL}</a>.
+      </p>
+
+      <h2>What this site does</h2>
+      <p>
+        The site is a personal portfolio and blog. I do not sell your personal
+        data. I use third-party services to understand traffic and, with your
+        consent, to show advertising.
+      </p>
+
+      <h2>Information collected</h2>
+      <ul>
+        <li>
+          <strong>Server and analytics data.</strong> Vercel Analytics may
+          collect aggregated usage data (for example pages viewed and
+          referrers). See
+          <a
+            href="https://vercel.com/docs/analytics/privacy-policy"
+            rel="noopener noreferrer"
+            target="_blank">Vercel’s analytics privacy documentation</a
+          >.
+        </li>
+        <li>
+          <strong>Advertising data (with consent).</strong> If you accept
+          cookies on the consent banner, Google AdSense may set cookies or use
+          similar technologies to serve and measure ads, including personalised
+          ads where permitted. Google may collect information such as your IP
+          address, browser type, and pages visited on this site.
+        </li>
+        <li>
+          <strong>Information you send me.</strong> If you email me, I receive
+          whatever you choose to include in that message.
+        </li>
+      </ul>
+
+      <h2>Cookies and similar technologies</h2>
+      <p>
+        When you first visit, you can accept or reject non-essential cookies.
+        Rejecting means AdSense scripts are not loaded and advertising cookies
+        are not set. Essential operation of the site does not require that
+        choice.
+      </p>
+      <p>
+        Third parties, including Google, may place and read cookies in your
+        browser when ads are shown, or use web beacons or IP addresses to
+        collect information as a result of ad serving. For how Google uses data
+        from sites that use its partners’ services, see
+        <a href={GOOGLE_PARTNERS_URL} rel="noopener noreferrer" target="_blank"
+          >How Google uses data when you use our partners’ sites or apps</a
+        >.
+      </p>
+      <p>
+        The site uses{" "}
+        <a
+          href="https://developers.google.com/tag-platform/security/concepts/consent-mode"
+          rel="noopener noreferrer"
+          target="_blank">Google Consent Mode</a
+        >{" "}
+        (version 2) so advertising tags receive your choice before they run.
+      </p>
+
+      <h2>Legal bases (UK / EEA visitors)</h2>
+      <p>
+        Where UK GDPR or EU GDPR applies, I rely on <strong>consent</strong> for
+        advertising cookies and personalised ads, and on <strong>legitimate
+        interests</strong> for basic analytics that help me understand how the
+        site is used.
+      </p>
+
+      <h2>How long data is kept</h2>
+      <p>
+        Analytics data is retained according to Vercel’s policies. Your consent
+        choice is stored in your browser’s local storage until you clear it or
+        change your mind via the cookie settings link in the footer. Emails are
+        kept only as long as needed to respond or maintain correspondence.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        Depending on where you live, you may have rights to access, correct,
+        delete, or restrict processing of your personal data, or to object to
+        processing. You may also withdraw consent for advertising cookies at any
+        time using <a href="#cookie-settings" class={textLink}
+          >cookie settings</a
+        > in the footer. To exercise other rights, contact
+        <a href={EMAIL_URL}>{EMAIL}</a>.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        This site is not directed at children under 13, and I do not knowingly
+        collect personal information from them.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        I may update this policy from time to time. The “Last updated” date at
+        the top will change when I do.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

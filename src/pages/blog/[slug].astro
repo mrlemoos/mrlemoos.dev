@@ -17,6 +17,7 @@ import {
   LINKEDIN_URL,
   X_URL,
 } from "@/lib/constants";
+import { GOOGLE_ADS_CLIENT } from "@/lib/consent";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
 
@@ -160,12 +161,9 @@ const meta = buildPageMeta(site, {
             style="display:block; text-align:center;"
             data-ad-layout="in-article"
             data-ad-format="fluid"
-            data-ad-client="ca-pub-7238420365748340"
+            data-ad-client={GOOGLE_ADS_CLIENT}
             data-ad-slot="5787544724"
           />
-          <script is:inline>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
         </div>
       )
     }
