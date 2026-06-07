@@ -34,3 +34,23 @@ export const blogCardArticle = twMerge(
 
 export const blogCardTitle =
   "font-heading text-xl tracking-tight text-foreground transition-shadow duration-300";
+
+/** Hero featured-writing rows: editorial index + hover wash. */
+export const writingHighlightRow = twMerge(
+  "group flex items-start gap-4 border-b border-border py-4 text-inherit no-underline transition-colors duration-200",
+  "last:border-b-0 hover:bg-card/40",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+);
+
+/** Projects listing cards. */
+export const projectCard = twMerge(
+  "group relative block overflow-hidden rounded-2xl border border-border bg-card/30 p-6 text-inherit no-underline shadow-sm shadow-zinc-900/5 transition-all duration-300 ease-out",
+  "hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md hover:shadow-zinc-900/10",
+  "motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-sm",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "dark:bg-card/20 dark:shadow-black/20 dark:hover:shadow-black/40"
+);
+
+export const projectStatusBadge = twMerge(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[0.6rem] font-medium uppercase tracking-wider"
+);

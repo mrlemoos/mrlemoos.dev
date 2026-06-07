@@ -1,11 +1,12 @@
 ---
+import HeroFeaturedWriting from "@/components/HeroFeaturedWriting.astro";
 import { GITHUB_URL, LINKEDIN_URL, X_URL } from "@/lib/constants";
 import { socialNavLink, socialNavRow } from "@/lib/css";
 import { HERO_TAGLINE } from "@/lib/seo";
 ---
 
 <section
-  class="flex min-h-[72vh] flex-col justify-end pb-4 pt-16 md:min-h-[78vh] md:pb-8 md:pt-20"
+  class="flex min-h-[68vh] flex-col justify-end pb-4 pt-16 md:min-h-[74vh] md:pb-8 md:pt-20"
 >
   <div class="mx-auto w-full max-w-3xl text-center">
     <h1
@@ -18,8 +19,11 @@ import { HERO_TAGLINE } from "@/lib/seo";
     >
       {HERO_TAGLINE}
     </p>
+
+    <HeroFeaturedWriting />
+
     <div
-      class="hero-animate hero-animate-delay-2 mt-10 flex flex-col items-center gap-3"
+      class="hero-animate hero-animate-delay-3 mt-10 flex flex-col items-center gap-3"
     >
       <span class="text-sm text-muted-foreground">Connect with me</span>
       <div class={socialNavRow}>

@@ -17,6 +17,8 @@
   --border: #e4e4e7;
   --card: #ffffff;
   --ring: #a1a1aa;
+  --accent: #3f3f46;
+  --accent-muted: #71717a;
 }
 
 @theme inline {
@@ -40,6 +42,8 @@
     --border: #27272a;
     --card: #18181b;
     --ring: #71717a;
+    --accent: #d4d4d8;
+    --accent-muted: #a1a1aa;
   }
 }
 
@@ -67,10 +71,71 @@
   animation-delay: 0.2s;
 }
 
+.hero-animate-delay-3 {
+  animation-delay: 0.35s;
+}
+
+.writing-index {
+  min-width: 1.75rem;
+  padding-top: 0.2rem;
+}
+
+.project-card-featured::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    var(--accent) 0%,
+    transparent 100%
+  );
+  opacity: 0.85;
+}
+
+.project-status-live {
+  border-color: color-mix(in oklab, #16a34a 35%, var(--border));
+  color: #15803d;
+  background: color-mix(in oklab, #16a34a 8%, var(--card));
+}
+
+.project-status-beta {
+  border-color: color-mix(in oklab, #ca8a04 35%, var(--border));
+  color: #a16207;
+  background: color-mix(in oklab, #ca8a04 8%, var(--card));
+}
+
+.project-status-building {
+  border-color: color-mix(in oklab, var(--accent-muted) 45%, var(--border));
+  color: var(--accent-muted);
+  background: color-mix(in oklab, var(--accent-muted) 10%, var(--card));
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-status-live {
+    color: #4ade80;
+  }
+
+  .project-status-beta {
+    color: #facc15;
+  }
+}
+
+.projects-intro {
+  animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-intro {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-animate,
   .hero-animate-delay-1,
-  .hero-animate-delay-2 {
+  .hero-animate-delay-2,
+  .hero-animate-delay-3 {
     animation: none;
     opacity: 1;
     transform: none;

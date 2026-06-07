@@ -1,0 +1,79 @@
+---
+import { formatDate } from "@/lib/date";
+import { cn, textLink, writingHighlightRow } from "@/lib/css";
+import { getFeaturedWriting } from "@/lib/writing";
+
+const entries = await getFeaturedWriting(4);
+---
+
+<div class="hero-animate hero-animate-delay-2 mt-12 w-full text-left md:mt-14">
+  <div
+    class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-3"
+  >
+    <p
+      class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground"
+    >
+      Featured writing
+    </p>
+    <a
+      href="/blog"
+      class={cn(textLink, "shrink-0 text-xs font-medium tracking-wide")}
+    >
+      All posts →
+    </a>
+  </div>
+
+  <ul class="flex flex-col" role="list">
+    {
+      entries.map((entry, index) => (
+        <li>
+          <a
+            href={entry.href}
+            class={writingHighlightRow}
+            {...(entry.kind === "external"
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            <span
+              class="writing-index font-mono text-xs tabular-nums text-muted-foreground"
+              aria-hidden="true"
+            >
+              {String(index + 1).padStart(2, "0")}
+            </span>
+
+            <span class="min-w-0 flex-1">
+              <span class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span class="font-heading text-lg leading-snug tracking-tight text-foreground transition-colors duration-200 group-hover:text-foreground md:text-xl">
+                  {entry.title}
+                </span>
+                {entry.kind === "external" && (
+                  <span
+                    class="writing-publisher inline-flex shrink-0 items-center rounded-full border border-border bg-card/60 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-wider text-muted-foreground"
+                  >
+                    {entry.publisher}
+                  </span>
+                )}
+              </span>
+              <span class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
+                <time datetime={entry.date.toISOString()}>
+                  {formatDate(entry.date)}
+                </time>
+                {entry.kind === "external" && (
+                  <>
+                    <span aria-hidden="true" class="text-border">
+                      ·
+                    </span>
+                    <span class="inline-flex items-center gap-1">
+                      External
+                      <span aria-hidden="true" class="text-xs">↗</span>
+                    </span>
+                  </>
+                )}
+              </span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
