@@ -1,0 +1,100 @@
+---
+title: "Juniors, You Have to Earn AI"
+date: "2026-07-11"
+description: "An AI agent multiplies the skill you already have. If that skill is zero, the multiplier doesn't save you; it just helps you be wrong faster and more expensively."
+tags:
+  [
+    "blog",
+    "personal",
+    "ai",
+    "ai-driven-development",
+    "ai-driven-engineering",
+    "debugging",
+    "software engineer",
+    "software engineering",
+    "junior developer",
+    "mentorship",
+    "mindset",
+    "frontend",
+  ]
+---
+
+I posted a version of this on LinkedIn the other day, and it travelled further than my stuff usually does. Nice, right? Well, sort of. The problem with a LinkedIn post is that it's about three sentences long, and three sentences can't carry the whole thought. So the comments did what comments do: a good chunk of people turned up to explain that _both_ using AI and not using AI matter for juniors, that it's all about balance, mate.
+
+Fair. But I'm planting my flag here anyway, because I stand by the spicier version: **junior software engineers shouldn't reach for AI to implement features or fix bugs.**
+
+Not because the tools are bad. They're extraordinary. It's a question of _when_ they pay off.
+
+An AI agent works best when you already know what you're doing (funny how that keeps being true of powerful tools). The more experience you have, the better you can direct it. But if you've never tweaked code by hand, scattered logs everywhere, and traced a bug down to its actual cause yourself, you'll make the agent burn far more time and tokens than the problem ever deserved, and you won't even notice it happening. That's the bit the "balance" crowd kept skipping: the balance only works once you're strong enough to hold up your end of it.
+
+## The multiplier
+
+Here's the mental model I keep coming back to. An AI agent isn't a teacher, and it isn't a replacement. It's a _multiplier_.
+
+Multipliers are wonderful when the thing they multiply is bigger than zero. A senior engineer with a clear picture of the system, the failure, and the fix already in their head hands the agent a tight, well-scoped instruction and gets a 10x afternoon. That's real. I've had those afternoons.
+
+But multiply zero by anything and you still get zero. And that's the _optimistic_ case. In practice, a junior steering an agent through a problem they don't understand isn't sitting at zero; they're negative. The agent produces plausible code. The junior can't tell plausible-correct from plausible-wrong, so they accept it. The bug moves, or hides, or quietly splits into two. More tokens, more rounds, more confidently-worded diffs that fix nothing. The multiplier is working perfectly; it's just multiplying confusion.
+
+## What tracing a bug by hand actually buys you
+
+"Just debug it yourself first" sounds like hazing, doesn't it? The grumpy senior making you suffer because they suffered. It isn't (well, not only). Doing it by hand is how you build the one thing that makes the agent useful later.
+
+When you trace a bug the slow way, you're not just squashing _this_ bug. You're building a model:
+
+- **Where state lives** and how it flows through the system, because you had to follow it, cursing, from one file to the next.
+- **What "normal" looks like**, because you logged the happy path before you ever found the broken one.
+- **How to form a hypothesis and kill it**, which is the single most valuable skill in engineering and one no tool can hand you. You guess "it's the cache", you drop a log, the log says it isn't the cache, you cross it off. Bisect. Repeat. Riveting stuff, genuinely.
+- **What a real fix feels like** versus a patch that just shoves the symptom one function downstream (looking at you, person who "fixed" the bug by wrapping it in a try/catch).
+
+That model is exactly what you're missing when you let the agent drive on day one. And it's exactly what a senior _is_ quietly using, without even noticing, when they write a prompt that lands the fix in one shot. The prompt looks like magic. The model behind it is the actual trick.
+
+You can't prompt your way to a mental model of a system. You can only build it by touching the thing.
+
+## The failure mode, named
+
+Let me make it concrete, because this is where it bites.
+
+A junior hits a bug. They paste it into the agent: "this is broken, fix it." The agent, ever the eager intern, produces a fix. Syntactically perfect. Completely reasonable-looking. Maybe it even makes the red error message go away, which feels like winning.
+
+Now the junior has three problems instead of one:
+
+1. **They don't know if it's actually fixed** or if the symptom just relocated to a nicer neighbourhood. They never built the model that would tell them.
+2. **They've learned nothing.** The next bug in that same corner starts from zero again. The compounding that slowly turns a junior into a senior? Didn't happen.
+3. **They've spent real money and real time** on a loop a five-minute `console.log` would have closed, and the loop gets _longer_ the less they understand, because they can't hand the agent the one clarifying detail that would end it.
+
+And here's the cruel part: from the inside, it feels _productive_. Code is being written. Diffs are landing. It looks exactly like work. That's precisely what makes it dangerous.
+
+## Where AI genuinely helps a junior
+
+I'm not a Luddite, and this isn't a "kids these days" rant. There's a real list of things AI is brilliant at for someone early in their career, and pretending otherwise is just a different flavour of dishonest:
+
+- **Explaining unfamiliar code.** "Walk me through what this function does" is a fantastic use. You do the understanding; it does the tour-guiding.
+- **Syntax and boilerplate.** Nobody needs to memorise the exact shape of a `reduce` or a GitHub Action YAML. Let it type the parts you already understand.
+- **Rubber-ducking a hypothesis.** "I reckon the bug is in the cache because X, does that hold up?" is _you_ debugging, with a very well-read duck.
+- **Learning a new area fast.** Ask it to teach you, not to do it for you. The verb matters more than anything else on this list.
+
+Spot the pattern? Every good use has the junior doing the thinking and the agent doing the _fetching_. The bad ones are the reverse: the agent thinks, the junior copy-pastes and prays. Reach for AI to _understand faster_, not to _avoid understanding_.
+
+## How to actually earn the multiplier
+
+So here's what I'd tell someone one or two years in:
+
+**Do it by hand first, then let the agent make it fast.** Trace the bug yourself. Find the cause. _Then_, if you fancy it, ask the agent to write the fix; now you can tell in three seconds whether it's right, because you already know what right looks like. You keep the learning and you get the speed. That's the whole game, honestly.
+
+**Prompt from a position of knowledge, not ignorance.** The quality of what you get out of an agent is capped by the quality of what you put in. "Fix this" is a prayer. "The `useEffect` re-runs on every render because `options` is a new object each time; add a `useMemo` or hoist it out" is a _direction_. You can only write the second one if you did the work.
+
+**Treat every "it works now" as a question, not an answer.** Especially when the agent wrote it. Before you close the ticket, ask yourself: do I understand _why_ it works? If you can't explain it, you haven't fixed a bug; you've adopted one.
+
+## The point
+
+AI didn't remove the need to understand systems. It raised the premium on it. The engineers who win the next few years aren't the ones who reach for the agent fastest; they're the ones who understand deeply enough to direct it well. The multiplier is real, and it's enormous. But it multiplies _you_.
+
+So the most important thing a junior can do isn't learning to prompt.
+
+It's becoming worth multiplying.
+
+And no, I don't own the truth here. This is my take, shaped by plenty of bugs I traced the slow, stupid way before anyone handed me a shortcut. Disagree if you like, just show me your reasons.
+
+That's what engineers do.
+
+For the companion argument on why engineering still matters in all this, read [Don't be stupid - Be an engineer](/blog/dont-be-stupid-be-an-engineer). For the design-system angle, [The AI Design System You Should Actually Build](/blog/ai-design-system).
