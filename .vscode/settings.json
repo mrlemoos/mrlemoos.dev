@@ -12,8 +12,10 @@
     "LINKEDIN",
     "mrlemoos",
     "opengraph",
+    "prerendered",
     "turbopack",
-    "unrs"
+    "unrs",
+    "worktrees"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": true,

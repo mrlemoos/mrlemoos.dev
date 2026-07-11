@@ -25,7 +25,8 @@ dist/
 /build
 
 # misc
-.cursor/
+.agents/settings.local.json
+AGENTS.original.md
 .DS_Store
 *.pem
 
