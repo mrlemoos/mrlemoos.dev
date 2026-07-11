@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.pnpm-store
 
 # testing
 /coverage
@@ -26,7 +27,8 @@ dist/
 
 # misc
 .agents/settings.local.json
-AGENTS.original.md
+.agents/hooks/state/
+.agents/worktrees/
 .DS_Store
 *.pem
 
