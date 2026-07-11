@@ -15,8 +15,8 @@ const enabled = import.meta.env.PROD;
       define:vars={{ waitMs: GOOGLE_CONSENT_WAIT_FOR_UPDATE_MS }}
     >
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function gtag() {
-        window.dataLayer.push(arguments);
+      window.gtag = function gtag(...args) {
+        window.dataLayer.push(args);
       };
       window.gtag("consent", "default", {
         ad_storage: "denied",
