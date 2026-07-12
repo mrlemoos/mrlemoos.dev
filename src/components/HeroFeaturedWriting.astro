@@ -38,20 +38,18 @@ const entries = await getFeaturedWriting(4);
               {String(index + 1).padStart(2, "0")}
             </span>
 
-            <span class="min-w-0 flex-1">
-              <span class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span class="font-heading text-lg leading-[1.2] tracking-[-0.02em] text-foreground transition-colors duration-150 group-hover:text-foreground md:text-xl">
-                  {entry.title}
-                </span>
-                {entry.kind === "external" && (
-                  <span
-                    class="writing-publisher inline-flex shrink-0 items-center rounded-full border border-border bg-background/80 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-muted-foreground"
-                  >
-                    {entry.publisher}
-                  </span>
-                )}
+            <span class="min-w-0 flex-1 space-y-2">
+              <span class="block font-heading text-lg leading-[1.45] tracking-normal text-pretty text-foreground transition-colors duration-150 group-hover:text-foreground md:text-xl md:leading-[1.4]">
+                {entry.title}
               </span>
-              <span class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
+              {entry.kind === "external" && (
+                <span
+                  class="writing-publisher inline-flex w-fit items-center rounded-full border border-border bg-background/80 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-muted-foreground"
+                >
+                  {entry.publisher}
+                </span>
+              )}
+              <span class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-relaxed text-muted-foreground">
                 <time datetime={entry.date.toISOString()}>
                   {formatDate(entry.date)}
                 </time>

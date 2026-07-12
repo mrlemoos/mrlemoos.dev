@@ -61,7 +61,7 @@ export const blogCardTitle =
 /** Hero featured-writing rows: editorial index inside glass surface. */
 export const writingHighlightRow = twMerge(
   interactivePress,
-  "group flex items-start gap-4 px-4 py-4 text-inherit no-underline transition-colors duration-150 md:px-5",
+  "group flex items-start gap-4 px-4 py-5 text-inherit no-underline transition-colors duration-150 md:gap-5 md:px-5",
   "border-b border-[color-mix(in_oklab,var(--border)_55%,transparent)] last:border-b-0",
   "hover:bg-[color-mix(in_oklab,var(--foreground)_4%,transparent)]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
