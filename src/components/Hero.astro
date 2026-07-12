@@ -1,7 +1,7 @@
 ---
 import HeroFeaturedWriting from "@/components/HeroFeaturedWriting.astro";
 import { GITHUB_URL, LINKEDIN_URL, X_URL } from "@/lib/constants";
-import { socialNavLink, socialNavRow } from "@/lib/css";
+import { sectionEyebrow, socialNavLink, socialNavRow } from "@/lib/css";
 import { HERO_TAGLINE } from "@/lib/seo";
 ---
 
@@ -10,12 +10,12 @@ import { HERO_TAGLINE } from "@/lib/seo";
 >
   <div class="mx-auto w-full max-w-3xl text-center">
     <h1
-      class="hero-animate font-heading text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[1.05] tracking-[-0.03em] text-foreground"
+      class="hero-animate font-heading text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[1.05] tracking-[-0.035em] text-foreground"
     >
       Leonardo Lemos
     </h1>
     <p
-      class="hero-animate hero-animate-delay-1 mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg"
+      class="hero-animate hero-animate-delay-1 mx-auto mt-6 max-w-xl text-pretty text-base leading-[1.6] tracking-[0.005em] text-muted-foreground md:text-lg md:leading-[1.65]"
     >
       {HERO_TAGLINE}
     </p>
@@ -23,9 +23,9 @@ import { HERO_TAGLINE } from "@/lib/seo";
     <HeroFeaturedWriting />
 
     <div
-      class="hero-animate hero-animate-delay-3 mt-10 flex flex-col items-center gap-3"
+      class="hero-animate hero-animate-delay-3 mt-10 flex flex-col items-center gap-4"
     >
-      <span class="text-sm text-muted-foreground">Connect with me</span>
+      <span class={sectionEyebrow}>Connect</span>
       <div class={socialNavRow}>
         <a href={GITHUB_URL} class={socialNavLink}>GitHub</a>
         <a href={X_URL} class={socialNavLink}>X</a>

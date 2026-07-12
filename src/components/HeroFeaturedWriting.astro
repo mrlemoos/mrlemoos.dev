@@ -1,29 +1,26 @@
 ---
 import { formatDate } from "@/lib/date";
-import { cn, textLink, writingHighlightRow } from "@/lib/css";
+import { cn, contentPanel, sectionEyebrow, textLink, writingHighlightRow } from "@/lib/css";
 import { getFeaturedWriting } from "@/lib/writing";
 
 const entries = await getFeaturedWriting(4);
 ---
 
 <div class="hero-animate hero-animate-delay-2 mt-12 w-full text-left md:mt-14">
-  <div
-    class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-3"
-  >
-    <p
-      class="font-mono text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground"
+  <div class={cn(contentPanel, "p-1 md:p-1.5")}>
+    <div
+      class="flex items-end justify-between gap-4 px-4 pb-3 pt-4 md:px-5 md:pt-5"
     >
-      Featured writing
-    </p>
-    <a
-      href="/blog"
-      class={cn(textLink, "shrink-0 text-xs font-medium tracking-wide")}
-    >
-      All posts →
-    </a>
-  </div>
+      <p class={sectionEyebrow}>Featured writing</p>
+      <a
+        href="/blog"
+        class={cn(textLink, "shrink-0 text-xs font-medium tracking-[0.04em]")}
+      >
+        All posts →
+      </a>
+    </div>
 
-  <ul class="flex flex-col" role="list">
+    <ul class="flex flex-col" role="list">
     {
       entries.map((entry, index) => (
         <li>
@@ -43,12 +40,12 @@ const entries = await getFeaturedWriting(4);
 
             <span class="min-w-0 flex-1">
               <span class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span class="font-heading text-lg leading-snug tracking-tight text-foreground transition-colors duration-200 group-hover:text-foreground md:text-xl">
+                <span class="font-heading text-lg leading-[1.2] tracking-[-0.02em] text-foreground transition-colors duration-150 group-hover:text-foreground md:text-xl">
                   {entry.title}
                 </span>
                 {entry.kind === "external" && (
                   <span
-                    class="writing-publisher inline-flex shrink-0 items-center rounded-full border border-border bg-card/60 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-wider text-muted-foreground"
+                    class="writing-publisher inline-flex shrink-0 items-center rounded-full border border-border bg-background/80 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-muted-foreground"
                   >
                     {entry.publisher}
                   </span>
@@ -75,5 +72,6 @@ const entries = await getFeaturedWriting(4);
         </li>
       ))
     }
-  </ul>
+    </ul>
+  </div>
 </div>

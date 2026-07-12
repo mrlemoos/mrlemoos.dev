@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { formatDate } from "@/lib/date";
-import { blogCardArticle, blogCardTitle, cn, textLink } from "@/lib/css";
+import { blogCardArticle, blogCardTitle, cn, sectionTitle, textLink } from "@/lib/css";
 
 const allPosts = await getCollection("blog");
 const posts = allPosts
@@ -9,11 +9,9 @@ const posts = allPosts
   .slice(0, 3);
 ---
 
-<section class="border-t border-border pt-16">
-  <h2 class="mb-8 font-heading text-2xl tracking-tight text-foreground md:text-3xl">
-    Latest posts
-  </h2>
-  <div class="flex flex-col gap-5">
+<section class="section-fade-top pt-20 md:pt-24">
+  <h2 class={cn(sectionTitle, "mb-8")}>Latest posts</h2>
+  <div class="flex flex-col gap-4">
     {
       posts.map((post) => (
         <a
@@ -24,8 +22,8 @@ const posts = allPosts
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           )}
         >
-          <h3 class={cn(blogCardTitle, "mb-2 font-normal")}>{post.data.title}</h3>
-          <p class="mb-2 text-sm text-muted-foreground">
+          <h3 class={cn(blogCardTitle, "mb-2 font-normal leading-[1.2] tracking-[-0.02em]")}>{post.data.title}</h3>
+          <p class="mb-2 text-sm tracking-[0.01em] text-muted-foreground">
             {formatDate(post.data.date)}
           </p>
           <p class="text-muted-foreground">{post.data.description}</p>

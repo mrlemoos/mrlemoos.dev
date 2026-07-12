@@ -1,22 +1,20 @@
 ---
 import { experiences } from "@/lib/data/experience";
-import { textLink } from "@/lib/css";
+import { cn, contentPanel, sectionTitle, textLink } from "@/lib/css";
 ---
 
-<section class="my-24 border-t border-border pt-16">
-  <h2 class="mb-10 font-heading text-2xl tracking-tight text-foreground md:text-3xl">
-    Experience
-  </h2>
-  <div>
+<section class="section-fade-top my-24 pt-20 md:pt-24">
+  <h2 class={cn(sectionTitle, "mb-10")}>Experience</h2>
+  <div class="flex flex-col gap-4">
     {
       experiences.map(
         ({ company, companyURL, title, period, description, skills }) => (
-          <div class="mb-12 last:mb-0">
+          <article class={cn(contentPanel, "p-5 md:p-6")}>
             <div class="mb-2 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-              <h3 class="font-heading text-xl font-normal tracking-tight text-foreground">
+              <h3 class="font-heading text-xl font-normal leading-[1.15] tracking-[-0.02em] text-foreground">
                 {title}
               </h3>
-              <span class="text-sm text-muted-foreground">{period}</span>
+              <span class="text-sm tracking-[0.01em] text-muted-foreground">{period}</span>
             </div>
             <a
               href={companyURL}
@@ -27,17 +25,21 @@ import { textLink } from "@/lib/css";
               {company}
             </a>
             {description.length > 0 && (
-              <ul class="mb-3 mt-3 list-inside list-disc space-y-1.5 text-muted-foreground">
+              <ul class="mb-3 mt-3 list-inside list-disc space-y-1.5 leading-[1.6] text-muted-foreground">
                 {description.map((line) => (
                   <li>{line}</li>
                 ))}
               </ul>
             )}
-            <div class="flex flex-col gap-1">
-              <span class="text-sm text-muted-foreground">Skills</span>
-              <span class="text-sm text-muted-foreground">{skills.join(", ")}</span>
+            <div class="flex flex-col gap-2">
+              <span class="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-muted-foreground">
+                Skills
+              </span>
+              <p class="text-sm leading-[1.6] tracking-[0.01em] text-muted-foreground">
+                {skills.join(", ")}
+              </p>
             </div>
-          </div>
+          </article>
         )
       )
     }
