@@ -31,4 +31,14 @@ export const externalWriting: ExternalWriting[] = [
     publisher: "Credo AI",
     tags: ["Agentic AI", "Design systems"],
   },
+  {
+    id: "skyrocketing-cost-of-tokens",
+    title: "The Skyrocketing Cost of Tokens - Part 3",
+    description:
+      "Rationing is a finance lever. Context discipline is an engineering one.",
+    url: "https://www.credo.ai/blog/the-skyrocketing-cost-of-tokens",
+    date: new Date("2026-06-23"),
+    publisher: "Credo AI",
+    tags: ["Agentic AI"],
+  },
 ];
