@@ -11,8 +11,7 @@ export interface ExternalWriting {
 export const externalWriting: ExternalWriting[] = [
   {
     id: "agentic-coding",
-    title:
-      "Enterprise-Level Agentic Coding: Beyond the Hype of ‘Vibe Coding’",
+    title: "Enterprise-Level Agentic Coding: Beyond the Hype of ‘Vibe Coding’",
     description:
       "Moving from simple prompting to disciplined workflows guided by explicit rules and architectural boundaries in large monorepos.",
     url: "https://www.credo.ai/blog/enterprise-level-agentic-coding-beyond-the-hype-of-vibe-coding",
@@ -23,7 +22,7 @@ export const externalWriting: ExternalWriting[] = [
   {
     id: "gaia-design-handoff-part-2",
     title:
-      "How GAIA Broke our Design-Enginering Handoff (and What We Built Instead) - Part 2",
+      "How GAIA Broke our Design-Engineering Handoff (and What We Built Instead) - Part 2",
     description:
       "Make Storybook the single source of truth for the design system — component stories as acceptance criteria to align design and engineering.",
     url: "https://www.credo.ai/blog/how-gaia-broke-our-design-enginering-handoff-and-what-we-built-instead---part-2",
