@@ -10,6 +10,8 @@ const blog = defineCollection({
     updated: z.coerce.date().optional(),
     description: z.string(),
     tags: z.array(z.string()),
+    /** Missing status on older files means live (public). */
+    status: z.enum(["draft", "live"]).default("live"),
   }),
 });
 

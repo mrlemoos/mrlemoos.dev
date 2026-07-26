@@ -20,9 +20,10 @@ import {
 import { GOOGLE_ADS_CLIENT } from "@/lib/consent";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
+import { filterLivePosts } from "@/lib/admin/public-filter";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = filterLivePosts(await getCollection("blog"));
   return posts.map((post) => ({
     params: { slug: post.id },
   }));
@@ -31,7 +32,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const post = await getEntry("blog", slug!);
 
-if (!post) {
+if (!post || post.data.status === "draft") {
   return Astro.redirect("/404");
 }
 

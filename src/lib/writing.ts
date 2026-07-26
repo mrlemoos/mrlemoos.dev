@@ -1,5 +1,6 @@
 import { getCollection } from "astro:content";
 import { externalWriting } from "@/lib/data/external-writing";
+import { filterLivePosts } from "@/lib/admin/public-filter";
 
 export type WritingEntry = {
   kind: "local" | "external";
@@ -11,7 +12,7 @@ export type WritingEntry = {
 };
 
 export async function getFeaturedWriting(limit = 4): Promise<WritingEntry[]> {
-  const localPosts = await getCollection("blog");
+  const localPosts = filterLivePosts(await getCollection("blog"));
 
   const local: WritingEntry[] = localPosts.map((post) => ({
     kind: "local",

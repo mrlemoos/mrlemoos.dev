@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { requireAdminDev } from "@/lib/admin/dev-gate";
+import { PostAdminApp } from "@/components/admin/PostAdminApp";
+import { buildPageMeta } from "@/lib/seo";
+
+export const prerender = false;
+
+const blocked = requireAdminDev(import.meta.env.DEV);
+if (blocked) {
+  return blocked;
+}
+
+const meta = buildPageMeta(Astro.site!, {
+  title: "New Post | Local Admin",
+  description: "Create a Draft Post in Local Admin.",
+  robots: "noindex, nofollow",
+});
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-6xl px-4 py-8 md:py-12">
+    <p class="mb-2 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+      Local Admin
+    </p>
+    <h1 class="mb-8 font-heading text-4xl tracking-tight text-foreground">
+      New Post
+    </h1>
+    <PostAdminApp client:only="react" mode="create" />
+  </div>
+</BaseLayout>

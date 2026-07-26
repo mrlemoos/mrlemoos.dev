@@ -1,0 +1,74 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { requireAdminDev } from "@/lib/admin/dev-gate";
+import { getRepoRoot } from "@/lib/admin/api";
+import { createGitRunner, isPathTracked } from "@/lib/admin/git-runner";
+import { listPosts } from "@/lib/admin/posts";
+import { getCurrentBranch } from "@/lib/admin/git";
+import { buildPageMeta } from "@/lib/seo";
+
+export const prerender = false;
+
+const blocked = requireAdminDev(import.meta.env.DEV);
+if (blocked) {
+  return blocked;
+}
+
+const root = getRepoRoot();
+const run = createGitRunner(root);
+const posts = await listPosts(root, (p) => isPathTracked(run, p));
+const branch = await getCurrentBranch(run);
+const meta = buildPageMeta(Astro.site!, {
+  title: "Local Admin | Leonardo Lemos",
+  description: "Local Admin for editing Posts on this machine.",
+  robots: "noindex, nofollow",
+});
+---
+
+<BaseLayout {...meta}>
+  <div class="mx-auto max-w-4xl px-4 py-8 md:py-12">
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="mb-2 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          Local Admin
+        </p>
+        <h1 class="font-heading text-4xl tracking-tight text-foreground md:text-5xl">
+          Posts
+        </h1>
+        <p class="mt-2 text-sm text-muted-foreground">
+          Branch <span class="font-mono">{branch}</span>
+          {branch === "main" ? "" : " — Publish / Unpublish / Delete-push blocked off main"}
+        </p>
+      </div>
+      <a
+        href="/admin/posts/new"
+        class="rounded-sm bg-foreground px-3 py-2 text-sm text-background"
+      >
+        New Post
+      </a>
+    </div>
+
+    <ul class="flex flex-col gap-3">
+      {
+        posts.map((post) => (
+          <li>
+            <a
+              href={`/admin/posts/${post.slug}`}
+              class="block border-b border-border py-3 text-inherit no-underline transition-opacity hover:opacity-80"
+            >
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 class="font-heading text-2xl font-normal">{post.title}</h2>
+                <span class="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                  {post.status}
+                  {post.tracked ? "" : " · untracked"}
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-muted-foreground">{post.date} · {post.slug}</p>
+              <p class="mt-1 text-muted-foreground">{post.description}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>

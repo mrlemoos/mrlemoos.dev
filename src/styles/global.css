@@ -239,3 +239,32 @@ body {
 .prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   font-family: var(--font-geist-mono);
 }
+
+/* Local Admin TipTap Live Preview */
+.admin-tiptap {
+  outline: none;
+}
+
+.admin-tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.admin-tiptap th,
+.admin-tiptap td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  vertical-align: top;
+}
+
+.admin-tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.admin-tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}

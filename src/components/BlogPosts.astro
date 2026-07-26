@@ -2,8 +2,9 @@
 import { getCollection } from "astro:content";
 import { formatDate } from "@/lib/date";
 import { blogCardArticle, blogCardTitle, cn, sectionTitle, textLink } from "@/lib/css";
+import { filterLivePosts } from "@/lib/admin/public-filter";
 
-const allPosts = await getCollection("blog");
+const allPosts = filterLivePosts(await getCollection("blog"));
 const posts = allPosts
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 3);

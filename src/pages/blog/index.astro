@@ -7,12 +7,13 @@ import { buildPageMeta } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { blogCardArticle, blogCardTitle, cn } from "@/lib/css";
+import { filterLivePosts } from "@/lib/admin/public-filter";
 
 const site = Astro.site!;
 const siteOrigin = site.origin;
 const blogUrl = new URL("/blog", site).href;
 
-const posts = (await getCollection("blog")).sort(
+const posts = filterLivePosts(await getCollection("blog")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 
