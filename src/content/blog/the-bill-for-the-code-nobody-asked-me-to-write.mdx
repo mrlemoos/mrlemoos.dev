@@ -1,0 +1,84 @@
+---
+title: "The bill for the code nobody asked me to write"
+date: "2026-07-29"
+description: "I don't think most engineers know what their AI habit actually costs them, and I've come round to the view that the not-knowing is the problem, rather than the amount."
+tags:
+  - blog
+  - ai
+  - cost
+  - engineering
+  - log
+status: "live"
+---
+
+I don't think most engineers know what their AI habit actually costs them, and I've come round to the view that the not-knowing is the problem, rather than the amount.
+
+I didn't know either. I had a comfortable sense of "it's fine, it's a subscription", which is what you tell yourself right until you open the billing page and read it properly. So I pulled six months of my own Cursor usage, January through June, and sat with it.
+
+US$1,526.48.
+
+That's my personal subscription. Side projects, evenings and weekends, my own money, my own repositories; none of it is work tooling and none of it was anyone's deadline but mine. Of the total, $1,063.51 came out of the plan I'd already agreed to. The other $463.01 was on-demand, spent past the plan, in increments small enough that not one of them ever registered as a decision.
+
+Averaged out: two hundred-odd pounds a month. Eight dollars and change a day, every day, including the days I never opened my laptop (which are rare, but happen)
+
+For context, DX put company spending on agentic tooling at roughly $200 to $600 per engineer per month. That's for engineers doing their salaried jobs, on company codebases, with company money.
+
+I hit the bottom of that band on my hobbies.
+
+## The obvious reply, which is a good one
+
+It's discretionary money spent on discretionary projects, other people spend more than that on far worse, and if the tooling makes the evenings more productive then it has done its job.
+
+Fair. Honestly, that's the reply I'd give too, and I don't think it's wrong.
+
+But the fact that it was hobby money is precisely what makes it diagnostic. There was no deadline. No PM, no incident, no sprint boundary, nobody waiting on me. Every single one of those re-rolls was a decision I made freely, on a Saturday, with all the time in the world to do it properly.
+
+If that's how I work with no pressure on me at all, I've got no particular reason to believe I do better when there is.
+
+### The bit that made me wince
+
+The first eleven weeks are almost flat. Then, around the end of March, the line bends; my daily rate roughly triples and stays there for about a month before settling.
+
+Nothing changed about the pricing in that window. Nothing changed about how much free time I had, actually I had less time free to be honest; but nonetheless, what changed was me. I started playing around with more and more things, things I wanted to put out there, to build, and to try. Most of them aren't fun, they're not the best Facebook, but they were things I carried in the back of my head for a while.
+
+This all reminds me of the initial months in the AI era. You give the agent a vague instruction. The agent, ever the eager intern, spits out something plausible. It isn't right, but it's close enough that reading it carefully feels like more work than just asking again; so you ask again. And again. Four attempts later you've got a working diff, no real idea why the first three failed, and you've spent the price of a decent lunch finding out.
+
+That's me outsourcing the thinking and getting itemised for it. However, I must assume that, this time, I actually produced more on the side, instead of outsourcing thinking as the weeks I described above used to be like.
+
+## Ten models, one habit
+
+The other thing the breakdown showed: ten distinct models on the bill, and one of them eating most of it.
+
+I never once made a considered decision about which model got which task. I picked a default in April and then sent everything through it (scaffolding, mechanical refactors, test stubs, renaming things) at the same rate as the genuinely hard architectural work. Some of that needed the good model. Most of it needed something that could have done the job for a fraction of the cost whilst I got on with the part that actually required me (looking at Composer 2.5 right now).
+
+If you've got a routing strategy, there's a decent chance it's "whatever was selected last time". Mine was.
+
+## What I do differently now
+
+I'm gonna use a GPT word here–I'm not a *Luddite* about this, and it isn't a “kids these days” rant. I'd spend the $1,526 again. I want to spend it better.
+
+**Watch the on-demand line, not the total.** The subscription is a decision you make once a year. The overage is a decision you make forty times a day without noticing, and it was thirty percent of my spend. That's the number with no ceiling on it.
+
+**Three failed attempts means the context is wrong.** This is the one that actually moved my numbers. If the third try hasn't landed, the problem is upstream; you've handed it the wrong files, or a spec too vague to act on, or you don't understand the bug yet yourself. A fourth roll is just paying to postpone thinking. Close the session, read the code, come back with a specification.
+
+**Route deliberately.** Cheap model for the mechanical work (scaffolding, boilerplate, test generation, renames, etc.) Expensive model for architecture, unfamiliar domains, and anything that's already resisted you once. Running the frontier model for everything is a multiplier (in outcome &amp; expenses).
+
+**Start fresh more often than feels necessary.** A long session is an expensive session; you're re-sending an ever-growing pile of context on every turn to get an answer that usually depends on about four files. The cost curve of a two-hour conversation is neither flat nor linear. I usually ask for a handoff doc around the 50% of the context window size and move on from there \[when I don't just /compact the session\].
+
+**Write the spec first.** One careful four-hundred-token description of what you want beats six vague retries, and it isn't close. It's also just the job. We used to call it thinking before typing. And I'll give credit where credit is due, Matt Pocock's `grill-with-docs` , `grill-me`, `wayfinder` , et al. are great for that. You make the agent think with you. Not for you as most people think they should. Well, it's the same I always say: *Don't be stupid, be an engineer.*
+
+What I'd want a junior to take from this isn't "spend less". It's that your billing page is one of the very few honest signals you have about how you're working. It doesn't care what you meant to do; it logs what you did.
+
+Mine said I'd spent a month re-rolling instead of reading, on projects nobody was waiting for, with nothing at stake but my own evenings. I'd have told you, sincerely, that I hadn't.
+
+Six months, fifteen hundred dollars, and the most useful thing I got out of it wasn't any of the code.
+
+## The actual point
+
+What I'd want a junior to take from this isn't “spend less”. It's that your billing page is one of the very few honest signals you have about how you're working. It doesn't care what you meant to do; it logs what you did.
+
+Mine said I'd spent a month re-rolling instead of reading, on projects nobody was waiting for, with nothing at stake but my own evenings. I'd have told you, sincerely, that I hadn't.
+
+Six months, fifteen hundred US dollars, and the most useful thing I got out of it wasn't any of the code.
+
+I'm aware this is n=1 and one tool, and I'd genuinely like to be wrong about how common it is. If you've pulled your own numbers and they tell a different story (particularly if you've got a routing setup you actually stick to), I want to hear it. Show me the shape of your curve.
