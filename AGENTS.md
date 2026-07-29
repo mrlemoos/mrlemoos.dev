@@ -7,7 +7,9 @@
 
 ## Learned Workspace Facts
 
-- Site built with Astro 6 (migrated from Next.js): blog posts under `src/content/blog` via Astro content collections; MDX uses remark-math + rehype-katex for maths; Tailwind CSS v4 wired through Vite; deploy via `@astrojs/vercel` with prerendered pages + dynamic Open Graph image route; package manager pnpm; target Node 24.x.
+- Site built with Astro 6 (migrated from Next.js): blog posts under `src/content/blog` via Astro content collections; post frontmatter `status` enum `draft` | `live` (missing means live); MDX uses remark-math + rehype-katex for maths; Tailwind CSS v4 wired through Vite; deploy via `@astrojs/vercel` with prerendered pages + dynamic Open Graph image route; package manager pnpm; target Node 24.x.
+- `CONTEXT.md` defines domain language (Post, Local Admin, Save/Publish, Body dialect v1) — use it for admin and writing features.
+- Local Admin: DEV-only TipTap editor at `/admin` (list, new, edit); writes blog MDX on disk; explicit Save only; Publish on `main` with `docs(blog):` commit messages.
 - Typography/theme: Geist for body/UI sans, serif (e.g. Instrument Serif) for headings, grey-first palette, deliberate micro-interactions for polished portfolio feel.
 - Agent config consolidated under `.agents/` with `.cursor` and `.claude` symlinks; `CLAUDE.md` symlinks `AGENTS.md`.
 - Vitest unit tests: colocated `src/**/*.test.js` importing TS/TSX/Astro via Astro `getViteConfig()` in `vitest.config.ts`; `pnpm test` / `pnpm test:run`; jsdom for React tests, node for Astro Container tests.
