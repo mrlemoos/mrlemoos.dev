@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
+import { remarkMathOptions } from "./src/lib/mdx-remark-math-options.ts";
 import remarkMath from "remark-math";
 
 export default defineConfig({
@@ -14,7 +15,7 @@ export default defineConfig({
   integrations: [
     react(),
     mdx({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [[remarkMath, remarkMathOptions]],
       rehypePlugins: [rehypeKatex],
     }),
     sitemap(),
