@@ -19,6 +19,7 @@ import {
 } from "@/lib/constants";
 import { GOOGLE_ADS_CLIENT } from "@/lib/consent";
 import Breadcrumb from "@/components/Breadcrumb.astro";
+import SubscribeForm from "@/components/SubscribeForm.astro";
 import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
 import { filterLivePosts } from "@/lib/admin/public-filter";
 
@@ -168,6 +169,7 @@ const meta = buildPageMeta(site, {
         </div>
       )
     }
+    <SubscribeForm class="mt-12 border-t border-border pt-8" />
     <div
       class="mt-12 flex flex-col gap-4 border-t border-border pt-8"
     >

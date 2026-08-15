@@ -1,0 +1,111 @@
+---
+import { cn, interactivePress, materialThin } from "@/lib/css";
+
+interface Props {
+  heading?: string;
+  blurb?: string;
+  class?: string;
+}
+
+const {
+  heading = "New posts, in your inbox",
+  blurb = "Occasional writing on software, craft, and whatever I'm chewing on. No spam, unsubscribe in one click.",
+  class: className,
+} = Astro.props;
+---
+
+<section class={cn("flex flex-col gap-3", className)} data-subscribe>
+  <div class="flex flex-col gap-1">
+    <span class="font-heading text-lg tracking-tight text-foreground">{heading}</span>
+    <p class="text-sm text-muted-foreground">{blurb}</p>
+  </div>
+
+  <form
+    method="post"
+    action="/api/subscribe"
+    class="flex w-full flex-col gap-2 sm:flex-row"
+    novalidate
+  >
+    <label class="sr-only" for="subscribe-email">Email address</label>
+    <input
+      id="subscribe-email"
+      type="email"
+      name="email"
+      required
+      autocomplete="email"
+      placeholder="you@example.com"
+      class={cn(
+        materialThin,
+        "min-h-12 w-full flex-1 rounded-full px-4 text-sm text-foreground placeholder:text-muted-foreground/70",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      )}
+    />
+    <!-- Honeypot: hidden from people, catnip for bots. -->
+    <input
+      type="text"
+      name="company"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+      class="pointer-events-none absolute h-0 w-0 opacity-0"
+    />
+    <button
+      type="submit"
+      class={cn(
+        materialThin,
+        interactivePress,
+        "min-h-12 shrink-0 cursor-pointer rounded-full px-6 text-sm font-medium text-foreground",
+        "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "disabled:cursor-not-allowed disabled:opacity-60"
+      )}
+    >
+      Subscribe
+    </button>
+  </form>
+
+  <p
+    class="min-h-5 text-sm text-muted-foreground"
+    role="status"
+    aria-live="polite"
+    data-subscribe-status
+  >
+  </p>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-subscribe]").forEach((root) => {
+    const form = root.querySelector("form");
+    const status = root.querySelector<HTMLElement>("[data-subscribe-status]");
+    if (!form || !status) return;
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = form.querySelector("button[type=submit]") as HTMLButtonElement | null;
+      const data = Object.fromEntries(new FormData(form));
+
+      if (button) button.disabled = true;
+      status.textContent = "Signing you up…";
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const body = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+          form.reset();
+          status.textContent = "You're in. Watch your inbox.";
+        } else {
+          status.textContent = body.error ?? "Something went wrong. Try again.";
+        }
+      } catch {
+        status.textContent = "Network error. Try again.";
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  });
+</script>

@@ -6,6 +6,7 @@ import {
   X_URL,
 } from "@/lib/constants";
 import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
+import SubscribeForm from "@/components/SubscribeForm.astro";
 
 const currentYear = new Date().getFullYear();
 ---
@@ -15,6 +16,7 @@ const currentYear = new Date().getFullYear();
     <div
       class="flex flex-col items-center gap-5 text-sm text-muted-foreground"
     >
+      <SubscribeForm class="w-full max-w-lg text-left" />
       <div class={cn(socialNavRow, "justify-center")}>
         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class={socialNavLink}
           >GitHub</a
