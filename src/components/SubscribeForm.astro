@@ -26,9 +26,9 @@ const {
     class="flex w-full flex-col gap-2 sm:flex-row"
     novalidate
   >
-    <label class="sr-only" for="subscribe-email">Email address</label>
+    <!-- aria-label, not <label for>: several instances can share a page (footer + in-body). -->
     <input
-      id="subscribe-email"
+      aria-label="Email address"
       type="email"
       name="email"
       required

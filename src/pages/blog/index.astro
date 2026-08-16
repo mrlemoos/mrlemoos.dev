@@ -6,8 +6,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { buildPageMeta } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import { blogCardArticle, blogCardTitle, cn } from "@/lib/css";
+import SubscribeForm from "@/components/SubscribeForm.astro";
+import { blogCardArticle, blogCardTitle, cn, textLink } from "@/lib/css";
 import { filterLivePosts } from "@/lib/admin/public-filter";
+import { FEED_PATH } from "@/lib/rss";
 
 const site = Astro.site!;
 const siteOrigin = site.origin;
@@ -95,9 +97,13 @@ const meta = buildPageMeta(site, {
     <Breadcrumb
       items={[{ label: "Home", href: "/" }, { label: "Blog" }]}
     />
-    <h1 class="mb-10 font-heading text-4xl tracking-tight text-foreground md:text-5xl">
+    <h1 class="mb-3 font-heading text-4xl tracking-tight text-foreground md:text-5xl">
       Blog posts
     </h1>
+    <p class="mb-10 text-muted-foreground">
+      Reading by topic? <a href="/blog/tags" class={textLink}>Browse every tag</a>.
+      Prefer a reader? <a href={FEED_PATH} class={textLink}>Subscribe by RSS</a>.
+    </p>
     <div class="flex flex-col gap-5">
       {
         posts.map(({ id, data: { title, date, description } }) => (
@@ -118,5 +124,6 @@ const meta = buildPageMeta(site, {
         ))
       }
     </div>
+    <SubscribeForm class="mt-12 border-t border-border pt-8" />
   </div>
 </BaseLayout>
