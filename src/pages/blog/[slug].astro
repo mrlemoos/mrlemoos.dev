@@ -20,8 +20,18 @@ import {
 import { GOOGLE_ADS_CLIENT } from "@/lib/consent";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import SubscribeForm from "@/components/SubscribeForm.astro";
-import { cn, socialNavLink, socialNavRow, textLink } from "@/lib/css";
+import TagLinks from "@/components/TagLinks.astro";
+import {
+  blogCardArticle,
+  blogCardTitle,
+  cn,
+  sectionTitle,
+  socialNavLink,
+  socialNavRow,
+  textLink,
+} from "@/lib/css";
 import { filterLivePosts } from "@/lib/admin/public-filter";
+import { selectRelatedPosts } from "@/lib/tags";
 
 export async function getStaticPaths() {
   const posts = filterLivePosts(await getCollection("blog"));
@@ -38,6 +48,7 @@ if (!post || post.data.status === "draft") {
 }
 
 const { Content } = await render(post);
+const relatedPosts = selectRelatedPosts(post, await getCollection("blog"));
 const site = Astro.site!;
 const publishedISO = post.data.date.toISOString();
 const modifiedISO = (post.data.updated ?? post.data.date).toISOString();
@@ -136,7 +147,7 @@ const meta = buildPageMeta(site, {
     <h1 class="mb-3 text-center font-heading text-4xl font-normal leading-tight tracking-tight text-foreground md:text-5xl">
       {post.data.title}
     </h1>
-    <p class="mb-10 text-center text-muted-foreground">
+    <p class="mb-5 text-center text-muted-foreground">
       {
         post.data.updated &&
         post.data.updated.getTime() !== post.data.date.getTime()
@@ -144,6 +155,11 @@ const meta = buildPageMeta(site, {
           : `Published on ${formatDate(post.data.date)}`
       }
     </p>
+    <TagLinks
+      tags={post.data.tags}
+      label="Post tags"
+      class="mb-10 justify-center"
+    />
     <p class="text-muted-foreground">Leo writes:</p>
     <div
       class="prose prose-lg dark:prose-invert mt-4 max-w-none text-foreground prose-pre:bg-transparent prose-pre:p-0 prose-a:text-foreground prose-a:underline prose-a:decoration-zinc-400/70 prose-a:underline-offset-4 hover:prose-a:decoration-foreground"
@@ -167,6 +183,42 @@ const meta = buildPageMeta(site, {
             data-ad-slot="5787544724"
           />
         </div>
+      )
+    }
+    {
+      relatedPosts.length > 0 && (
+        <section
+          aria-labelledby="related-posts"
+          class="mt-12 border-t border-border pt-8"
+        >
+          <h2 id="related-posts" class={cn(sectionTitle, "mb-6 text-xl md:text-2xl")}>
+            Keep reading
+          </h2>
+          <div class="flex flex-col gap-4">
+            {relatedPosts.map((related) => (
+              <a
+                href={`/blog/${related.id}`}
+                class={cn(
+                  blogCardArticle,
+                  "block text-left text-inherit no-underline"
+                )}
+              >
+                <h3
+                  class={cn(
+                    blogCardTitle,
+                    "mb-2 font-normal leading-[1.2] tracking-[-0.02em]"
+                  )}
+                >
+                  {related.data.title}
+                </h3>
+                <p class="mb-2 text-sm tracking-[0.01em] text-muted-foreground">
+                  {formatDate(related.data.date)}
+                </p>
+                <p class="text-muted-foreground">{related.data.description}</p>
+              </a>
+            ))}
+          </div>
+        </section>
       )
     }
     <SubscribeForm class="mt-12 border-t border-border pt-8" />

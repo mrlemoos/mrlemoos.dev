@@ -1,0 +1,42 @@
+---
+import { cn, tagChip, tagChipRow } from "@/lib/css";
+import { slugifyTag } from "@/lib/tags";
+
+interface Props {
+  tags: string[];
+  /** Slug of the tag page we're already on — rendered as plain text, not a link. */
+  currentSlug?: string;
+  label?: string;
+  class?: string;
+}
+
+const { tags, currentSlug, label = "Tags", class: className } = Astro.props;
+
+const seen = new Set<string>();
+const entries = tags.flatMap((tag) => {
+  const slug = slugifyTag(tag);
+  if (!slug || seen.has(slug)) {
+    return [];
+  }
+  seen.add(slug);
+  return [{ tag, slug }];
+});
+---
+
+{
+  entries.length > 0 && (
+    <nav aria-label={label} class={cn(tagChipRow, className)}>
+      {entries.map(({ tag, slug }) =>
+        slug === currentSlug ? (
+          <span class={cn(tagChip, "cursor-default")} aria-current="page">
+            {tag}
+          </span>
+        ) : (
+          <a href={`/blog/tags/${slug}`} class={tagChip} rel="tag">
+            {tag}
+          </a>
+        )
+      )}
+    </nav>
+  )
+}

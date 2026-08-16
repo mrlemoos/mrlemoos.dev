@@ -31,8 +31,16 @@ const posts = allPosts
         </a>
       ))
     }
-    <a href="/blog" class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}>
-      View all posts →
-    </a>
+    <div class="flex flex-wrap items-center gap-x-6">
+      <a href="/blog" class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}>
+        View all posts →
+      </a>
+      <a
+        href="/blog/tags"
+        class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}
+      >
+        Browse by tag →
+      </a>
+    </div>
   </div>
 </section>

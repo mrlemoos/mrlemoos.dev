@@ -79,6 +79,18 @@ export const projectCard = twMerge(
   "dark:bg-card/20 dark:shadow-black/20 dark:hover:shadow-black/40"
 );
 
+/** Tag pills linking through to a tag page. */
+export const tagChip = twMerge(
+  materialThin,
+  interactivePress,
+  "inline-flex min-h-8 items-center rounded-full px-3 py-1 font-mono text-[0.7rem] tracking-[0.02em]",
+  "text-muted-foreground no-underline transition-colors duration-150 ease-out",
+  "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)] hover:text-foreground",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+);
+
+export const tagChipRow = "flex flex-wrap items-center gap-2";
+
 export const projectStatusBadge = twMerge(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[0.6rem] font-medium uppercase tracking-wider"
 );
