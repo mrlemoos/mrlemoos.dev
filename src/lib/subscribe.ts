@@ -1,3 +1,14 @@
+/** Resend's REST base. We talk to it with `fetch` rather than the `resend` SDK. */
+export const RESEND_API_BASE = "https://api.resend.com" as const;
+
+/** Bearer + JSON headers every Resend REST call needs. */
+export function resendHeaders(apiKey: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+}
+
 /** Minimal, deliberately permissive email shape check — Resend is the real validator. */
 export function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
@@ -22,13 +33,10 @@ export async function addContactToAudience(
   { apiKey, audienceId, fetchImpl = fetch }: AddContactDeps
 ): Promise<AddContactResult> {
   const response = await fetchImpl(
-    `https://api.resend.com/audiences/${audienceId}/contacts`,
+    `${RESEND_API_BASE}/audiences/${audienceId}/contacts`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: resendHeaders(apiKey),
       body: JSON.stringify({ email: email.trim().toLowerCase(), unsubscribed: false }),
     }
   );

@@ -246,6 +246,39 @@ export function PostAdminApp({ mode, initialSlug }: Props) {
     [dirty, slug]
   );
 
+  // ponytail: creates a DRAFT broadcast in Resend and stops there. Nothing is
+  // mailed from Local Admin — the author reviews the draft in the Resend
+  // dashboard and sends it from there. Deliberately not chained onto Publish.
+  const createBroadcast = useCallback(async () => {
+    const ok = window.confirm(
+      "Create a draft broadcast in Resend for this Post? Nothing is sent — you review and send it from the Resend dashboard."
+    );
+    if (!ok) return;
+
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+    try {
+      if (dirty) {
+        throw new Error("Save before creating a broadcast draft");
+      }
+
+      const res = await fetch(`/api/admin/posts/${slug}/broadcast`, {
+        method: "POST",
+      });
+      const result = await readJson<{ id: string; subject: string }>(res);
+      setMessage(
+        `Broadcast draft created (${result.id}) — “${result.subject}”. Review and send it in the Resend dashboard; nothing has been mailed.`
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create broadcast draft"
+      );
+    } finally {
+      setSaving(false);
+    }
+  }, [dirty, slug]);
+
   if (loading) {
     return <p className="text-muted-foreground">Loading Post…</p>;
   }
@@ -406,6 +439,18 @@ export function PostAdminApp({ mode, initialSlug }: Props) {
               >
                 Unpublish
               </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void createBroadcast()}
+                className="rounded-sm border border-border px-3 py-2 text-sm disabled:opacity-50"
+              >
+                Create broadcast draft
+              </button>
+              <p className="text-xs text-muted-foreground">
+                Builds a Resend draft from Title, Description and the Post link.
+                Nothing is sent — review and send it from the Resend dashboard.
+              </p>
             </>
           )}
 
