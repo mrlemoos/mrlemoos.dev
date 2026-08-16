@@ -33,7 +33,32 @@ export function buildFeedItems(posts: FeedPost[]): RSSFeedItem[] {
       // ponytail: `updated` deliberately ignored. pubDate is when the post first
       // appeared; rewriting it on an edit re-floats old posts in feed readers.
       pubDate: data.date,
-      link: `/blog/${id}`,
+      // Trailing slash matches the canonical the page declares and the URL in
+      // the sitemap. Without it, readers attribute the item to a URL that
+      // appears nowhere else in the site's own metadata.
+      link: `/blog/${id}/`,
       ...(data.tags.length > 0 ? { categories: data.tags } : {}),
     }));
+}
+
+/**
+ * Channel-level `customData`: the feed's own address (aggregators use it to
+ * re-resolve a feed that has been copied or moved) and when it last changed.
+ */
+export function buildFeedMetadata(
+  feedUrl: string,
+  items: Pick<RSSFeedItem, "pubDate">[]
+): string {
+  const newest = items
+    .map((item) => item.pubDate)
+    .filter((date): date is Date => date instanceof Date)
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+
+  return [
+    "<language>en-gb</language>",
+    `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>`,
+    // Dated from the newest post, not the build clock: a redeploy that changes
+    // no posts shouldn't tell readers to poll again.
+    ...(newest ? [`<lastBuildDate>${newest.toUTCString()}</lastBuildDate>`] : []),
+  ].join("");
 }
