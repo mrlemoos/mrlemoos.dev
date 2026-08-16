@@ -21,6 +21,9 @@ export const GET: APIRoute = async (context) => {
     site,
     items,
     xmlns: { atom: "http://www.w3.org/2005/Atom" },
+    // Renders the raw XML as a readable page for anyone who clicks through
+    // from the site. Feed clients ignore it.
+    stylesheet: "/rss.xsl",
     customData: buildFeedMetadata(new URL(FEED_PATH, site).href, items),
   });
 };

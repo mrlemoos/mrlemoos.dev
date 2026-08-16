@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import { remarkMathOptions } from "./src/lib/mdx-remark-math-options.ts";
+import { isPublicSitemapPage } from "./src/lib/sitemap.ts";
 import remarkMath from "remark-math";
 
 export default defineConfig({
@@ -18,7 +19,7 @@ export default defineConfig({
       remarkPlugins: [[remarkMath, remarkMathOptions]],
       rehypePlugins: [rehypeKatex],
     }),
-    sitemap(),
+    sitemap({ filter: isPublicSitemapPage }),
   ],
   vite: {
     plugins: [tailwindcss()],
