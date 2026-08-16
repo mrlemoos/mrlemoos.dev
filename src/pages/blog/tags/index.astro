@@ -5,7 +5,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { buildPageMeta, SITE_BRAND_NAME } from "@/lib/seo";
-import { cn, interactivePress, materialThin, textLink } from "@/lib/css";
+import { cn, sectionEyebrow, tagChip, tagChipRow, textLink } from "@/lib/css";
 import { groupPostsByTag } from "@/lib/tags";
 
 const site = Astro.site!;
@@ -63,14 +63,7 @@ const meta = buildPageMeta(site, {
   },
 });
 
-const tagCard = cn(
-  materialThin,
-  interactivePress,
-  "group flex items-baseline justify-between gap-3 rounded-xl px-4 py-3 text-inherit no-underline",
-  "transition-colors duration-150 ease-out",
-  "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-);
+const postWord = (count: number) => (count === 1 ? "post" : "posts");
 ---
 
 <BaseLayout {...meta}>
@@ -82,32 +75,40 @@ const tagCard = cn(
         { label: "Tags" },
       ]}
     />
+    <span class={cn(sectionEyebrow, "block")}>Index</span>
     <h1
-      class="mb-3 font-heading text-4xl tracking-tight text-foreground md:text-5xl"
+      class="mb-3 mt-2 font-heading text-4xl tracking-tight text-foreground md:text-5xl"
     >
       Blog tags
     </h1>
-    <p class="mb-10 text-muted-foreground">
+    <p class="mb-10 max-w-prose text-pretty text-muted-foreground">
       {groups.length} topics across the blog. Pick one and read the lot.
     </p>
-    <ul class="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
+    {/* Chips, not a card grid: nine tags are a vocabulary, not nine destinations. */}
+    <ul class={cn(tagChipRow, "m-0 list-none p-0")}>
       {
-        groups.map((group) => (
-          <li>
-            <a href={`/blog/tags/${group.slug}`} class={tagCard}>
-              <span class="font-medium text-foreground transition-colors duration-150">
-                {group.label}
-              </span>
-              <span class="shrink-0 font-mono text-xs text-muted-foreground">
+        groups.map((group, index) => (
+          <li class="flex">
+            <a
+              href={`/blog/tags/${group.slug}`}
+              class={cn(tagChip, "reveal")}
+              style={`--reveal-index: ${Math.min(index, 8)}`}
+              rel="tag"
+            >
+              {group.label}
+              <span class="tag-chip-count">
                 {group.posts.length}
+                <span class="sr-only"> {postWord(group.posts.length)}</span>
               </span>
             </a>
           </li>
         ))
       }
     </ul>
-    <div class="mt-12 border-t border-border pt-8">
-      <a href="/blog" class={textLink}>All posts on the blog</a>
+    <div class="mt-14 flex flex-wrap items-center gap-x-6 border-t border-border pt-8">
+      <a href="/blog" class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}>
+        All posts on the blog →
+      </a>
     </div>
   </div>
 </BaseLayout>

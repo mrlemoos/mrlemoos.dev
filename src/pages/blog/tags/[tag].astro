@@ -5,8 +5,8 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { buildPageMeta, SITE_BRAND_NAME } from "@/lib/seo";
-import { formatDate } from "@/lib/date";
-import { blogCardArticle, blogCardTitle, cn, textLink } from "@/lib/css";
+import WritingList from "@/components/WritingList.astro";
+import { cn, sectionEyebrow, textLink } from "@/lib/css";
 import { groupPostsByTag } from "@/lib/tags";
 
 export async function getStaticPaths() {
@@ -93,13 +93,17 @@ const meta = buildPageMeta(site, {
         { label },
       ]}
     />
+    <span class={cn(sectionEyebrow, "block")}>Tag</span>
     <h1
-      class="mb-3 font-heading text-4xl tracking-tight text-foreground md:text-5xl"
+      class="mb-3 mt-2 font-heading text-4xl tracking-tight text-foreground md:text-5xl"
     >
       Posts tagged “{label}”
     </h1>
-    <p class="mb-10 text-muted-foreground">
-      {countLabel} under this tag.
+    <p class="mb-10 max-w-prose text-pretty text-muted-foreground">
+      <span class="font-mono text-sm tabular-nums tracking-[0.02em] text-foreground">
+        {countLabel}
+      </span>
+      {" "}under this tag.
       {
         tags.length > 1 && (
           <span>
@@ -108,29 +112,26 @@ const meta = buildPageMeta(site, {
         )
       }
     </p>
-    <div class="flex flex-col gap-5">
-      {
-        posts.map(({ id, title, date, description: postDescription }) => (
-          <a
-            href={`/blog/${id}`}
-            class={cn(
-              blogCardArticle,
-              "block text-left text-inherit no-underline",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            )}
-          >
-            <h2 class={cn(blogCardTitle, "mb-2 text-2xl font-normal md:text-3xl")}>
-              {title}
-            </h2>
-            <p class="mb-2 text-sm text-muted-foreground">{formatDate(date)}</p>
-            <p class="text-muted-foreground">{postDescription}</p>
-          </a>
-        ))
-      }
-    </div>
-    <div class="mt-12 flex flex-col gap-4 border-t border-border pt-8">
-      <a href="/blog/tags" class={textLink}>Browse every tag</a>
-      <a href="/blog" class={textLink}>All posts on the blog</a>
+    <WritingList
+      size="lead"
+      titleTag="h2"
+      items={posts.map(({ id, title, date, description: postDescription }) => ({
+        href: `/blog/${id}`,
+        title,
+        date,
+        description: postDescription,
+      }))}
+    />
+    <div class="mt-14 flex flex-wrap items-center gap-x-6 border-t border-border pt-8">
+      <a
+        href="/blog/tags"
+        class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}
+      >
+        Browse every tag →
+      </a>
+      <a href="/blog" class={cn(textLink, "inline-flex min-h-12 items-center text-sm font-medium")}>
+        All posts on the blog →
+      </a>
     </div>
   </div>
 </BaseLayout>

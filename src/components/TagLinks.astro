@@ -1,5 +1,5 @@
 ---
-import { cn, tagChip, tagChipRow } from "@/lib/css";
+import { cn, tagChip, tagChipCurrent, tagChipRow } from "@/lib/css";
 import { slugifyTag } from "@/lib/tags";
 
 interface Props {
@@ -26,13 +26,22 @@ const entries = tags.flatMap((tag) => {
 {
   entries.length > 0 && (
     <nav aria-label={label} class={cn(tagChipRow, className)}>
-      {entries.map(({ tag, slug }) =>
+      {entries.map(({ tag, slug }, index) =>
         slug === currentSlug ? (
-          <span class={cn(tagChip, "cursor-default")} aria-current="page">
+          <span
+            class={cn(tagChipCurrent, "reveal")}
+            style={`--reveal-index: ${Math.min(index, 6)}`}
+            aria-current="page"
+          >
             {tag}
           </span>
         ) : (
-          <a href={`/blog/tags/${slug}`} class={tagChip} rel="tag">
+          <a
+            href={`/blog/tags/${slug}`}
+            class={cn(tagChip, "reveal")}
+            style={`--reveal-index: ${Math.min(index, 6)}`}
+            rel="tag"
+          >
             {tag}
           </a>
         )

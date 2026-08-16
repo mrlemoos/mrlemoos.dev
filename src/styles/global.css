@@ -20,11 +20,61 @@
   --accent: #3f3f46;
   --accent-muted: #71717a;
 
+  --positive: #15803d;
+  --negative: #b91c1c;
+
   --material-thin: rgba(255, 255, 255, 0.55);
-  --material-regular: rgba(255, 255, 255, 0.72);
   --material-border: rgba(255, 255, 255, 0.45);
   --material-shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 8px 24px rgba(24, 24, 27, 0.06);
   --material-blur: blur(20px) saturate(180%);
+
+  /* ── Motion tokens, installed from transitions.dev ──────────────────────
+     The shared scale. Reference these by name; don't reintroduce loose ms
+     values beside them, or the timings drift apart again. */
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-medium: 350ms;
+  --duration-slow: 400ms;
+  --duration-very-slow: 500ms;
+
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: ease-in-out;
+  --ease-out: ease-out;
+  --ease-linear: linear;
+
+  /* Texts reveal (18) — every entrance on the site. */
+  --stagger-dur: 500ms;
+  --stagger-distance: 12px;
+  --stagger-stagger: 40ms;
+  --stagger-blur: 3px;
+  --stagger-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Learn more hover (24) — the chevron on a writing row. */
+  --learn-shift: 2px;
+  --learn-spread: 8deg;
+  --learn-in: 350ms;
+  --learn-out: 350ms;
+  --learn-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Text states swap (04) — the submit button's label / spinner / tick slot. */
+  --text-swap-dur: 150ms;
+  --text-swap-translate-y: 4px;
+  --text-swap-blur: 2px;
+  --text-swap-ease: ease-in-out;
+
+  /* Error state shake (12) — a rejected email address. */
+  --shake-distance: 6px;
+  --shake-overshoot: 4px;
+  --shake-dur-a: 80ms;
+  --shake-dur-b: 60ms;
+  --shake-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Success check (10) — the tick's stroke draw, without the bob. */
+  --check-path-dur: 500ms;
+  --check-path-delay: 80ms;
+  --check-ease-path: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -51,39 +101,49 @@
     --accent: #d4d4d8;
     --accent-muted: #a1a1aa;
 
+    --positive: #4ade80;
+    --negative: #f87171;
+
     --material-thin: rgba(24, 24, 27, 0.55);
-    --material-regular: rgba(24, 24, 27, 0.72);
     --material-border: rgba(255, 255, 255, 0.08);
     --material-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 32px rgba(0, 0, 0, 0.35);
   }
 }
 
-@keyframes hero-fade-up {
+/*
+ * The one entrance on the site: texts-reveal geometry (transitions.dev 18)
+ * driven by a CSS animation rather than its `.is-shown` class. The pages are
+ * prerendered, so there is no JS tick to flip a class on without a flash of
+ * the resting state first.
+ *
+ * `--reveal-index` stages a group; cap it at the caller so the tail of a long
+ * list isn't still arriving half a second after the top.
+ */
+@keyframes reveal-rise {
   from {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(var(--stagger-distance));
+    filter: blur(var(--stagger-blur));
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
-.hero-animate {
-  animation: hero-fade-up 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  opacity: 0;
+.reveal {
+  /*
+   * `backwards`, not `both`: the resting state already equals the `to` frame,
+   * and a lingering `filter: blur(0)` would keep a compositing layer (and a
+   * containing block) alive on every row for the life of the page.
+   */
+  animation: reveal-rise var(--stagger-dur) var(--stagger-ease) backwards;
+  animation-delay: calc(var(--reveal-index, 0) * var(--stagger-stagger));
 }
 
 .material-thin {
   background: var(--material-thin);
-  backdrop-filter: var(--material-blur);
-  -webkit-backdrop-filter: var(--material-blur);
-  border: 1px solid var(--material-border);
-  box-shadow: var(--material-shadow);
-}
-
-.material-regular {
-  background: var(--material-regular);
   backdrop-filter: var(--material-blur);
   -webkit-backdrop-filter: var(--material-blur);
   border: 1px solid var(--material-border);
@@ -114,23 +174,6 @@
     transparent 100%
   );
   pointer-events: none;
-}
-
-.hero-animate-delay-1 {
-  animation-delay: 0.1s;
-}
-
-.hero-animate-delay-2 {
-  animation-delay: 0.2s;
-}
-
-.hero-animate-delay-3 {
-  animation-delay: 0.35s;
-}
-
-.writing-index {
-  min-width: 1.75rem;
-  padding-top: 0.2rem;
 }
 
 .project-card-featured::before {
@@ -174,17 +217,7 @@
   }
 }
 
-.projects-intro {
-  animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .projects-intro {
-    animation: none;
-  }
-}
-
-@keyframes hero-fade-only {
+@keyframes reveal-fade {
   from {
     opacity: 0;
   }
@@ -193,23 +226,454 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-animate,
-  .hero-animate-delay-1,
-  .hero-animate-delay-2,
-  .hero-animate-delay-3 {
-    animation: hero-fade-only 0.2s ease forwards;
-    transform: none;
-  }
-}
-
 @media (prefers-reduced-transparency: reduce) {
-  .material-thin,
-  .material-regular {
+  .material-thin {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background: var(--card);
     border-color: var(--border);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Writing list — one row treatment for the hero, the blog index, tag pages
+   and related posts. Hairlines instead of cards: the typography does the work,
+   so four stacked panels become one quiet column.
+   --------------------------------------------------------------------------- */
+
+.writing-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid color-mix(in oklab, var(--border) 85%, transparent);
+}
+
+.writing-list > li {
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 85%, transparent);
+}
+
+.writing-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+  padding: 1.375rem 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.writing-row:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+  border-radius: 0.5rem;
+}
+
+.writing-row-index {
+  flex: none;
+  min-width: 1.5rem;
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: color-mix(in oklab, var(--muted-foreground) 65%, transparent);
+  transition: color var(--duration-fast) var(--ease-smooth-out);
+}
+
+.writing-row-body {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.writing-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.5rem;
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: color-mix(in oklab, var(--muted-foreground) 85%, transparent);
+}
+
+/*
+ * The underline is present but transparent at rest, so hover paints a colour
+ * rather than adding a box — no reflow, and the row never grows on hover.
+ */
+.writing-row-title {
+  font-family: var(--font-instrument-serif);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-smooth-out);
+}
+
+.writing-row-description {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+  color: var(--muted-foreground);
+}
+
+.writing-row-chevron {
+  flex: none;
+  align-self: center;
+  color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  transition: color var(--duration-fast) var(--ease-smooth-out);
+}
+
+/* `lead` is for a page whose entire job is the list. */
+.writing-list[data-size="lead"] .writing-row {
+  padding-block: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .writing-row-title {
+    font-size: 1.5rem;
+  }
+
+  .writing-list[data-size="lead"] .writing-row {
+    padding-block: 2.25rem;
+  }
+
+  .writing-list[data-size="lead"] .writing-row-title {
+    font-size: 2rem;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Hover is decoration, so it stays behind a real pointer. */
+@media (hover: hover) and (pointer: fine) {
+  .writing-row:hover .writing-row-title {
+    text-decoration-color: color-mix(in oklab, var(--foreground) 40%, transparent);
+  }
+
+  .writing-row:hover .writing-row-index,
+  .writing-row:hover .writing-row-chevron {
+    color: var(--foreground);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Learn more hover (transitions.dev 24) — verbatim, with the `:hover` half
+   behind a pointer query so a tap doesn't leave the arrow stuck open.
+   --------------------------------------------------------------------------- */
+
+.t-learn-chevron {
+  display: inline-flex;
+  transform: translateX(0);
+  transition: transform var(--learn-out) var(--learn-ease);
+}
+
+.t-learn-arm {
+  transform-box: view-box;
+  transform-origin: 10px 8px;
+  vector-effect: non-scaling-stroke;
+  transition: transform var(--learn-out) var(--learn-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-learn:hover .t-learn-chevron {
+    transform: translateX(var(--learn-shift));
+    transition-duration: var(--learn-in);
+  }
+
+  .t-learn:hover .t-learn-arm {
+    transition-duration: var(--learn-in);
+  }
+
+  .t-learn:hover .t-learn-arm-top {
+    transform: rotate(var(--learn-spread));
+  }
+
+  .t-learn:hover .t-learn-arm-bot {
+    transform: rotate(calc(var(--learn-spread) * -1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-learn-chevron,
+  .t-learn-arm {
+    transition: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Tag chips
+   --------------------------------------------------------------------------- */
+
+.tag-chip {
+  transition:
+    color var(--duration-quick) var(--ease-smooth-out),
+    background-color var(--duration-quick) var(--ease-smooth-out),
+    border-color var(--duration-quick) var(--ease-smooth-out),
+    scale var(--duration-fast) var(--ease-smooth-out);
+}
+
+/*
+ * Hover paint lives here, not in a `hover:bg-*` utility: `.material-*` sets
+ * `background` / `border` unlayered, which outranks Tailwind's layered
+ * utilities. Same specificity ladder, so these actually land.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .tag-chip:hover {
+    color: var(--foreground);
+    background-color: color-mix(in oklab, var(--card) 70%, transparent);
+    border-color: color-mix(in oklab, var(--foreground) 16%, var(--material-border));
+  }
+}
+
+.tag-chip:active {
+  scale: 0.96;
+  transition-duration: var(--duration-micro);
+}
+
+/* The tag you are already reading: filled, and inert under the pointer. */
+.tag-chip[aria-current="page"] {
+  color: var(--foreground);
+  background-color: color-mix(in oklab, var(--foreground) 8%, var(--card));
+  border-color: color-mix(in oklab, var(--foreground) 18%, var(--material-border));
+}
+
+.tag-chip-count {
+  margin-left: 0.5rem;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Subscribe form
+   --------------------------------------------------------------------------- */
+
+.subscribe-input {
+  transition:
+    border-color var(--duration-quick) var(--ease-out),
+    background-color var(--duration-quick) var(--ease-out);
+}
+
+[data-subscribe][data-state="error"] .subscribe-input {
+  border-color: color-mix(in oklab, var(--negative) 55%, var(--material-border));
+}
+
+/*
+ * Error state shake (transitions.dev 12). Stops are cumulative leg durations
+ * over the total (80, 60, 80, 60 = 280ms) — recompute them if the legs change.
+ * `.is-shaking` is orthogonal to the error state so a second rejection in a
+ * row can replay the shake (remove → reflow → re-add) without flickering the
+ * border back to neutral in the same tick.
+ */
+.subscribe-field.is-shaking {
+  animation: subscribe-shake
+    calc(var(--shake-dur-a) * 2 + var(--shake-dur-b) * 2) linear;
+}
+
+@keyframes subscribe-shake {
+  0% {
+    transform: translateX(0);
+    animation-timing-function: var(--shake-ease);
+  }
+  28.57% {
+    transform: translateX(var(--shake-distance));
+    animation-timing-function: var(--shake-ease);
+  }
+  57.14% {
+    transform: translateX(calc(var(--shake-distance) * -1));
+    animation-timing-function: var(--shake-ease);
+  }
+  78.57% {
+    transform: translateX(var(--shake-overshoot));
+    animation-timing-function: var(--shake-ease);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.subscribe-button {
+  transition:
+    color var(--duration-quick) var(--ease-smooth-out),
+    background-color var(--duration-quick) var(--ease-smooth-out),
+    border-color var(--duration-quick) var(--ease-smooth-out),
+    scale var(--duration-fast) var(--ease-smooth-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .subscribe-button:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--card) 70%, transparent);
+    border-color: color-mix(in oklab, var(--foreground) 16%, var(--material-border));
+  }
+}
+
+.subscribe-button:active:not(:disabled) {
+  scale: 0.97;
+  transition-duration: var(--duration-micro);
+}
+
+[data-subscribe][data-state="success"] .subscribe-button {
+  border-color: color-mix(in oklab, var(--positive) 45%, var(--material-border));
+  color: var(--positive);
+}
+
+/*
+ * Text states swap (transitions.dev 04): one slot, three cues cross-fading
+ * through a blur. The label is the resting cue, so the button keeps its
+ * accessible name in every state.
+ */
+.subscribe-slot {
+  display: grid;
+  place-items: center;
+}
+
+.subscribe-slot > [data-cue] {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity var(--text-swap-dur) var(--text-swap-ease),
+    translate var(--text-swap-dur) var(--text-swap-ease),
+    filter var(--text-swap-dur) var(--text-swap-ease);
+}
+
+.subscribe-slot > [data-cue="loading"],
+.subscribe-slot > [data-cue="success"] {
+  opacity: 0;
+  translate: 0 var(--text-swap-translate-y);
+  filter: blur(var(--text-swap-blur));
+}
+
+[data-subscribe][data-state="loading"] .subscribe-slot > [data-cue="loading"],
+[data-subscribe][data-state="success"] .subscribe-slot > [data-cue="success"] {
+  opacity: 1;
+  translate: 0 0;
+  filter: none;
+}
+
+/* The label leaves upward so the incoming cue reads as its replacement. */
+[data-subscribe][data-state="loading"] .subscribe-slot > [data-cue="label"],
+[data-subscribe][data-state="success"] .subscribe-slot > [data-cue="label"] {
+  opacity: 0;
+  translate: 0 calc(var(--text-swap-translate-y) * -1);
+  filter: blur(var(--text-swap-blur));
+}
+
+.subscribe-spinner {
+  animation: subscribe-spin 800ms var(--ease-linear) infinite;
+}
+
+@keyframes subscribe-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* Success check (transitions.dev 10), stroke draw only — no bob, no rotate. */
+.subscribe-tick path {
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+}
+
+[data-subscribe][data-state="success"] .subscribe-tick path {
+  animation: subscribe-draw var(--check-path-dur) var(--check-ease-path)
+    var(--check-path-delay) forwards;
+}
+
+@keyframes subscribe-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Loading is deliberate feedback, not a dimmed control. */
+[data-subscribe][data-state="loading"] .subscribe-button:disabled {
+  opacity: 1;
+}
+
+.subscribe-status[data-tone="positive"] {
+  color: var(--positive);
+}
+
+.subscribe-status[data-tone="negative"] {
+  color: var(--negative);
+}
+
+/* Re-added with a reflow in between so the same message can replay. */
+.subscribe-status.is-entering {
+  animation: subscribe-status-in var(--text-swap-dur) var(--text-swap-ease) both;
+}
+
+@keyframes subscribe-status-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--text-swap-translate-y);
+    filter: blur(var(--text-swap-blur));
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion — gentler, not zero. Movement goes; state still reads.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: reveal-fade var(--duration-quick) var(--ease-out) backwards;
+    transform: none;
+    filter: none;
+  }
+
+  .writing-row-index,
+  .writing-row-title,
+  .writing-row-chevron,
+  .subscribe-input,
+  .subscribe-button,
+  .tag-chip,
+  .subscribe-slot > [data-cue] {
+    transition: none;
+  }
+
+  .tag-chip:active,
+  .subscribe-button:active:not(:disabled) {
+    scale: 1;
+  }
+
+  .subscribe-slot > [data-cue] {
+    filter: none;
+    translate: 0 0;
+  }
+
+  .subscribe-field.is-shaking,
+  .subscribe-status.is-entering {
+    animation: none;
+  }
+
+  /* The spinner is the only signal that work is happening: slow it, keep it. */
+  .subscribe-spinner {
+    animation-duration: 2s;
+  }
+
+  .subscribe-tick path {
+    stroke-dashoffset: 0;
+  }
+
+  [data-subscribe][data-state="success"] .subscribe-tick path {
+    animation: none;
   }
 }
 

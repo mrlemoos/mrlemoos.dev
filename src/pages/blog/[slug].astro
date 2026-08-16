@@ -21,10 +21,10 @@ import { GOOGLE_ADS_CLIENT } from "@/lib/consent";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import SubscribeForm from "@/components/SubscribeForm.astro";
 import TagLinks from "@/components/TagLinks.astro";
+import WritingList from "@/components/WritingList.astro";
 import {
-  blogCardArticle,
-  blogCardTitle,
   cn,
+  sectionEyebrow,
   sectionTitle,
   socialNavLink,
   socialNavRow,
@@ -191,36 +191,26 @@ const meta = buildPageMeta(site, {
           aria-labelledby="related-posts"
           class="mt-12 border-t border-border pt-8"
         >
-          <h2 id="related-posts" class={cn(sectionTitle, "mb-6 text-xl md:text-2xl")}>
+          <span class={cn(sectionEyebrow, "block")}>Related</span>
+          <h2
+            id="related-posts"
+            class={cn(sectionTitle, "mb-6 mt-2 text-xl md:text-2xl")}
+          >
             Keep reading
           </h2>
-          <div class="flex flex-col gap-4">
-            {relatedPosts.map((related) => (
-              <a
-                href={`/blog/${related.id}`}
-                class={cn(
-                  blogCardArticle,
-                  "block text-left text-inherit no-underline"
-                )}
-              >
-                <h3
-                  class={cn(
-                    blogCardTitle,
-                    "mb-2 font-normal leading-[1.2] tracking-[-0.02em]"
-                  )}
-                >
-                  {related.data.title}
-                </h3>
-                <p class="mb-2 text-sm tracking-[0.01em] text-muted-foreground">
-                  {formatDate(related.data.date)}
-                </p>
-                <p class="text-muted-foreground">{related.data.description}</p>
-              </a>
-            ))}
-          </div>
+          <WritingList
+            titleTag="h3"
+            items={relatedPosts.map((related) => ({
+              href: `/blog/${related.id}`,
+              title: related.data.title,
+              date: related.data.date,
+              description: related.data.description,
+            }))}
+          />
         </section>
       )
     }
+    {/* The one in-body signup on the site: end of a post is where intent is. */}
     <SubscribeForm class="mt-12 border-t border-border pt-8" />
     <div
       class="mt-12 flex flex-col gap-4 border-t border-border pt-8"

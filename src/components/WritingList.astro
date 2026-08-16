@@ -1,0 +1,103 @@
+---
+import { formatDate } from "@/lib/date";
+import { cn } from "@/lib/css";
+
+export interface WritingListItem {
+  href: string;
+  title: string;
+  date: Date;
+  description?: string;
+  /** Links off-site: opens in a new tab and says so. */
+  external?: boolean;
+  publisher?: string;
+}
+
+interface Props {
+  items: WritingListItem[];
+  /** Editorial ordinals (01, 02, …) down the left gutter. */
+  numbered?: boolean;
+  /** `lead` sizes the titles up for a page whose whole job is this list. */
+  size?: "base" | "lead";
+  /** Where this list sits in a page-wide entrance stagger. */
+  startIndex?: number;
+  /**
+   * A listing page whose whole content is this list wants real headings;
+   * a hero blurb or a "keep reading" tail does not.
+   */
+  titleTag?: "span" | "h2" | "h3";
+  class?: string;
+}
+
+const {
+  items,
+  numbered = false,
+  size = "base",
+  startIndex = 0,
+  titleTag: Title = "span",
+  class: className,
+} = Astro.props;
+
+// Capped: past the sixth row the delay is longer than anyone waits to scroll.
+const revealIndex = (index: number) => Math.min(index, 6) + startIndex;
+---
+
+{
+  items.length > 0 && (
+    <ul class={cn("writing-list", className)} role="list" data-size={size}>
+      {items.map((item, index) => (
+        <li>
+          <a
+            href={item.href}
+            class="writing-row t-learn reveal"
+            style={`--reveal-index: ${revealIndex(index)}`}
+            {...(item.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            {numbered && (
+              <span class="writing-row-index" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            )}
+
+            {/* A div, not a span: `titleTag` can put an <h2> in here. */}
+            <div class="writing-row-body">
+              <span class="writing-row-meta">
+                <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
+                {item.publisher && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>{item.publisher}</span>
+                  </>
+                )}
+                {item.external && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>
+                      External<span aria-hidden="true"> ↗</span>
+                    </span>
+                  </>
+                )}
+              </span>
+
+              <Title class="writing-row-title">{item.title}</Title>
+
+              {item.description && (
+                <p class="writing-row-description">{item.description}</p>
+              )}
+            </div>
+
+            {/* Chevron whose arms spread into an arrow on hover — transitions.dev 24. */}
+            <span class="t-learn-chevron writing-row-chevron" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path class="t-learn-arm t-learn-arm-top" d="M6 4L10 8" />
+                <path class="t-learn-arm t-learn-arm-bot" d="M10 8L6 12" />
+              </svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

@@ -5,17 +5,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Instant press feedback — respond on pointer-down, not release. */
+/**
+ * Instant press feedback — respond on pointer-down, not release.
+ *
+ * The property list is explicit rather than `transition-colors` +
+ * `transition-transform`: those two utilities set the same declaration, so
+ * `twMerge` drops one and the other half of the motion silently dies.
+ */
 export const interactivePress = twMerge(
-  "transition-transform duration-100 ease-out",
-  "active:scale-[0.97] motion-reduce:active:scale-100"
+  "transition-[transform,color,background-color,border-color,text-decoration-color]",
+  "duration-[var(--duration-quick)] ease-[var(--ease-smooth-out)]",
+  "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
 );
 
-/** Apple-style translucent surfaces. */
+/** Apple-style translucent surface. */
 export const materialThin = "material-thin";
-export const materialRegular = "material-regular";
 
-/** Section labels on translucent surfaces — slightly opened tracking. */
+/** Section labels — slightly opened tracking. */
 export const sectionEyebrow = twMerge(
   "font-mono text-[0.65rem] font-medium uppercase tracking-[0.22em] vibrancy-muted"
 );
@@ -30,7 +36,7 @@ export const socialNavLink = twMerge(
   materialThin,
   interactivePress,
   "inline-flex min-h-12 min-w-12 shrink-0 items-center justify-center rounded-full px-4 text-center text-sm font-medium",
-  "text-foreground/80 no-underline transition-colors duration-150 ease-out",
+  "text-foreground/80 no-underline",
   "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)] hover:text-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 );
@@ -40,41 +46,20 @@ export const socialNavRow = "flex flex-wrap items-center gap-3";
 /** Inline text links (footer, prose-adjacent). */
 export const textLink = twMerge(
   interactivePress,
-  "inline-flex items-center rounded-sm text-muted-foreground underline decoration-zinc-400/50 underline-offset-[0.2em] transition-colors duration-150",
+  "inline-flex items-center rounded-sm text-muted-foreground underline decoration-zinc-400/50 underline-offset-[0.2em]",
   "hover:text-foreground hover:decoration-foreground/70",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "dark:decoration-zinc-600 dark:hover:decoration-zinc-400"
 );
 
-/** Blog listing cards: glass material with press feedback. */
-export const blogCardArticle = twMerge(
-  materialRegular,
-  interactivePress,
-  "group block rounded-2xl p-5 text-inherit no-underline",
-  "hover:border-[color-mix(in_oklab,var(--foreground)_12%,var(--material-border))]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-);
-
-export const blogCardTitle =
-  "font-heading text-xl tracking-tight text-foreground transition-shadow duration-300";
-
-/** Hero featured-writing rows: editorial index inside glass surface. */
-export const writingHighlightRow = twMerge(
-  interactivePress,
-  "group flex items-start gap-4 px-4 py-5 text-inherit no-underline transition-colors duration-150 md:gap-5 md:px-5",
-  "border-b border-[color-mix(in_oklab,var(--border)_55%,transparent)] last:border-b-0",
-  "hover:bg-[color-mix(in_oklab,var(--foreground)_4%,transparent)]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-);
-
-/** Experience and content panels on the homepage. */
-export const contentPanel = twMerge(materialRegular, "overflow-hidden rounded-3xl");
-
 /** Projects listing cards. */
 export const projectCard = twMerge(
-  "group relative block overflow-hidden rounded-2xl border border-border bg-card/30 p-6 text-inherit no-underline shadow-sm shadow-zinc-900/5 transition-all duration-300 ease-out",
+  "group relative block overflow-hidden rounded-2xl border border-border bg-card/30 p-6 text-inherit no-underline shadow-sm shadow-zinc-900/5",
+  // Named properties, never `transition-all`: `all` drags unrelated style
+  // changes onto the compositor for free.
+  "transition-[transform,border-color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-smooth-out)]",
   "hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md hover:shadow-zinc-900/10",
-  "motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-sm",
+  "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:shadow-sm",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "dark:bg-card/20 dark:shadow-black/20 dark:hover:shadow-black/40"
 );
@@ -82,12 +67,18 @@ export const projectCard = twMerge(
 /** Tag pills linking through to a tag page. */
 export const tagChip = twMerge(
   materialThin,
-  interactivePress,
-  "inline-flex min-h-8 items-center rounded-full px-3 py-1 font-mono text-[0.7rem] tracking-[0.02em]",
-  "text-muted-foreground no-underline transition-colors duration-150 ease-out",
-  "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)] hover:text-foreground",
+  // Hover/press paint and motion live in `.tag-chip` (global.css).
+  "tag-chip",
+  "inline-flex min-h-8 items-center rounded-full px-3.5 py-1 font-mono text-[0.7rem] tracking-[0.02em]",
+  "text-muted-foreground no-underline",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 );
+
+/**
+ * The tag you are already reading. Filled and inert — `aria-current="page"`
+ * both announces it and drives the fill (see `.tag-chip[aria-current]`).
+ */
+export const tagChipCurrent = twMerge(tagChip, "cursor-default");
 
 export const tagChipRow = "flex flex-wrap items-center gap-2";
 

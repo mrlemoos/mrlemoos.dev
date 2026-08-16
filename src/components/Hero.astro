@@ -10,12 +10,13 @@ import { HERO_TAGLINE } from "@/lib/seo";
 >
   <div class="mx-auto w-full max-w-3xl text-center">
     <h1
-      class="hero-animate font-heading text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[1.05] tracking-[-0.035em] text-foreground"
+      class="reveal font-heading text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[1.05] tracking-[-0.035em] text-foreground"
     >
       Leonardo Lemos
     </h1>
     <p
-      class="hero-animate hero-animate-delay-1 mx-auto mt-6 max-w-xl text-pretty text-base leading-[1.6] tracking-[0.005em] text-muted-foreground md:text-lg md:leading-[1.65]"
+      class="reveal mx-auto mt-6 max-w-xl text-pretty text-base leading-[1.6] tracking-[0.005em] text-muted-foreground md:text-lg md:leading-[1.65]"
+      style="--reveal-index: 1"
     >
       {HERO_TAGLINE}
     </p>
@@ -23,7 +24,8 @@ import { HERO_TAGLINE } from "@/lib/seo";
     <HeroFeaturedWriting />
 
     <div
-      class="hero-animate hero-animate-delay-3 mt-10 flex flex-col items-center gap-4"
+      class="reveal mt-10 flex flex-col items-center gap-4"
+      style="--reveal-index: 6"
     >
       <span class={sectionEyebrow}>Connect</span>
       <div class={socialNavRow}>

@@ -1,23 +1,30 @@
 ---
-import { cn, interactivePress, materialThin } from "@/lib/css";
+import { cn, materialThin, sectionEyebrow } from "@/lib/css";
 
 interface Props {
   heading?: string;
   blurb?: string;
+  eyebrow?: string;
   class?: string;
 }
 
 const {
   heading = "New posts, in your inbox",
   blurb = "Occasional writing on software, craft, and whatever I'm chewing on. No spam, unsubscribe in one click.",
+  eyebrow = "Newsletter",
   class: className,
 } = Astro.props;
 ---
 
-<section class={cn("flex flex-col gap-3", className)} data-subscribe>
-  <div class="flex flex-col gap-1">
-    <span class="font-heading text-lg tracking-tight text-foreground">{heading}</span>
-    <p class="text-sm text-muted-foreground">{blurb}</p>
+<section class={cn("flex flex-col gap-4", className)} data-subscribe data-state="idle">
+  <div class="flex flex-col gap-2">
+    <span class={sectionEyebrow}>{eyebrow}</span>
+    <span class="font-heading text-xl leading-[1.15] tracking-[-0.02em] text-foreground md:text-2xl">
+      {heading}
+    </span>
+    <p class="max-w-prose text-pretty text-sm leading-relaxed text-muted-foreground">
+      {blurb}
+    </p>
   </div>
 
   <form
@@ -26,20 +33,22 @@ const {
     class="flex w-full flex-col gap-2 sm:flex-row"
     novalidate
   >
-    <!-- aria-label, not <label for>: several instances can share a page (footer + in-body). -->
-    <input
-      aria-label="Email address"
-      type="email"
-      name="email"
-      required
-      autocomplete="email"
-      placeholder="you@example.com"
-      class={cn(
-        materialThin,
-        "min-h-12 w-full flex-1 rounded-full px-4 text-sm text-foreground placeholder:text-muted-foreground/70",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      )}
-    />
+    <div class="subscribe-field relative flex-1">
+      <!-- aria-label, not <label for>: several instances can share a page (footer + in-body). -->
+      <input
+        aria-label="Email address"
+        type="email"
+        name="email"
+        required
+        autocomplete="email"
+        placeholder="you@example.com"
+        class={cn(
+          materialThin,
+          "subscribe-input min-h-12 w-full rounded-full px-5 text-sm text-foreground placeholder:text-muted-foreground/70",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        )}
+      />
+    </div>
     <!-- Honeypot: hidden from people, catnip for bots. -->
     <input
       type="text"
@@ -53,19 +62,49 @@ const {
       type="submit"
       class={cn(
         materialThin,
-        interactivePress,
-        "min-h-12 shrink-0 cursor-pointer rounded-full px-6 text-sm font-medium text-foreground",
-        "hover:bg-[color-mix(in_oklab,var(--card)_55%,transparent)]",
+        "subscribe-button min-h-12 shrink-0 cursor-pointer rounded-full px-7 text-sm font-medium text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:cursor-not-allowed disabled:opacity-60"
       )}
     >
-      Subscribe
+      <!-- One slot, three cues: the label stays for the accessible name. -->
+      <span class="subscribe-slot">
+        <span data-cue="label">Subscribe</span>
+        <span data-cue="loading" aria-hidden="true">
+          <svg
+            class="subscribe-spinner"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+          >
+            <circle cx="8" cy="8" r="6.5" opacity="0.25"></circle>
+            <path d="M14.5 8A6.5 6.5 0 0 0 8 1.5" stroke-linecap="round"></path>
+          </svg>
+        </span>
+        <span data-cue="success" aria-hidden="true">
+          <svg
+            class="subscribe-tick"
+            width="16"
+            height="16"
+            viewBox="0 0 13 11"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M1 5.5 L4.2 9 L11 1.5"></path>
+          </svg>
+        </span>
+      </span>
     </button>
   </form>
 
   <p
-    class="min-h-5 text-sm text-muted-foreground"
+    class="subscribe-status min-h-5 text-sm text-muted-foreground"
     role="status"
     aria-live="polite"
     data-subscribe-status
@@ -74,19 +113,62 @@ const {
 </section>
 
 <script>
+  import { SUBSCRIBE_MESSAGES, subscribeOutcome } from "@/lib/subscribe-messages";
+
   document.querySelectorAll<HTMLElement>("[data-subscribe]").forEach((root) => {
     const form = root.querySelector("form");
     const status = root.querySelector<HTMLElement>("[data-subscribe-status]");
     if (!form || !status) return;
 
+    const email = form.querySelector<HTMLInputElement>("input[name=email]");
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
+    const field = form.querySelector<HTMLElement>(".subscribe-field");
+
+    // `.is-shaking` is orthogonal to the error state so a second rejection in
+    // a row replays the shake without flickering the border back to neutral.
+    field?.addEventListener("animationend", () =>
+      field.classList.remove("is-shaking")
+    );
+
+    /** Announces the state, and replays the message animation from the top. */
+    const announce = (
+      state: "idle" | "loading" | "success" | "error",
+      message: string,
+      tone: "muted" | "positive" | "negative"
+    ) => {
+      root.dataset.state = state;
+      status.dataset.tone = tone;
+      status.classList.remove("is-entering");
+      void status.offsetWidth; // Reflow, so the same message can animate again.
+      status.textContent = message;
+      status.classList.add("is-entering");
+
+      if (state === "error" && field) {
+        field.classList.remove("is-shaking");
+        void field.offsetWidth; // Same reflow, or the shake never restarts.
+        field.classList.add("is-shaking");
+      }
+    };
+
+    // Typing after a result puts the form back to rest.
+    email?.addEventListener("input", () => {
+      if (root.dataset.state === "idle" || root.dataset.state === "loading") return;
+      root.dataset.state = "idle";
+      status.dataset.tone = "muted";
+      status.textContent = "";
+    });
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const button = form.querySelector("button[type=submit]") as HTMLButtonElement | null;
+      if (root.dataset.state === "loading") return;
+
       const data = Object.fromEntries(new FormData(form));
 
       if (button) button.disabled = true;
-      status.textContent = "Signing you up…";
+      form.setAttribute("aria-busy", "true");
+      announce("loading", SUBSCRIBE_MESSAGES.loading, "muted");
 
+      let outcome;
       try {
         const response = await fetch(form.action, {
           method: "POST",
@@ -94,18 +176,20 @@ const {
           body: JSON.stringify(data),
         });
         const body = await response.json().catch(() => ({}));
-
-        if (response.ok) {
-          form.reset();
-          status.textContent = "You're in. Watch your inbox.";
-        } else {
-          status.textContent = body.error ?? "Something went wrong. Try again.";
-        }
+        outcome = subscribeOutcome({ ok: response.ok, error: body.error });
       } catch {
-        status.textContent = "Network error. Try again.";
-      } finally {
-        if (button) button.disabled = false;
+        outcome = subscribeOutcome({ ok: false, network: true });
       }
+
+      if (outcome.state === "success") form.reset();
+      announce(
+        outcome.state,
+        outcome.message,
+        outcome.state === "success" ? "positive" : "negative"
+      );
+
+      form.removeAttribute("aria-busy");
+      if (button) button.disabled = false;
     });
   });
 </script>
