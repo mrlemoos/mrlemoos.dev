@@ -6,9 +6,11 @@ import instrumentSerifLatin400 from "@fontsource/instrument-serif/files/instrume
 import { cn } from "@/lib/css";
 import CookieConsent from "@/components/CookieConsent.astro";
 import Footer from "@/components/Footer.astro";
+import GoogleAnalytics from "@/components/GoogleAnalytics.astro";
 import GoogleConsentModeInit from "@/components/GoogleConsentModeInit.astro";
 import Analytics from "@vercel/analytics/astro";
 import { X_USERNAME } from "@/lib/constants";
+import { FEED_PATH, FEED_TITLE } from "@/lib/rss";
 import {
   OG_IMAGE_HEIGHT,
   OG_IMAGE_WIDTH,
@@ -39,6 +41,7 @@ const twitterHandle = `@${X_USERNAME}`;
   <head>
     <meta charset="UTF-8" />
     <GoogleConsentModeInit />
+    <GoogleAnalytics />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -73,6 +76,12 @@ const twitterHandle = `@${X_USERNAME}`;
     <meta name="keywords" content={keywords.join(", ")} />
     <meta name="author" content="Leonardo Lemos" />
     <link rel="canonical" href={canonicalURL} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={FEED_TITLE}
+      href={FEED_PATH}
+    />
     <meta property="og:url" content={canonicalURL.href} />
     <meta property="og:site_name" content={SITE_BRAND_NAME} />
     <meta property="og:title" content={title} />

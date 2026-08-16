@@ -15,8 +15,12 @@ const enabled = import.meta.env.PROD;
       define:vars={{ waitMs: GOOGLE_CONSENT_WAIT_FOR_UPDATE_MS }}
     >
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function gtag(...args) {
-        window.dataLayer.push(args);
+      // Must push the native `arguments` object: gtag.js distinguishes tag
+      // commands from plain data-layer pushes by its type, so a rest-parameter
+      // array is silently ignored.
+      window.gtag = function gtag() {
+        // eslint-disable-next-line prefer-rest-params -- see above
+        window.dataLayer.push(arguments);
       };
       window.gtag("consent", "default", {
         ad_storage: "denied",

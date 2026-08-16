@@ -1,0 +1,92 @@
+---
+/**
+ * Google Analytics 4.
+ *
+ * Two gates guard this component:
+ *
+ * 1. Environment — it renders only on the live Vercel production deployment.
+ *    `import.meta.env.PROD` is true for Vercel preview builds as well, so the
+ *    decision also requires `VERCEL_ENV === "production"` and fails closed.
+ * 2. Consent — gtag.js is fetched only once the visitor accepts on the cookie
+ *    banner, and `analytics_storage` is granted through Consent Mode v2. The
+ *    denied-by-default consent state and the shared `window.gtag` shim come
+ *    from `GoogleConsentModeInit`, which must render earlier in `<head>`.
+ */
+import {
+  CONSENT_STORAGE_KEY,
+  GOOGLE_ANALYTICS_MEASUREMENT_ID,
+  isGoogleAnalyticsEnabled,
+} from "@/lib/consent";
+
+// Each value must be read as a literal `import.meta.env.X` access: Vite only
+// substitutes those statically, so passing `import.meta.env` as a whole object
+// would silently yield `undefined` for VERCEL_ENV and disable analytics.
+const enabled = isGoogleAnalyticsEnabled({
+  PROD: import.meta.env.PROD,
+  VERCEL_ENV: import.meta.env.VERCEL_ENV,
+});
+---
+
+{
+  enabled && (
+    <script
+      is:inline
+      define:vars={{
+        consentKey: CONSENT_STORAGE_KEY,
+        measurementId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
+      }}
+    >
+      (function () {
+        const TAG_SCRIPT_ID = "google-analytics-script";
+
+        function getConsent() {
+          try {
+            return localStorage.getItem(consentKey);
+          } catch {
+            return null;
+          }
+        }
+
+        function loadGoogleTag() {
+          if (document.getElementById(TAG_SCRIPT_ID)) return;
+          const script = document.createElement("script");
+          script.id = TAG_SCRIPT_ID;
+          script.async = true;
+          script.src =
+            "https://www.googletagmanager.com/gtag/js?id=" +
+            encodeURIComponent(measurementId);
+          document.head.appendChild(script);
+
+          window.gtag("js", new Date());
+          window.gtag("config", measurementId);
+        }
+
+        function applyConsent(value) {
+          if (typeof window.gtag !== "function") return;
+          if (value === "granted") {
+            window.gtag("consent", "update", {
+              analytics_storage: "granted",
+            });
+            loadGoogleTag();
+          } else {
+            window.gtag("consent", "update", {
+              analytics_storage: "denied",
+            });
+          }
+        }
+
+        // Only act on an explicit stored choice. With no choice yet the
+        // denied-by-default consent state already set by GoogleConsentModeInit
+        // stands, and the banner decides what happens next.
+        const stored = getConsent();
+        if (stored === "granted" || stored === "denied") {
+          applyConsent(stored);
+        }
+
+        document.addEventListener("cookie-consent-change", function (event) {
+          applyConsent(event.detail?.value);
+        });
+      })();
+    </script>
+  )
+}
