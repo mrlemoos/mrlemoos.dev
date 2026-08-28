@@ -64,6 +64,8 @@ Code is now cheap enough that we need a word for the failure mode. I call it tok
 
 Tokenmaxxing is treating generated output as evidence of progress. More files. More tests. More comments. More elaborate prompts. More runs. The model is busy, so everyone feels busy. Nobody has stopped to ask whether any of it adds signal.
 
+![An agent changes one CSS line to make a button blue, then generates 186 lines of tests. The image concludes: "Smallest trustworthy change. Not the biggest diff."](/images/blog/agentic-engineering-tokenmaxxing.png)
+
 Consider an ordinary React change. A form needs to save a user's settings and show the result. An agent can write tests that call an internal `handleSave`, assert the `onSave` mock received the expected object, and check that a local state setter was called. All green. Very professional-looking. The agent, ever the eager intern, has tested the wiring it just wrote.
 
 Those tests may tell you nothing useful about whether a person can save settings. They can pass while the submit button stays active during a pending request, the error message never reaches the screen, or the success state renders in the wrong branch. They restate implementation instead of protecting behaviour.
