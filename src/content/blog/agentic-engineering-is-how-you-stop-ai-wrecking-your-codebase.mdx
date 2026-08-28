@@ -1,0 +1,101 @@
+---
+title: "Agentic engineering is how you stop AI wrecking your codebase"
+date: "2026-08-27"
+description: "Agentic engineering is not prompting agents to write more code. It is designing bounded work, useful context, proof, and human decision points so their output is worth merging."
+tags: ["ai", "engineering", "agents"]
+status: live
+---
+
+I think AI is going to make a lot of codebases worse.
+
+Fair. It is also going to help very good engineers move at a frankly silly pace. I have had agents take a tedious migration, a well-scoped bug, or a documentation pass off my plate and do a good job. That part is real.
+
+But an agent can write code far faster than a team can understand, review, and maintain it. Give one a vague feature request and it will happily hand you a large diff, a handful of tests, some docs, perhaps a new abstraction because it was feeling generous. It looks like progress. Sometimes it is. Sometimes you have paid to turn a small decision into six files of future work.
+
+That is why I care about **agentic engineering**. Not as another name for code generation. As the discipline of making an agent's work safe, bounded, and worth merging.
+
+Earlier this year, Steven Barber and I wrote about [agentic coding at Credo AI](https://www.credo.ai/blog/enterprise-level-agentic-coding-beyond-the-hype-of-vibe-coding). We argued that serious agent work needs rules, useful project context, and humans at the decisions that matter. I still stand by that. But "coding" is too small a word for what changes when you take this seriously.
+
+I use agentic engineering for design, code, tests, docs, deployments, and operations. Its question is not "what can this model write?"
+
+It asks what work can be delegated, what the agent needs to know, what it must prove, and where a human needs to decide.
+
+## Prompting is not engineering
+
+A prompt tells an agent what to do. Agentic engineering decides what it may decide, what it must prove, and when it stops.
+
+That distinction sounds annoyingly semantic until you have watched an agent make a convincing mess. It reads a ticket, finds a few nearby files, notices a pattern that was only ever a local workaround, then spreads it through a feature because it is good at continuing patterns. The diff is tidy. The tests are green. The architecture is now a little stranger.
+
+The agent did what it was asked. Nobody engineered the task around the decisions it could not safely make.
+
+I think of an agent as an eager intern with root access. Fast, tireless, and surprisingly capable. Also very ready to reorganise your kitchen because it saw one drawer was messy. You do not hand that person a Jira ticket and disappear. You give them a job, the relevant context, limits on their authority, and a way to tell whether the job is done.
+
+That is not a case against agents. It is the case for taking them seriously.
+
+## The smallest useful unit of agent work
+
+For me, an agent task has three parts.
+
+**Goal.** What outcome do we need? "Add a way for an administrator to invite a teammate" is a goal. "Make the invitation page work" is a prayer.
+
+**Decision bounds.** Which decisions are already made, which may the agent make, and which require a person? An agent can implement an approved interaction and use an existing API client. It should not decide the permission model, invent a data retention policy, or quietly choose a new state-management approach because it found a nice tutorial in its training data.
+
+**Proof.** What evidence would make us believe the change works? That might mean a type check, an integration test, an accessible browser flow, a migration run against representative data, a visual review, or a human decision. The proof follows the risk. "The agent says it is done" is not proof, no matter how confident the summary is.
+
+That is agentic work, rather than a one-shot AI assist. The agent has delegated judgement inside a bounded, multi-step job. It can inspect the system, make a change, run the right checks, notice a failure, and iterate. It does not have unlimited authority, and it does not get to define success after the fact.
+
+The loop matters more than the first answer. Prompt, diff, approve is not an engineering process. A better loop is inspect, make a small plan, load the relevant context, change the system, run the proof, then decide what the result means. If a check fails, the agent has useful information. If its context exposes a real ambiguity, it should ask. Guessing is not autonomy. It is an expensive way to defer a decision to code review.
+
+For a component change, type checks and a focused behaviour test may be enough. For a new form, render it and check the accessible browser flow. For a migration, run it against realistic data before you get anywhere near production. Automating every check because automation is fashionable is its own sort of tokenmaxxing. Pick the quickest feedback that can catch the way this task is likely to fail.
+
+## Humans still own the expensive decisions
+
+This is where people sometimes hear "bounded" and imagine agents restricted to renaming variables forever. No. A mechanical ten-thousand-line migration may be a great job for an agent. It can apply explicit mappings, run checks, repair predictable failures, and leave a reviewable trail. I would rather it did that than ask a human to spend three afternoons nudging imports around.
+
+Meanwhile, a twenty-line change to authentication, billing, a public data contract, or a database schema may need a human before any code is written. Its blast radius is bigger. Reversing it costs more. The question has more unknowns.
+
+Diff size is a terrible proxy for autonomy. Risk, irreversibility, and uncertainty are better ones.
+
+The human role changes, but it does not shrink into rubber-stamping agent summaries at 5pm on a Friday. Humans define the outcome, make the trade-offs that need business and system knowledge, and decide what failure is acceptable. They also have to say no. This last bit is becoming much more valuable.
+
+## Tokenmaxxing is not engineering
+
+Code is now cheap enough that we need a word for the failure mode. I call it tokenmaxxing.
+
+Tokenmaxxing is treating generated output as evidence of progress. More files. More tests. More comments. More elaborate prompts. More runs. The model is busy, so everyone feels busy. Nobody has stopped to ask whether any of it adds signal.
+
+Consider an ordinary React change. A form needs to save a user's settings and show the result. An agent can write tests that call an internal `handleSave`, assert the `onSave` mock received the expected object, and check that a local state setter was called. All green. Very professional-looking. The agent, ever the eager intern, has tested the wiring it just wrote.
+
+Those tests may tell you nothing useful about whether a person can save settings. They can pass while the submit button stays active during a pending request, the error message never reaches the screen, or the success state renders in the wrong branch. They restate implementation instead of protecting behaviour.
+
+A useful test starts from the contract. A user fills in the form, submits it, and gets the expected visible outcome. A consumer sends a request and receives the promised response. A migration preserves the data it claims to preserve. If a test cannot describe the broken behaviour it would catch, it may not deserve to exist.
+
+That does not mean every component needs a heroic integration suite. It also does not mean "no test" is irresponsible. Existing coverage may already prove the contract. A visual change may be better caught by a deliberate review. A private refactor with no changed behaviour may need a type check and nothing else. Good engineers have always made these calls. Agents make the bad alternative cheaper, which makes the judgement more important, not less.
+
+The point is not to starve the agent of tokens. The point is to stop spending tokens on work nobody should have asked for.
+
+## Context is a budget, not a landfill
+
+The other tokenmaxxing habit is throwing an entire repository, twenty rules files, and a novel-length task description at an agent, then being surprised when it loses the plot.
+
+An agent needs the same thing a human does: enough context to make the next decision correctly. Not every fact that has ever existed about the company. If the task changes a React component, it may need the component, adjacent patterns, its public contract, the relevant test style, and any rule that genuinely governs the change. It does not need a tour of the billing service because the monorepo has one.
+
+Good project instructions work because they are selective. They tell the agent where to look, which rules are binding, and what it must not guess. Good documentation works for the same reason. A clear API contract or migration mapping helps a new engineer and an agent alike. One direction, two consumers.
+
+That is why agentic engineering is often unglamorous work. Write the rule. Keep the contract current. Remove the stale instruction. Make the existing check runnable. Nobody puts that in a demo. It does mean the agent has less room to invent.
+
+## Optimise for change you can trust
+
+Teams are going to count the wrong things because they are easy to count: tokens spent, prompts sent, files changed, tests added, pull requests opened. They are all output. Output is cheap now.
+
+I would measure something harder and more useful. Did the change solve the intended problem? How much review did it demand? Did it cause a regression? Could the next engineer understand why it exists? Did the agent leave the system clearer than it found it?
+
+An agentic team should not be known for producing the most code. It should be known for making trustworthy changes quickly, and for refusing work that adds no value. The first team looks productive until it owns the maintenance bill. The second gets to keep its speed.
+
+So my definition is this: **agentic engineering is designing software work so agents can carry out bounded, multi-step changes with focused context and proof, while humans retain responsibility for consequential decisions and reject needless output.**
+
+It is not coding faster. Well, it is. But that is the least interesting part.
+
+The useful agent is not the one that writes the biggest diff. It is the one that helps you ship the smallest trustworthy change.
+
+For the design-system version of this argument, read [The AI Design System You Should Actually Build](/blog/ai-design-system). For the individual-engineer version, read [Juniors, You Have to Earn AI](/blog/earn-your-ai-multiplier).
