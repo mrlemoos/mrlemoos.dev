@@ -21,6 +21,14 @@ Source for [mrlemoos.dev](https://mrlemoos.dev): a prerendered portfolio with a 
 - Sitemap integration (`@astrojs/sitemap`)
 - TypeScript and ESLint
 
+## The blog index
+
+`/blog` stacks every post as a book in one 3D pile, newest on top. Each book's length, thickness, offset, twist and tone come from its slug, so the pile is irregular but never reshuffles between builds. A dashed cut marks where one year gives way to the next, and hovering (or focusing) a book slides it out of the pile.
+
+<p align="center">
+  <img src="./assets/blog-book-stack.gif" alt="The /blog page: blog posts as a pile of 3D books, each sliding out of the stack as the pointer passes over it" width="900" />
+</p>
+
 ## Tech stack
 
 | Area        | Choice                                      |
