@@ -367,6 +367,207 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Book stack — /blog. Every post is a book lying flat in one pile, newest on
+   top. Length, thickness, offset, twist and tone come from the slug
+   (src/lib/book-stack.ts); tones mix foreground into background, so dark
+   mode turns the pile over for free.
+
+   One 3D scene for the whole pile: perspective from above so covers and page
+   ends show, and `preserve-3d` all the way down so every face of every book
+   is depth-sorted together. Nothing in that chain may clip or filter, or the
+   scene goes flat.
+   --------------------------------------------------------------------------- */
+
+.book-stack {
+  --book-depth: 8rem;
+  max-width: 40rem;
+  perspective: 1200px;
+  perspective-origin: 50% -30%;
+  transform-style: preserve-3d;
+}
+
+.book-stack section,
+.stack-books,
+.stack-books > li {
+  transform-style: preserve-3d;
+}
+
+.stack-books {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A dashed cut where one year ends on top of the next, years beside it. */
+.stack-cut {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  margin-block: 1.25rem;
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.stack-cut::before {
+  content: "";
+  grid-row: 1 / 3;
+  border-top: 1px dashed color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+}
+
+.stack-cut-above { grid-row: 1; grid-column: 2; }
+.stack-cut-below { grid-row: 2; grid-column: 2; }
+.stack-cut-above::after { content: " ↑"; }
+.stack-cut-below::after { content: " ↓"; }
+
+.book {
+  --book-thickness: 2.25rem;
+  --book-bg: var(--foreground);
+  position: relative;
+  display: block;
+  width: var(--book-length);
+  margin-left: calc((100% - var(--book-length)) * var(--book-offset) / 100);
+  color: var(--book-ink, var(--background));
+  text-decoration: none;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% calc(var(--book-depth) / -2);
+  rotate: y var(--book-tilt);
+  transition:
+    translate var(--duration-medium) var(--ease-smooth-out),
+    rotate var(--duration-medium) var(--ease-smooth-out);
+}
+
+.book[data-thickness="1"] { --book-thickness: 2.75rem; }
+.book[data-thickness="2"] { --book-thickness: 3.25rem; }
+
+.book[data-tone="1"] {
+  --book-bg: var(--card);
+  --book-ink: var(--foreground);
+}
+.book[data-tone="2"] {
+  --book-bg: color-mix(in oklab, var(--foreground) 72%, var(--background));
+}
+.book[data-tone="3"] {
+  --book-bg: color-mix(in oklab, var(--foreground) 14%, var(--background));
+  --book-ink: var(--foreground);
+}
+
+/*
+ * `--book-thickness` is a floor, not a size: a title too long for one line
+ * wraps onto a second and the book grows to hold it.
+ */
+.book-spine {
+  display: flex;
+  min-height: var(--book-thickness);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  overflow: hidden;
+  border-radius: 0.125rem;
+  background-color: var(--book-bg);
+  /* Hairline bands near both ends, like a cloth spine. */
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 0.5rem,
+      color-mix(in oklab, currentColor 30%, transparent) 0.5rem 0.5625rem,
+      transparent 0.5625rem
+    ),
+    linear-gradient(
+      to left,
+      transparent 0.5rem,
+      color-mix(in oklab, currentColor 30%, transparent) 0.5rem 0.5625rem,
+      transparent 0.5625rem
+    );
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+
+/* Two lines at most; past that, an ellipsis is kinder than a brick. */
+.book-title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.3;
+  text-wrap: balance;
+  font-family: var(--font-geist-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.book-date {
+  flex: none;
+  font-family: var(--font-geist-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  opacity: 0.7;
+}
+
+/* The front board, hinged on the spine's top edge and laid back flat. */
+.book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--book-depth);
+  background: color-mix(in oklab, var(--book-bg) 85%, #000);
+  transform-origin: top;
+  transform: rotateX(-90deg);
+}
+
+/* Page ends, folded back from either end of the spine. */
+.book-edge {
+  position: absolute;
+  top: 0.125rem;
+  bottom: 0.125rem;
+  width: var(--book-depth);
+  background: repeating-linear-gradient(to bottom, #f4f4f5 0 2px, #d4d4d8 2px 3px);
+}
+
+.book-edge-left {
+  right: 100%;
+  transform-origin: right;
+  transform: rotateY(-90deg);
+}
+
+.book-edge-right {
+  left: 100%;
+  transform-origin: left;
+  transform: rotateY(90deg);
+}
+
+/* Slide the book out of the pile, squared up. Focus too, not just hover. */
+.book:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  translate: 0 0 2.5rem;
+  rotate: y 0deg;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .book:hover {
+    translate: 0 0 2.5rem;
+    rotate: y 0deg;
+  }
+}
+
+@media (min-width: 768px) {
+  .book {
+    --book-thickness: 2.5rem;
+  }
+  .book[data-thickness="1"] { --book-thickness: 3rem; }
+  .book[data-thickness="2"] { --book-thickness: 3.5rem; }
+}
+
+/* ---------------------------------------------------------------------------
    Learn more hover (transitions.dev 24) — verbatim, with the `:hover` half
    behind a pointer query so a tap doesn't leave the arrow stuck open.
    --------------------------------------------------------------------------- */
@@ -641,6 +842,7 @@
   .writing-row-index,
   .writing-row-title,
   .writing-row-chevron,
+  .book,
   .subscribe-input,
   .subscribe-button,
   .tag-chip,

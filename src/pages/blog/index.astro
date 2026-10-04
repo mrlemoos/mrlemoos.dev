@@ -5,7 +5,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { buildPageMeta } from "@/lib/seo";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import WritingList from "@/components/WritingList.astro";
+import BookStack from "@/components/BookStack.astro";
 import { textLink } from "@/lib/css";
 import { filterLivePosts } from "@/lib/admin/public-filter";
 import { FEED_PATH } from "@/lib/rss";
@@ -103,15 +103,8 @@ const meta = buildPageMeta(site, {
       Reading by topic? <a href="/blog/tags" class={textLink}>Browse every tag</a>.
       Prefer a reader? <a href={FEED_PATH} class={textLink}>Subscribe by RSS</a>.
     </p>
-    <WritingList
-      size="lead"
-      titleTag="h2"
-      items={posts.map(({ id, data: { title, date, description } }) => ({
-        href: `/blog/${id}`,
-        title,
-        date,
-        description,
-      }))}
+    <BookStack
+      posts={posts.map(({ id, data: { title, date } }) => ({ id, title, date }))}
     />
   </div>
 </BaseLayout>

@@ -1,0 +1,62 @@
+---
+import { bookFor, groupByYear } from "@/lib/book-stack";
+
+interface Props {
+  posts: { id: string; title: string; date: Date }[];
+}
+
+const groups = groupByYear(Astro.props.posts);
+const shortDate = (date: Date) =>
+  date.toLocaleDateString("en-GB", { month: "short", day: "numeric", timeZone: "UTC" });
+
+// Capped like WritingList: the bottom of a tall pile shouldn't arrive late.
+let revealIndex = 0;
+const nextReveal = () => Math.min(revealIndex++, 10);
+---
+
+<div class="book-stack">
+  {
+    groups.map(({ year, posts }, i) => (
+      <section aria-labelledby={`stack-${year}`}>
+        {/* Only drawn where a year actually ends on top of another. */}
+        {i > 0 && (
+          <div class="stack-cut" aria-hidden="true">
+            <span class="stack-cut-year stack-cut-above">{groups[i - 1].year}</span>
+            <span class="stack-cut-year stack-cut-below">{year}</span>
+          </div>
+        )}
+        <h2 id={`stack-${year}`} class="sr-only">
+          Posts from {year}
+        </h2>
+        <ul class="stack-books" role="list">
+          {posts.map((post) => {
+            const { length, thickness, offset, tilt, tone } = bookFor(post.id);
+            return (
+              <li
+                class="reveal"
+                style={`--reveal-index: ${nextReveal()}; --book-length: ${length}%; --book-offset: ${offset}; --book-tilt: ${tilt}deg`}
+              >
+                <a
+                  href={`/blog/${post.id}`}
+                  class="book"
+                  data-tone={tone}
+                  data-thickness={thickness}
+                >
+                  <span class="book-spine">
+                    <span class="book-title">{post.title}</span>
+                    <time class="book-date" datetime={post.date.toISOString()}>
+                      {shortDate(post.date)}
+                    </time>
+                  </span>
+                  <span class="book-cover" aria-hidden="true" />
+                  <span class="book-edge book-edge-left" aria-hidden="true" />
+                  <span class="book-edge book-edge-right" aria-hidden="true" />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))
+  }
+</div>
