@@ -1,0 +1,1051 @@
+---
+export const prerender = true;
+
+import "@fontsource/geist-sans/latin-400.css";
+import "@fontsource/geist-sans/latin-500.css";
+import "@fontsource/geist-sans/latin-600.css";
+import "@fontsource/geist-mono/latin-400.css";
+import "@fontsource/geist-mono/latin-500.css";
+import Analytics from "@vercel/analytics/astro";
+
+const REPO = "https://github.com/mrlemoos/Termi";
+// ponytail: GitHub serves this with `Content-Disposition: attachment`, so the
+// browser downloads in place; no proxy (Vercel functions cap bodies at 4.5 MB).
+const ZIP = `${REPO}/releases/latest/download/Termi.zip`;
+const TAP = `brew tap mrlemoos/termi ${REPO}`;
+const CASK = "brew install --cask termi";
+const UNQUARANTINE = "xattr -dr com.apple.quarantine /Applications/Termi.app";
+
+const title = "Termi — the terminal for coding agents";
+const description =
+  "A chromeless macOS terminal that watches your coding agents. Claude, Codex, Grok and Cursor each get a mascot on the status line, and their tabs change colour when they need you.";
+const url = new URL("/termi", Astro.site).href;
+const ogImage = new URL("/og?title=Termi", Astro.site).href;
+
+// Powerline prompt: pink · peach.
+const prompt = `<span class="pl"><span class="c-pink">\ue0b6</span><span class="bg-pink">\uf179 leo</span><span class="c-pink bg-peach">\ue0b0</span><span class="bg-peach">~/Termi</span><span class="c-peach">\ue0b4</span></span> <span class="c-green">❯</span> `;
+
+// Sprites lifted from src/agent.rs; frame 1 only shows while working.
+const agents = [
+  { name: "claude", label: "Claude Code", color: "#d97757", frames: [[" ▐▛███▜▌ ", "▝▜█████▛▘", "  ▘▘ ▝▝  "], [" ▐▛███▜▌ ", "▝▜█████▛▘", " ▝▘  ▘▝  "]] },
+  { name: "codex", label: "Codex", color: "#e8e8e8", frames: [["█▙▖     ", " ▝██    ", "█▛▘ ▄▄▄ "], ["█▙▖     ", " ▝██    ", "█▛▘     "]] },
+  { name: "grok", label: "Grok", color: "#ffffff", frames: [[" ▄▀▀▀▄ ▞", "█  ▞  █ ", "▞▀▄▄▄▀  "], ["▚ ▄▀▀▀▄ ", " █  ▚  █", "  ▀▄▄▄▀▚"]] },
+  { name: "cursor", label: "Cursor", color: "#9aa4b4", frames: [[" ▗▟▀▀▙▖ ", " ▐▓▓░░▌ ", " ▝▜▄▄▛▘ "], [" ▗▟▀▀▙▖ ", " ▐░░▓▓▌ ", " ▝▜▄▄▛▘ "]] },
+];
+
+const code = [
+  "fn busy(&self, screen: &str) -> bool {",
+  "    screen.lines().any(|l| {",
+  "        l.ends_with('…')",
+  "    })",
+  "}",
+];
+
+const keys: [string[], string][] = [
+  [["⌘", "T"], "New tab"],
+  [["⌘", "1"], "Jump to tab"],
+  [["⌘", "B"], "File tree"],
+  [["⌘", "'"], "Note on line"],
+  [["⌘", "↵"], "Send review"],
+  [["⌘", ","], "Settings"],
+];
+
+const themes = [
+  { name: "xterm", bg: "#000000", fg: "#e5e5e5", c: ["#cd0000", "#00cd00", "#cdcd00", "#5c5cff", "#cd00cd", "#00cdcd"] },
+  { name: "solarized dark", bg: "#002b36", fg: "#839496", c: ["#dc322f", "#859900", "#b58900", "#268bd2", "#d33682", "#2aa198"] },
+  { name: "solarized light", bg: "#fdf6e3", fg: "#657b83", c: ["#dc322f", "#859900", "#b58900", "#268bd2", "#d33682", "#2aa198"] },
+  { name: "gruvbox", bg: "#282828", fg: "#ebdbb2", c: ["#cc241d", "#98971a", "#d79921", "#458588", "#b16286", "#689d6a"] },
+];
+
+const hooks = `{
+  "hooks": {
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command",
+      "command": "[ -n \\"$TERMI_TAB\\" ] && echo working > \\"$TERMI_STATE_DIR/$TERMI_TAB\\" || true" }] }],
+    "Notification": [{ "hooks": [{ "type": "command",
+      "command": "[ -n \\"$TERMI_TAB\\" ] && echo input > \\"$TERMI_STATE_DIR/$TERMI_TAB\\" || true" }] }],
+    "Stop": [{ "hooks": [{ "type": "command",
+      "command": "[ -n \\"$TERMI_TAB\\" ] && echo idle > \\"$TERMI_STATE_DIR/$TERMI_TAB\\" || true" }] }]
+  }
+}`;
+const hooksHtml = hooks
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/("[^"\n]*")(\s*:)/g, '<span class="k">$1</span>$2')
+  .replace(/: ("(?:[^"\\]|\\.)*")/g, ': <span class="s">$1</span>');
+
+const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="currentColor" d="M788 341c-6 4-108 62-108 190 0 149 131 201 135 203-1 3-21 72-69 142-43 62-88 124-156 124s-86-40-164-40c-77 0-104 41-166 41s-106-57-156-127C46 792 0 667 0 548c0-191 124-292 246-292 65 0 119 43 160 43 39 0 100-45 174-45 28 0 129 3 196 99zM558 159c31-37 53-88 53-139 0-7-1-14-2-20-50 2-110 34-146 76-28 32-55 83-55 135 0 8 1 16 2 18 3 1 9 2 14 2 45 0 102-30 134-72z"/></svg>`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <link rel="icon" type="image/png" href="/termi/icon.png" />
+    <link rel="apple-touch-icon" href="/termi/icon.png" />
+    <link rel="preload" href="/termi/meslo-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@mrlemoos" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Termi",
+        operatingSystem: "macOS",
+        applicationCategory: "DeveloperApplication",
+        description,
+        url,
+        downloadUrl: ZIP,
+        license: "https://www.apache.org/licenses/LICENSE-2.0",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "GBP" },
+        author: { "@type": "Person", name: "Leonardo Lemos", url: "https://mrlemoos.dev" },
+      })}
+    />
+  </head>
+  <body>
+    <!-- ── nav ─────────────────────────────────────────── -->
+    <header class="nav">
+      <div class="wrap nav-in">
+        <a href="#top" class="brand"><img src="/termi/icon.png" alt="" width="24" height="24" />Termi</a>
+        <nav class="links" aria-label="Page">
+          <a href="#features">Features</a>
+          <a href="#agents">Agents</a>
+          <a href="#hooks">Hooks</a>
+          <a href={REPO} class="gh">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            <span data-stars>GitHub</span>
+          </a>
+        </nav>
+        <button class="btn btn-light btn-sm" data-open-download>Download</button>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ── hero ──────────────────────────────────────── -->
+      <section class="hero">
+        <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="grid-bg" aria-hidden="true"></div>
+
+        <div class="wrap hero-copy">
+          <a class="pill rise" href="#download" data-open-download>
+            <span class="pill-tag">New</span>
+            <span data-version-line>Now on Homebrew</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <img class="hero-icon rise" src="/termi/icon.png" alt="" width="112" height="112" />
+          <h1 class="rise">The terminal for<br /><span class="shine">coding agents.</span></h1>
+          <p class="sub rise">
+            Termi watches Claude, Codex, Grok and Cursor so you don't have to.
+            Every agent gets a mascot. Every tab tells you when it needs you.
+            And there's no chrome in the way.
+          </p>
+          <div class="ctas rise">
+            <button class="btn btn-light btn-lg" data-open-download>
+              <span class="apple" set:html={apple} />Download for macOS
+            </button>
+            <button class="btn btn-ghost btn-lg mono" data-copy={CASK}>
+              <span class="c-dim">$</span> {CASK}
+              <span class="copy-ico" aria-hidden="true">⧉</span>
+            </button>
+          </div>
+          <p class="fine rise">Free and open source · Apple silicon · macOS 11+</p>
+        </div>
+
+        <!-- the product, live -->
+        <div class="wrap stage">
+          <div class="window" id="demo">
+            <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="t-body" aria-label="Demo: Claude Code running in Termi" role="img"></div>
+            <div class="t-status">
+              <span class="t-tab on" data-t="claude">    ⌘1 <b class="g"></b>claude <pre class="mini" style="--agent:#d97757"></pre></span>
+              <span class="t-tab" data-t="codex"> ⌘2 <b class="g"></b>codex <pre class="mini" style="--agent:#e8e8e8"></pre></span>
+              <span class="t-tab"> ⌘3 zsh </span>
+              <span class="t-cwd">~/Developer/Termi</span>
+            </div>
+          </div>
+          <div class="reflection" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- ── works with ────────────────────────────────── -->
+      <section class="logos wrap" id="agents">
+        <p class="eyebrow center">Detects the agents you already use</p>
+        <div class="logo-row">
+          {
+            agents.map((a, i) => (
+              <div class="logo pet" data-agent={a.name} data-offset={i} style={`--agent:${a.color}`}>
+                <pre class="sprite" data-frames={JSON.stringify(a.frames)}>{a.frames[0].join("\n")}</pre>
+                <span class="logo-name">{a.label}</span>
+                <span class="state">idle</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ── bento ─────────────────────────────────────── -->
+      <section class="wrap section" id="features">
+        <div class="head reveal">
+          <p class="eyebrow">Features</p>
+          <h2>Everything an agent needs.<br /><span class="c-dim">Nothing you'll have to ignore.</span></h2>
+        </div>
+
+        <div class="bento">
+          <!-- status -->
+          <article class="card span-2 reveal">
+            <div class="card-copy">
+              <h3>Knows what every agent is doing</h3>
+              <p>
+                Termi reads the screen of each tab. A mascot walks while the
+                agent works. The tab turns <span class="c-yellow">yellow</span>
+                when it needs you, and <span class="c-done">green</span> when
+                it's done. Glance down, not around.
+              </p>
+            </div>
+            <div class="vis vis-status">
+              <div class="statusbar">
+                {agents.map((a, i) => (
+                  <span class="sb-tab" data-mirror={a.name} style={`--agent:${a.color}`}>
+                    {i === 0 ? "  " : " "}⌘{i + 1} <b class="g"></b>{a.name} <pre class="mini"></pre>
+                  </span>
+                ))}
+              </div>
+              <div class="legend">
+                <span><i class="dot pulse"></i>working</span>
+                <span><i class="dot y"></i>needs you</span>
+                <span><i class="dot g2"></i>done</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- chrome -->
+          <article class="card reveal chrome-card">
+            <div class="vis vis-chrome">
+              <div class="mini-win">
+                <div class="lights"><i></i><i></i><i></i></div>
+                <p class="mono"><span class="c-green">❯</span> <span class="c-dim">hover this card</span></p>
+              </div>
+            </div>
+            <div class="card-copy">
+              <h3>Zero chrome</h3>
+              <p>No title bar, no toolbar. Traffic lights appear only when you reach for the top edge.</p>
+            </div>
+          </article>
+
+          <!-- tree -->
+          <article class="card reveal">
+            <div class="vis vis-tree mono">
+              <ul class="files" aria-label="File tree">
+                <li class="dir">src/</li>
+                {["agent.rs", "editor.rs", "main.rs"].map((f) => (
+                  <li class="file in" draggable="true" data-path={`src/${f}`}>{f}</li>
+                ))}
+                <li class="file" draggable="true" data-path="Cargo.toml">Cargo.toml</li>
+              </ul>
+              <div class="drop" aria-live="polite">
+                <p class="c-dim">&gt; review <span class="refs"></span><span class="cur"></span></p>
+              </div>
+            </div>
+            <div class="card-copy">
+              <h3>Drag in context</h3>
+              <p>⌘B opens a file tree. Drop a file on the prompt and it lands as <code>@path</code>. Try it.</p>
+            </div>
+          </article>
+
+          <!-- notes -->
+          <article class="card span-2 reveal">
+            <div class="card-copy">
+              <h3>Review without leaving</h3>
+              <p>
+                Open a file, click a line number, leave a note. ⌘↵ hands every
+                note to the agent as one review prompt, each with the code it's
+                about. Click a line number to try it.
+              </p>
+            </div>
+            <div class="vis vis-editor mono">
+              <p class="c-dim ed-head">src/agent.rs <button class="send" data-send>⌘↵ send <span class="n">0</span></button></p>
+              <ol class="code">
+                {code.map((l, i) => (
+                  <li data-line={i + 1}>
+                    <button class="ln" title="Add a note">{String(i + 1).padStart(3)}</button><span>{l}</span>
+                  </li>
+                ))}
+              </ol>
+              <pre class="review" hidden></pre>
+            </div>
+          </article>
+
+          <!-- themes -->
+          <article class="card reveal">
+            <div class="vis vis-themes">
+              {themes.map((t) => (
+                <div class="swatch" style={`--bg:${t.bg};--fg:${t.fg}`} title={t.name}>
+                  <span class="mono">{t.name}</span>
+                  <span class="chips">{t.c.map((c) => <i style={`background:${c}`} />)}</span>
+                </div>
+              ))}
+            </div>
+            <div class="card-copy">
+              <h3>Plain-text settings</h3>
+              <p>Four themes, one file: <code>~/.config/termi/settings</code>. ⌘, edits it with the arrow keys.</p>
+            </div>
+          </article>
+
+          <!-- native -->
+          <article class="card reveal">
+            <div class="vis vis-stat">
+              <p class="stat">14<small>MB</small></p>
+              <p class="stack mono">Rust · alacritty_terminal · egui</p>
+            </div>
+            <div class="card-copy">
+              <h3>Native and small</h3>
+              <p>No Electron, no runtime. Built on alacritty's terminal core and drawn on the GPU.</p>
+            </div>
+          </article>
+
+          <!-- keys -->
+          <article class="card reveal">
+            <div class="vis vis-keys">
+              {keys.map(([k, label]) => (
+                <div class="key-row">
+                  <span class="caps">{k.map((c) => <kbd>{c}</kbd>)}</span>
+                  <span class="c-dim">{label}</span>
+                </div>
+              ))}
+            </div>
+            <div class="card-copy">
+              <h3>Keyboard first</h3>
+              <p>Every tab has a number, always on the status line. You'll never reach for the mouse.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── hooks ─────────────────────────────────────── -->
+      <section class="wrap section split" id="hooks">
+        <div class="head reveal">
+          <p class="eyebrow">Hooks</p>
+          <h2>Reads the screen.<br /><span class="c-dim">Listens to hooks.</span></h2>
+          <p class="body">
+            Detection works out of the box from each tab's foreground process.
+            For certainty, any hook can write <code>idle</code>,
+            <code>working</code> or <code>input</code> to
+            <code>$TERMI_STATE_DIR/$TERMI_TAB</code>. Here's Claude Code.
+          </p>
+        </div>
+        <div class="codewin reveal">
+          <div class="codewin-bar">
+            <span class="c-dim mono">~/.claude/settings.json</span>
+            <button class="btn btn-ghost btn-xs" data-copy={hooks}>Copy</button>
+          </div>
+          <pre class="mono json" set:html={hooksHtml} />
+        </div>
+      </section>
+
+      <!-- ── final cta ─────────────────────────────────── -->
+      <section class="final">
+        <div class="aurora small" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="wrap final-in reveal">
+          <img src="/termi/icon.png" alt="" width="88" height="88" class="hero-icon" />
+          <h2>Your agents are working.<br /><span class="shine">Now you can too.</span></h2>
+          <div class="ctas">
+            <button class="btn btn-light btn-lg" data-open-download><span class="apple" set:html={apple} />Download for macOS</button>
+            <a class="btn btn-ghost btn-lg" href={REPO}>View source</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap foot">
+      <span><img src="/termi/icon.png" alt="" width="18" height="18" /> Termi</span>
+      <span class="c-dim">Built by <a href="/">Leonardo Lemos</a> · Apache 2.0</span>
+    </footer>
+
+    <!-- ── download dialog ─────────────────────────────── -->
+    <dialog id="download" aria-labelledby="dl-title">
+      <form method="dialog" class="dl">
+        <button class="x" aria-label="Close">✕</button>
+        <img src="/termi/icon.png" alt="" width="72" height="72" class="dl-icon" />
+        <h2 id="dl-title">Download Termi</h2>
+        <p class="c-dim dl-meta" data-meta>Apple silicon · macOS 11+</p>
+        <a class="btn btn-light btn-lg dl-btn" href={ZIP} download data-download>
+          <span class="apple" set:html={apple} />Download for macOS
+        </a>
+        <p class="ok" data-ok hidden>
+          <span class="c-done">✓</span> Downloading. Unzip it and drag Termi into Applications.
+        </p>
+
+        <div class="or"><span>or install with Homebrew</span></div>
+        <div class="cmds">
+          <button type="button" class="cmd mono" data-copy={TAP}><span class="c-dim">$</span><span class="cmd-text">{TAP}</span><span class="copy-ico">⧉</span></button>
+          <button type="button" class="cmd mono" data-copy={CASK}><span class="c-dim">$</span><span class="cmd-text">{CASK}</span><span class="copy-ico">⧉</span></button>
+        </div>
+
+        <details class="gk">
+          <summary>macOS says it can't be opened?</summary>
+          <p class="c-dim">Termi isn't notarised yet. Clear the quarantine flag once:</p>
+          <button type="button" class="cmd mono" data-copy={UNQUARANTINE}><span class="c-dim">$</span><span class="cmd-text">{UNQUARANTINE}</span><span class="copy-ico">⧉</span></button>
+        </details>
+      </form>
+    </dialog>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+
+    <Analytics />
+
+    <style is:global>
+      @font-face {
+        font-family: "Meslo";
+        src: url("/termi/meslo-regular.woff2") format("woff2");
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Meslo";
+        src: url("/termi/meslo-bold.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+      }
+
+      :root {
+        --bg: #000;
+        --fg: #ededed;
+        --muted: #a1a1a1;
+        --dim: #737373;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-2: rgba(255, 255, 255, 0.14);
+        --card: #0a0a0a;
+        --claude: #d97757;
+        --yellow: #e5c100;
+        --done: #3ecf5a;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+        --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+        --term: "Meslo", ui-monospace, Menlo, monospace;
+        color-scheme: dark;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { background: var(--bg); scroll-behavior: smooth; scroll-padding-top: 80px; }
+      body {
+        color: var(--fg);
+        font: 400 16px/1.6 var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      ::selection { background: rgba(217, 119, 87, 0.45); color: #fff; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+      img { display: block; }
+      code { font: 0.88em/1 var(--mono); color: var(--fg); background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-radius: 5px; padding: 2px 5px; }
+      pre { font: inherit; }
+      :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 8px; }
+
+      .mono { font-family: var(--mono); }
+      .c-dim { color: var(--dim); }
+      .c-green { color: #a6e3a1; }
+      .c-yellow { color: var(--yellow); }
+      .c-done { color: var(--done); }
+      .wrap { width: min(1180px, 100% - 48px); margin-inline: auto; }
+      .center { text-align: center; }
+
+      /* ── buttons ─────────────────────────────── */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        border-radius: 999px; font-weight: 500; white-space: nowrap;
+        transition: transform 200ms var(--ease), background 200ms, box-shadow 300ms var(--ease), border-color 200ms;
+      }
+      .btn:active { transform: scale(0.97); }
+      .btn-light { background: #fff; color: #000; box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 8px 30px -6px rgba(255,255,255,0.35); }
+      .btn-light:hover { background: #e9e9e9; box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 12px 40px -6px rgba(255,255,255,0.5); }
+      .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid var(--line-2); color: var(--fg); backdrop-filter: blur(8px); }
+      .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
+      .btn-lg { height: 48px; padding: 0 24px; font-size: 15px; }
+      .btn-sm { height: 32px; padding: 0 14px; font-size: 13.5px; }
+      .btn-xs { height: 26px; padding: 0 12px; font-size: 12px; }
+      .btn.mono { font-size: 14px; }
+      .apple svg { width: 15px; height: 18px; display: block; margin-top: -2px; }
+      .copy-ico { color: var(--dim); font-size: 14px; transition: color 150ms; }
+      [data-copy]:hover .copy-ico { color: var(--fg); }
+
+      /* ── nav ─────────────────────────────────── */
+      .nav {
+        position: fixed; inset: 0 0 auto; z-index: 50; height: 64px;
+        border-bottom: 1px solid transparent;
+        transition: background 300ms, border-color 300ms, backdrop-filter 300ms;
+      }
+      .nav.scrolled { background: rgba(0,0,0,0.6); backdrop-filter: blur(16px) saturate(160%); border-color: var(--line); }
+      .nav-in { height: 100%; display: flex; align-items: center; gap: 32px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
+      .brand img { border-radius: 6px; }
+      .links { display: flex; gap: 28px; margin-left: auto; font-size: 14px; color: var(--muted); }
+      .links a { transition: color 150ms; display: inline-flex; align-items: center; gap: 6px; }
+      .links a:hover { color: var(--fg); }
+      .gh svg { width: 16px; height: 16px; }
+
+      /* ── hero ────────────────────────────────── */
+      .hero { position: relative; padding-top: 140px; isolation: isolate; }
+      .aurora { position: absolute; inset: -10% 0 auto; height: 900px; z-index: -1; pointer-events: none; filter: blur(90px); opacity: 0.55; }
+      .aurora i { position: absolute; border-radius: 50%; mix-blend-mode: screen; animation: drift 18s ease-in-out infinite alternate; }
+      .aurora i:nth-child(1) { width: 640px; height: 420px; left: 50%; top: 260px; translate: -95% 0; background: #d97757; }
+      .aurora i:nth-child(2) { width: 560px; height: 420px; left: 50%; top: 300px; translate: -10% 0; background: #6d5cff; animation-delay: -6s; }
+      .aurora i:nth-child(3) { width: 420px; height: 320px; left: 50%; top: 420px; translate: -50% 0; background: #1fb6c9; opacity: 0.6; animation-delay: -12s; }
+      .aurora.small { inset: auto 0 -30%; height: 600px; opacity: 0.4; }
+      @keyframes drift { to { transform: translate(60px, -40px) scale(1.15); } }
+      .grid-bg {
+        position: absolute; inset: 0 0 auto; height: 900px; z-index: -1; pointer-events: none;
+        background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(ellipse 60% 55% at 50% 30%, #000 30%, transparent 75%);
+      }
+      .hero-copy { display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 10px; height: 32px; padding: 0 14px 0 4px;
+        border: 1px solid var(--line-2); border-radius: 999px; background: rgba(255,255,255,0.03);
+        font-size: 13px; color: var(--muted); backdrop-filter: blur(8px); transition: border-color 200ms, color 200ms;
+      }
+      .pill:hover { border-color: rgba(255,255,255,0.3); color: var(--fg); }
+      .pill-tag { background: linear-gradient(90deg, #d97757, #6d5cff); color: #fff; border-radius: 999px; padding: 2px 10px; font-weight: 500; font-size: 12px; }
+      .hero-icon { margin-top: 40px; border-radius: 24px; box-shadow: 0 30px 80px -20px rgba(217,119,87,0.45), 0 0 0 1px rgba(255,255,255,0.08); }
+      h1 {
+        margin-top: 32px; font-size: clamp(44px, 7.6vw, 92px); line-height: 1; letter-spacing: -0.045em; font-weight: 600;
+        background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,0.62)); -webkit-background-clip: text; background-clip: text; color: transparent;
+        padding-bottom: 0.08em;
+      }
+      .shine {
+        background: linear-gradient(100deg, #f0a07f 0%, #d97757 25%, #a88bff 55%, #6dd3e0 85%);
+        background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+        animation: shine 8s ease-in-out infinite alternate;
+      }
+      @keyframes shine { to { background-position: 100% 0; } }
+      .sub { margin-top: 24px; max-width: 620px; font-size: clamp(16px, 1.6vw, 19px); color: var(--muted); line-height: 1.55; text-wrap: balance; }
+      .ctas { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+      .fine { margin-top: 18px; font-size: 13px; color: var(--dim); }
+
+      .rise { animation: rise 900ms var(--ease) both; }
+      .rise:nth-child(2) { animation-delay: 60ms; }
+      .rise:nth-child(3) { animation-delay: 120ms; }
+      .rise:nth-child(4) { animation-delay: 180ms; }
+      .rise:nth-child(5) { animation-delay: 240ms; }
+      .rise:nth-child(6) { animation-delay: 300ms; }
+      @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
+
+      /* ── the window ──────────────────────────── */
+      .stage { margin-top: 80px; perspective: 1600px; position: relative; }
+      .window {
+        position: relative; height: min(600px, 70vw); border-radius: 14px; overflow: hidden;
+        background: #000; color: #e5e5e5;
+        font: 400 clamp(10px, 1.18vw, 14.5px) / 1.5 var(--term);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 50px 120px -20px rgba(0,0,0,0.9), 0 0 160px -40px rgba(109,92,255,0.45);
+        transform-origin: 50% 0;
+        animation: settle 1400ms var(--ease) 300ms both;
+      }
+      @keyframes settle { from { opacity: 0; transform: rotateX(22deg) translateY(40px) scale(0.94); } }
+      @supports (animation-timeline: view()) {
+        .window { animation: tilt linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+        @keyframes tilt { from { transform: rotateX(24deg) scale(0.92); } to { transform: none; } }
+      }
+      .window::after {
+        content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+        background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 18%);
+      }
+      .reflection {
+        position: absolute; left: 10%; right: 10%; bottom: -60px; height: 120px; z-index: -1;
+        background: radial-gradient(ellipse at center, rgba(217,119,87,0.35), transparent 70%); filter: blur(40px);
+      }
+      .lights { position: absolute; top: 12px; left: 14px; display: flex; gap: 8px; opacity: 0; transition: opacity 180ms; z-index: 2; }
+      .lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+      .lights i:nth-child(2) { background: #febc2e; }
+      .lights i:nth-child(3) { background: #28c840; }
+      .window.reach .lights, .chrome-card:hover .lights { opacity: 1; }
+      .t-body { position: absolute; inset: 36px 1.2em 2.4em; overflow: hidden; white-space: pre; display: flex; flex-direction: column; justify-content: flex-end; }
+      .t-body p { min-height: 1.5em; }
+      .t-status { position: absolute; left: 0; right: 0; bottom: 0; height: 1.9em; display: flex; align-items: stretch; white-space: pre; font: 400 1.05em/1 -apple-system, system-ui, sans-serif; }
+      .t-tab, .sb-tab { display: flex; align-items: center; color: #a0a0a0; }
+      .t-tab.on, .sb-tab.on { background: #e5e5e5; color: #000; }
+      .t-cwd { margin-left: auto; padding-right: 1.6em; align-self: center; color: #787878; }
+      .t-tab[data-state="working"]:not(.on), .sb-tab[data-state="working"] { animation: pulse-text 1.2s ease-in-out infinite alternate; }
+      .t-tab.on[data-state="working"] { animation: pulse 1.2s ease-in-out infinite alternate; }
+      .t-tab[data-state="input"]:not(.on), .sb-tab[data-state="input"] { color: #cdcd00; }
+      .t-tab[data-state="done"]:not(.on), .sb-tab[data-state="done"] { color: #00cd00; }
+      .g { font-weight: 400; }
+      .mini { font: 400 0.36em/1 var(--term); color: var(--agent, #d97757); white-space: pre; margin-right: 0.4em; }
+      @keyframes pulse { from { background: rgb(110 110 110); } to { background: rgb(255 255 255); } }
+      @keyframes pulse-text { from { color: rgb(110 110 110); } to { color: rgb(255 255 255); } }
+
+      /* terminal colours */
+      .pl { color: #11111b; }
+      .bg-pink { background: #f5a3b8; padding: 0 0.6em; }
+      .bg-peach { background: #f9bf98; padding: 0 0.6em; }
+      .c-pink { color: #f5a3b8; }
+      .c-peach { color: #f9bf98; }
+      .t-claude { color: #d97757; }
+      .t-dim { color: #7f7f7f; }
+      .t-add { color: #a6e3a1; background: rgba(46,160,67,0.18); }
+      .banner { display: inline-flex; align-items: center; gap: 1.6em; padding: 0.7em 1.4em; margin: 0.4em 0; border: 1px solid #d97757; border-radius: 6px; line-height: 1.5; }
+      .sprite-sm { line-height: 1; }
+      .t-ask { color: #b4befe; }
+      .t-sel { color: #b4befe; }
+      .t-cur { display: inline-block; width: 0.6em; height: 1.2em; vertical-align: -0.25em; background: #e5e5e5; animation: blink 1.06s step-end infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      /* ── logos ───────────────────────────────── */
+      .logos { margin-top: 140px; }
+      .eyebrow { font: 500 13px/1 var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; }
+      .logo-row { margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+      .logo { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 36px 12px 28px; border-right: 1px solid var(--line); transition: background 300ms; }
+      .logo:last-child { border-right: 0; }
+      .logo:hover { background: rgba(255,255,255,0.025); }
+      .logo .sprite { font: 400 26px/1 var(--term); color: #555; white-space: pre; transition: color 400ms, filter 400ms; }
+      .logo:hover .sprite, .logo[data-state="working"] .sprite { color: var(--agent); filter: drop-shadow(0 0 18px color-mix(in srgb, var(--agent) 55%, transparent)); }
+      .logo-name { font-weight: 500; font-size: 15px; }
+      .state { font: 12px/1 var(--mono); color: var(--dim); }
+      .logo[data-state="working"] .state { animation: pulse-text 1.2s ease-in-out infinite alternate; }
+      .logo[data-state="input"] .state { color: var(--yellow); }
+      .logo[data-state="done"] .state { color: var(--done); }
+
+      /* ── sections ────────────────────────────── */
+      .section { margin-top: 180px; }
+      .head h2, .final h2 {
+        margin-top: 16px; font-size: clamp(34px, 4.8vw, 60px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 600;
+      }
+      .head .body { margin-top: 20px; color: var(--muted); max-width: 520px; font-size: 17px; }
+
+      .reveal { opacity: 0; transform: translateY(24px); filter: blur(4px); transition: opacity 900ms var(--ease), transform 900ms var(--ease), filter 900ms var(--ease); }
+      .reveal.in { opacity: 1; transform: none; filter: none; }
+
+      /* ── bento ───────────────────────────────── */
+      .bento { margin-top: 56px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .card {
+        position: relative; border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.005)), var(--card);
+        display: flex; flex-direction: column; min-height: 380px;
+      }
+      .card::before {
+        content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 400ms;
+        background: radial-gradient(500px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.06), transparent 45%);
+      }
+      .card::after {
+        content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; padding: 1px; opacity: 0; transition: opacity 400ms;
+        background: radial-gradient(320px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.35), transparent 50%);
+        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      }
+      .card:hover::before, .card:hover::after { opacity: 1; }
+      .span-2 { grid-column: span 2; display: grid; grid-template-columns: 0.9fr 1.1fr; align-items: center; }
+      .card-copy { padding: 28px 28px 30px; position: relative; z-index: 1; }
+      .card h3 { font-size: 18px; font-weight: 500; letter-spacing: -0.015em; }
+      .card p { margin-top: 8px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+      .vis { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; padding: 28px; min-height: 180px; }
+
+      .vis-status { flex-direction: column; gap: 22px; }
+      .statusbar { width: 100%; display: flex; background: #000; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; height: 40px; white-space: pre; font: 400 14px/1 -apple-system, system-ui, sans-serif; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.9); }
+      .statusbar .mini { font-size: 5px; }
+      .legend { display: flex; gap: 20px; font: 12px/1 var(--mono); color: var(--dim); }
+      .legend span { display: flex; align-items: center; gap: 8px; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+      .dot.pulse { animation: pulse 1.2s ease-in-out infinite alternate; }
+      .dot.y { background: #cdcd00; }
+      .dot.g2 { background: #00cd00; }
+
+      .mini-win { width: 100%; height: 150px; border-radius: 10px; background: #000; border: 1px solid var(--line-2); position: relative; padding: 46px 18px; font-size: 13px; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.9); }
+      .mini-win .lights { top: 12px; left: 12px; }
+
+      .vis-tree { gap: 18px; align-items: stretch; font-size: 13px; }
+      .files { list-style: none; min-width: 110px; }
+      .files li { padding: 2px 8px; border-radius: 5px; }
+      .files .dir { color: #7c7cff; }
+      .files .in { padding-left: 22px; }
+      .files .file { cursor: grab; user-select: none; transition: background 150ms; }
+      .files .file:hover { background: rgba(255,255,255,0.08); }
+      .drop { flex: 1; border: 1px dashed var(--line-2); border-radius: 10px; padding: 12px; background: #000; transition: border-color 200ms, background 200ms; }
+      .drop.over { border-color: var(--claude); background: rgba(217,119,87,0.06); }
+      .refs .ref { color: var(--claude); display: inline-block; }
+      .cur { display: inline-block; width: 0.6em; height: 1.1em; vertical-align: -0.2em; background: var(--fg); animation: blink 1.06s step-end infinite; }
+
+      .vis-editor { flex-direction: column; align-items: stretch; justify-content: center; font-size: 13px; }
+      .ed-head { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+      .send { font: inherit; color: var(--muted); border: 1px solid var(--line-2); border-radius: 6px; padding: 0 8px; transition: color 150ms, border-color 150ms; }
+      .send:hover { color: var(--fg); border-color: rgba(255,255,255,0.3); }
+      .code { list-style: none; margin-top: 10px; }
+      .code li > span { white-space: pre; }
+      .ln { color: #555; white-space: pre; margin-right: 14px; border-radius: 3px; transition: color 150ms; }
+      .ln:hover, .noted .ln { color: #cdcd00; }
+      .note { display: flex; color: #cdcd00; white-space: pre; padding-left: 4ch; }
+      .note input { flex: 1; font: inherit; color: #cdcd00; background: none; border: 0; outline: 0; }
+      .note input::placeholder { color: rgba(205,205,0,0.4); }
+      .review { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(217,119,87,0.08); border: 1px solid rgba(217,119,87,0.25); white-space: pre-wrap; color: var(--fg); font-size: 12px; }
+
+      .vis-themes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: center; }
+      .swatch { background: var(--bg); color: var(--fg); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 11.5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 300ms var(--ease); }
+      .swatch:hover { transform: translateY(-3px); }
+      .chips { display: flex; gap: 4px; }
+      .chips i { width: 12px; height: 12px; border-radius: 3px; }
+
+      .vis-stat { flex-direction: column; gap: 10px; }
+      .card .stat { margin: 0; font-size: 96px; font-weight: 600; letter-spacing: -0.06em; line-height: 1; background: linear-gradient(180deg, #fff, #666); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .stat small { font-size: 28px; letter-spacing: -0.02em; margin-left: 6px; }
+      .stack { font-size: 12px; color: var(--dim); }
+
+      .vis-keys { flex-direction: column; align-items: stretch; gap: 8px; }
+      .key-row { display: flex; align-items: center; gap: 14px; font-size: 14px; }
+      .caps { display: flex; gap: 4px; min-width: 72px; }
+      kbd {
+        min-width: 28px; height: 28px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center;
+        font: 500 13px/1 var(--sans); color: var(--fg); border-radius: 7px;
+        background: linear-gradient(180deg, #2a2a2a, #161616); border: 1px solid #333;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 0 #050505;
+      }
+
+      /* ── hooks ───────────────────────────────── */
+      .split { display: grid; grid-template-columns: 1fr 1.15fr; gap: 56px; align-items: center; }
+      .codewin { border: 1px solid var(--line-2); border-radius: 16px; overflow: hidden; background: #050505; box-shadow: 0 40px 100px -30px rgba(109,92,255,0.35); }
+      .codewin-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+      .json { padding: 20px; font-size: 12.5px; line-height: 1.7; overflow-x: auto; color: var(--muted); }
+      .json .k { color: #b4befe; }
+      .json .s { color: #f9bf98; }
+
+      /* ── final ───────────────────────────────── */
+      .final { position: relative; margin-top: 200px; padding: 120px 0 140px; isolation: isolate; overflow: hidden; border-top: 1px solid var(--line); }
+      .final-in { display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .final .hero-icon { margin-top: 0; }
+      .final h2 { margin-top: 32px; }
+      .foot { display: flex; justify-content: space-between; align-items: center; padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13px; }
+      .foot span:first-child { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+      .foot img { border-radius: 4px; }
+      .foot a { color: var(--fg); }
+
+      /* ── dialog ──────────────────────────────── */
+      dialog { margin: auto; border: 0; background: none; color: var(--fg); width: min(520px, calc(100vw - 32px)); overflow: visible; }
+      dialog::backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); }
+      dialog[open] .dl { animation: pop 450ms var(--ease); }
+      dialog[open]::backdrop { animation: fade 300ms ease-out; }
+      @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
+      @keyframes fade { from { opacity: 0; } }
+      .dl {
+        position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+        padding: 40px 32px 28px; border-radius: 24px;
+        background: radial-gradient(120% 60% at 50% 0%, rgba(217,119,87,0.16), transparent 60%), #0b0b0b;
+        box-shadow: 0 0 0 1px var(--line-2), 0 40px 120px -20px rgba(0,0,0,0.9);
+      }
+      .x { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; color: var(--dim); transition: background 150ms, color 150ms; }
+      .x:hover { background: rgba(255,255,255,0.08); color: var(--fg); }
+      .dl-icon { border-radius: 16px; box-shadow: 0 20px 50px -15px rgba(217,119,87,0.5); }
+      .dl h2 { margin-top: 20px; font-size: 26px; letter-spacing: -0.03em; font-weight: 600; }
+      .dl-meta { margin-top: 4px; font-size: 14px; }
+      .dl-btn { margin-top: 24px; width: 100%; }
+      .ok { margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+      .or { margin: 28px 0 14px; width: 100%; display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--dim); }
+      .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+      .cmds { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+      .cmd {
+        width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; font-size: 12.5px;
+        padding: 11px 14px; border-radius: 10px; background: #000; border: 1px solid var(--line);
+        transition: border-color 150ms;
+      }
+      .cmd:hover { border-color: var(--line-2); }
+      .cmd-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cmd .copy-ico { margin-left: auto; flex-shrink: 0; }
+      .gk { margin-top: 20px; width: 100%; text-align: left; font-size: 13px; }
+      .gk summary { color: var(--dim); cursor: pointer; list-style: none; text-align: center; transition: color 150ms; }
+      .gk summary:hover { color: var(--fg); }
+      .gk p { margin: 12px 0 8px; }
+
+      .toast {
+        position: fixed; left: 50%; bottom: 28px; z-index: 100; translate: -50% 20px; opacity: 0; pointer-events: none;
+        padding: 10px 16px; border-radius: 999px; background: #fff; color: #000; font-size: 13.5px; font-weight: 500;
+        transition: opacity 250ms, translate 350ms var(--ease);
+      }
+      .toast.show { opacity: 1; translate: -50% 0; }
+
+      @media (max-width: 900px) {
+        .links { display: none; }
+        .nav-in { justify-content: space-between; }
+        .bento { grid-template-columns: 1fr; }
+        .span-2 { grid-column: auto; grid-template-columns: 1fr; }
+        .split { grid-template-columns: 1fr; }
+        .logo-row { grid-template-columns: repeat(2, 1fr); }
+        .logo:nth-child(2) { border-right: 0; }
+        .logo:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+        .t-cwd { display: none; }
+        .window { height: 420px; font-size: 9px; }
+        .btn.mono { display: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        .reveal { opacity: 1; transform: none; filter: none; }
+      }
+    </style>
+
+    <script is:inline define:vars={{ prompt }}>
+      const $ = (s, el = document) => el.querySelector(s);
+      const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+
+      // ── nav + reveals ───────────────────────────────────
+      const nav = $(".nav");
+      const onScroll = () => nav.classList.toggle("scrolled", scrollY > 10);
+      addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      const reveal = new IntersectionObserver(
+        (es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add("in"), reveal.unobserve(e.target))),
+        { rootMargin: "0px 0px -10% 0px" }
+      );
+      $$(".reveal").forEach((el, i) => {
+        el.style.transitionDelay = `${(i % 3) * 70}ms`;
+        reveal.observe(el);
+      });
+
+      // spotlight on cards
+      $$(".card").forEach((c) =>
+        c.addEventListener("pointermove", (e) => {
+          const r = c.getBoundingClientRect();
+          c.style.setProperty("--x", `${e.clientX - r.left}px`);
+          c.style.setProperty("--y", `${e.clientY - r.top}px`);
+        })
+      );
+
+      // chromeless: lights appear near the window's top edge
+      const win = $("#demo");
+      win.addEventListener("pointermove", (e) => win.classList.toggle("reach", e.clientY - win.getBoundingClientRect().top < 40));
+      win.addEventListener("pointerleave", () => win.classList.remove("reach"));
+
+      // ── agent states: working → input → done → idle ──────
+      const cycle = [["working", "working…", 4200], ["input", "needs you", 2600], ["done", "done", 2600], ["idle", "idle", 1400]];
+      const period = cycle.reduce((n, c) => n + c[2], 0);
+      const stateAt = (t) => {
+        t = ((t % period) + period) % period;
+        for (const c of cycle) if ((t -= c[2]) < 0) return c;
+      };
+      const frames = Object.fromEntries($$(".pet").map((p) => [p.dataset.agent, JSON.parse($(".sprite", p).dataset.frames)]));
+      const names = Object.keys(frames);
+      const glyph = (s) => (s === "input" ? "! " : s === "done" ? "✓ " : "");
+      const paintTab = (tab, name, state, frame) => {
+        tab.dataset.state = state;
+        $(".g", tab).textContent = glyph(state);
+        $(".mini", tab).textContent = frames[name][state === "working" ? frame : 0].join("\n");
+      };
+
+      // the hero window tells its own story on ⌘1; ⌘2 cycles in the background
+      let heroState = "idle";
+      function tick() {
+        const t = Date.now();
+        const frame = Math.floor(t / 250) % 2;
+        for (const p of $$(".pet")) {
+          const [state, label] = stateAt(t - p.dataset.offset * 2900);
+          p.dataset.state = state;
+          $(".state", p).textContent = label;
+          $(".sprite", p).textContent = frames[p.dataset.agent][state === "working" ? frame : 0].join("\n");
+        }
+        for (const tab of $$(".sb-tab")) {
+          paintTab(tab, tab.dataset.mirror, stateAt(t - names.indexOf(tab.dataset.mirror) * 2900)[0], frame);
+        }
+        paintTab($('.t-tab[data-t="claude"]'), "claude", heroState, frame);
+        paintTab($('.t-tab[data-t="codex"]'), "codex", stateAt(t - 5000)[0], frame);
+      }
+      tick();
+      setInterval(tick, calm ? 1000 : 125);
+
+      // ── the hero terminal: a Claude Code session ────────
+      const body = $(".t-body");
+      const MAX = 24;
+      const add = (html = "") => {
+        const p = document.createElement("p");
+        p.innerHTML = html;
+        body.append(p);
+        while (body.children.length > MAX) body.firstChild.remove();
+        return p;
+      };
+      async function type(el, text, base = "") {
+        for (let i = 1; i <= text.length; i++) {
+          el.innerHTML = base + esc(text.slice(0, i)) + '<span class="t-cur"></span>';
+          await sleep(calm ? 0 : 35 + Math.random() * 55);
+        }
+        el.innerHTML = base + esc(text);
+      }
+      const SPIN = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
+      async function think(word, ms, tokens) {
+        heroState = "working";
+        const p = add();
+        const t0 = Date.now();
+        while (Date.now() - t0 < ms) {
+          const dt = Date.now() - t0;
+          const g = SPIN[Math.floor(Date.now() / 120) % SPIN.length];
+          p.innerHTML = `<span class="t-claude">${g} ${word}…</span> <span class="t-dim">(${Math.floor(dt / 1000) + 1}s · ↓ ${Math.round((tokens * dt) / ms)} tokens · esc to interrupt)</span>`;
+          await sleep(120);
+        }
+        p.remove();
+      }
+
+      async function story() {
+        body.innerHTML = "";
+        heroState = "idle";
+        add(`<span class="t-dim">Last login: ${new Date().toDateString()} on ttys004</span>`);
+        add();
+        add(prompt + "git log --oneline -4");
+        for (const [h, m] of [
+          ["d918b2b", "test: add unit tests across all modules"],
+          ["453ca1a", "build: publish termi v0.1.8"],
+          ["0dda88b", "feat(tree): use tab title font for file and folder names"],
+          ["66f7a32", "build: publish termi v0.1.7"],
+        ]) add(`<span class="c-peach">${h}</span> ${m}`);
+        add();
+        await type(add(), "claude", prompt);
+        await sleep(400);
+        add(
+          '<span class="banner"><span class="t-claude sprite-sm"> ▐▛███▜▌ \n▝▜█████▛▘\n  ▘▘ ▝▝  </span>' +
+            '<span><b>Claude Code</b>\n<span class="t-dim">Opus · ~/Developer/Termi</span></span></span>'
+        );
+        add();
+        await sleep(500);
+        await type(add(), "add a paper theme to the settings", "<span class='t-dim'>&gt;</span> ");
+        await sleep(300);
+        add();
+        await think("Deliberating", 2600, 840);
+        add('<span class="t-claude">⏺</span> <b>Read</b>(src/term.rs)');
+        add('<span class="t-dim">  ⎿  Read 560 lines</span>');
+        add();
+        await think("Jitterbugging", 2200, 1620);
+        add('<span class="t-claude">⏺</span> <b>Update</b>(src/term.rs)');
+        add('<span class="t-dim">  ⎿  Updated src/term.rs with 2 additions</span>');
+        add('<span class="t-dim">     297 </span>   Theme { name: "gruvbox", bg: 0x282828, … },');
+        add('<span class="t-add">     298 +   Theme { name: "paper", bg: 0xfaf8f2, fg: 0x2b2b2b,</span>');
+        add('<span class="t-add">     299 +           ansi: PAPER, light: true },</span>');
+        add();
+        heroState = "input";
+        add('<span class="t-ask">Do you want to run </span><b>cargo test</b><span class="t-ask">?</span>');
+        const yes = add('<span class="t-sel">❯ 1. Yes</span>');
+        add("  2. No, and tell Claude what to do differently");
+        await sleep(3000);
+        yes.innerHTML = '<span class="t-sel">❯ 1. Yes</span>  <span class="t-dim">✓</span>';
+        add();
+        await think("Testing", 2000, 2310);
+        add('<span class="t-dim">  ⎿  test result: ok. 64 passed; 0 failed</span>');
+        add();
+        add('<span class="t-claude">✻</span> <span class="t-dim">Baked for 14s · done</span>');
+        heroState = "done";
+        add();
+        add("<span class='t-dim'>&gt;</span> <span class='t-cur'></span>");
+        await sleep(6000);
+      }
+      (async () => {
+        await sleep(calm ? 0 : 900);
+        for (;;) await story();
+      })();
+
+      // ── tree: drag (or click) a file onto the prompt ────
+      const drop = $(".drop");
+      const refs = $(".refs", drop);
+      const addRef = (path) => {
+        if (refs.textContent.includes(`@${path}`)) return;
+        refs.insertAdjacentHTML("beforeend", `<span class="ref">@${esc(path)}</span> `);
+      };
+      $$(".files .file").forEach((f) => {
+        f.ondragstart = (e) => e.dataTransfer.setData("text/plain", f.dataset.path);
+        f.onclick = () => addRef(f.dataset.path);
+      });
+      drop.ondragover = (e) => (e.preventDefault(), drop.classList.add("over"));
+      drop.ondragleave = () => drop.classList.remove("over");
+      drop.ondrop = (e) => {
+        e.preventDefault();
+        drop.classList.remove("over");
+        const p = e.dataTransfer.getData("text/plain");
+        if (p) addRef(p);
+      };
+
+      // ── editor notes → review prompt (mirrors editor::review) ──
+      const notes = new Map();
+      const count = $("[data-send] .n");
+      $$(".code .ln").forEach((btn) => {
+        btn.onclick = () => {
+          const li = btn.closest("li");
+          const line = +li.dataset.line;
+          let row = li.nextElementSibling?.classList.contains("note") ? li.nextElementSibling : null;
+          if (!row) {
+            row = document.createElement("li");
+            row.className = "note";
+            row.innerHTML = `<span>note L${line}&gt; </span><input aria-label="Note on line ${line}" placeholder="type a note…" />`;
+            li.after(row);
+            li.classList.add("noted");
+            const input = $("input", row);
+            input.oninput = () => {
+              if (input.value.trim()) notes.set(line, input.value.trim());
+              else notes.delete(line);
+              count.textContent = notes.size;
+            };
+            input.onkeydown = (e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
+              else if (e.key === "Enter" || e.key === "Escape") input.blur();
+            };
+          }
+          $("input", row).focus();
+        };
+      });
+      function send() {
+        const lines = $$(".code li[data-line]").map((li) => li.lastElementChild.textContent.trim());
+        const path = "src/agent.rs";
+        let out = `Review comments on ${path}:\n`;
+        [...notes].sort((a, b) => a[0] - b[0]).forEach(([n, note]) => {
+          out += `- ${path}:${n} \`${lines[n - 1] ?? ""}\` — ${note}\n`;
+        });
+        const pre = $(".review");
+        pre.hidden = false;
+        pre.textContent = notes.size ? out.trim() : "No notes yet. Click a line number.";
+      }
+      $("[data-send]").onclick = send;
+
+      // ── download dialog ─────────────────────────────────
+      const dialog = $("#download");
+      $$("[data-open-download]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.preventDefault();
+          dialog.showModal();
+        })
+      );
+      dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
+      $("[data-download]").addEventListener("click", () => ($("[data-ok]").hidden = false));
+
+      const gh = (path) => fetch(`https://api.github.com/repos/mrlemoos/Termi${path}`).then((r) => (r.ok ? r.json() : Promise.reject()));
+      gh("/releases/latest")
+        .then((r) => {
+          const zip = r.assets.find((a) => a.name === "Termi.zip");
+          const mb = zip ? ` · ${(zip.size / 1e6).toFixed(1)} MB` : "";
+          $("[data-meta]").textContent = `${r.tag_name}${mb} · Apple silicon · macOS 11+`;
+          $("[data-version-line]").textContent = `Termi ${r.tag_name} is out`;
+        })
+        .catch(() => {});
+      gh("")
+        .then((r) => r.stargazers_count && ($("[data-stars]").textContent = `${r.stargazers_count.toLocaleString("en-GB")} stars`))
+        .catch(() => {});
+
+      // ── copy ────────────────────────────────────────────
+      const toast = $(".toast");
+      let toastTimer;
+      $$("[data-copy]").forEach((b) =>
+        b.addEventListener("click", async () => {
+          await navigator.clipboard?.writeText(b.dataset.copy);
+          toast.textContent = "Copied to clipboard";
+          toast.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+        })
+      );
+    </script>
+  </body>
+</html>
