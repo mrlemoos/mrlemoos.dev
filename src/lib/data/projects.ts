@@ -37,7 +37,7 @@ export const projects: Project[] = [
     name: "Termi",
     url: "https://mrlemoos.dev/termi",
     description:
-      "A chromeless macOS terminal for coding agents — every agent gets a mascot, and tabs turn colour when Claude or Codex needs you.",
+      "An aesthetic, chromeless macOS terminal for coding agents — every agent gets a mascot, and tabs turn colour when Claude or Codex needs you.",
     status: "live",
     tags: ["macOS", "Rust", "Open source"],
   },
