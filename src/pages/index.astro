@@ -2,8 +2,7 @@
 export const prerender = true;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Experience from "@/components/Experience.astro";
-import Hero from "@/components/Hero.astro";
+import Launch from "@/components/Launch.astro";
 import { GITHUB_URL, LINKEDIN_URL, X_URL } from "@/lib/constants";
 import {
   buildPageMeta,
@@ -25,6 +24,8 @@ const knowsAbout = [
 ] as const;
 
 const meta = buildPageMeta(site, {
+  title: "Leonardo Lemos | Good software. An eye for more.",
+  description: "Madrid-based frontend engineer. Product interfaces, design systems and independent software, with a photographer's eye. Explore my work and start a conversation.",
   structuredData: {
     "@context": "https://schema.org",
     "@graph": [
@@ -52,12 +53,5 @@ const meta = buildPageMeta(site, {
 ---
 
 <BaseLayout {...meta}>
-  <div class="mx-auto max-w-4xl px-4 py-6 md:px-5 md:py-10">
-    <Hero />
-    {/*
-      No "Latest posts" section: the hero's featured-writing list already
-      names the same posts. The footer carries the one subscribe form.
-    */}
-    <Experience />
-  </div>
+  <Launch />
 </BaseLayout>

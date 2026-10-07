@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "check": "astro check",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "refresh:github": "node scripts/refresh-github.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.3",

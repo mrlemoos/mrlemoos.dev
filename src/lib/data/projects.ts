@@ -26,12 +26,12 @@ export const projects: Project[] = [
     tags: ["TypeScript", "Open source", "HTTP"],
   },
   {
-    name: "Nota",
-    url: "https://nota.mrlemoos.dev",
+    name: "Madrid",
+    url: "https://getmadrid.app",
     description:
-      "A quiet native Mac notes app for writing and linking ideas — no feed, no nudges, just thinking.",
+      "Native Mac notes for writing and linking ideas. Local-first editing, a note graph, and cloud sync.",
     status: "live",
-    tags: ["macOS", "Swift", "Notes"],
+    tags: ["macOS", "Notes", "Local-first"],
   },
   {
     name: "Termi",

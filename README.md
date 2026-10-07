@@ -85,6 +85,12 @@ src/
 - Shared layout and metadata: `src/layouts/BaseLayout.astro`, `src/lib/seo.ts`
 - Home and listing pages: `src/pages/index.astro`, `src/pages/blog/`
 
+## GitHub activity
+
+The homepage loads `/api/github`. Contributions refresh on the first request after 24 hours, with browser and CDN caching. An outage keeps the last verified calendar visible and retries after five minutes.
+
+Set server-only `GITHUB_TOKEN` in Vercel and `.env.local` to use GitHub GraphQL. Without it, the endpoint reads GitHub's public contribution calendar. Tokens never reach the browser. `pnpm refresh:github` updates the bundled fallback snapshot.
+
 ## Contributing
 
 Contributions are welcome. Please open a pull request with a short description of the change.
