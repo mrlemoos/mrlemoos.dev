@@ -376,6 +376,10 @@
    ends show, and `preserve-3d` all the way down so every face of every book
    is depth-sorted together. Nothing in that chain may clip or filter, or the
    scene goes flat.
+
+   The containers in that chain are invisible planes at z = 0, and a twisted
+   book has one half behind that plane. They'd take the pointer there, so only
+   books get it.
    --------------------------------------------------------------------------- */
 
 .book-stack {
@@ -384,6 +388,7 @@
   perspective: 1200px;
   perspective-origin: 50% -30%;
   transform-style: preserve-3d;
+  pointer-events: none;
 }
 
 .book-stack section,
@@ -436,6 +441,7 @@
   transform-style: preserve-3d;
   transform-origin: 50% 50% calc(var(--book-depth) / -2);
   rotate: y var(--book-tilt);
+  pointer-events: auto;
   transition:
     translate var(--duration-medium) var(--ease-smooth-out),
     rotate var(--duration-medium) var(--ease-smooth-out);
@@ -509,6 +515,22 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   opacity: 0.7;
+}
+
+/*
+ * A lining just behind the spine. Chrome and Firefox cut a face wherever
+ * another book's plane crosses it, and the anti-aliased cut is a hairline
+ * crack; with the book hollow, that crack showed the dark cover underneath.
+ * Now it shows the book's own colour. Parallel to the spine, the lining is
+ * never cut in the same place.
+ */
+.book::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.125rem;
+  background: var(--book-bg);
+  transform: translateZ(-2px);
 }
 
 /* The front board, hinged on the spine's top edge and laid back flat. */
