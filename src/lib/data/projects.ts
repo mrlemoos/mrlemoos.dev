@@ -33,6 +33,14 @@ export const projects: Project[] = [
     status: "live",
     tags: ["macOS", "Swift", "Notes"],
   },
+  {
+    name: "Termi",
+    url: "https://mrlemoos.dev/termi",
+    description:
+      "A chromeless macOS terminal for coding agents — every agent gets a mascot, and tabs turn colour when Claude or Codex needs you.",
+    status: "live",
+    tags: ["macOS", "Rust", "Open source"],
+  },
 ];
 
 export const projectStatusLabel: Record<ProjectStatus, string> = {
