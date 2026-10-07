@@ -1,0 +1,17 @@
+<div class="grab-preview" aria-hidden="true">
+  <div class="request"><span>GET</span><code>/users/you</code><b>↗</b></div>
+  <div class="connector"></div>
+  <div class="tuple"><span>data</span><span>error</span><span>meta</span></div>
+</div>
+
+<style>
+  .grab-preview { container-type: inline-size; padding: 30px 0; }
+  .request { display: flex; align-items: center; gap: 5cqw; padding: 6cqw; color: white; background: linear-gradient(120deg, #3765ef, #3159ed 55%, #1e3dbb); border-radius: 5cqw; box-shadow: 0 12px 24px #3159ed26, inset 0 1px 1px #ffffff60; transform: rotate(-3deg); font-family: var(--font-geist-mono); }
+  .request > span { font-size: clamp(8px, 3cqw, 12px); border: 1px solid #ffffff50; padding: 2cqw 2.5cqw; border-radius: 1.5cqw; }
+  .request code { font-size: clamp(10px, 4.6cqw, 19px); white-space: nowrap; }
+  .request b { margin-left: auto; font-size: 6cqw; font-weight: 400; color: #b5c9ff; }
+  .connector { width: 1px; height: 6cqw; margin: auto; background: #a9bade; }
+  .tuple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2cqw; }
+  .tuple span { padding: 4cqw 0; text-align: center; font: clamp(8px, 3cqw, 12px) var(--font-geist-mono); color: #526079; background: #ffffffb3; border: 1px solid #ffffff; border-radius: 2.5cqw; }
+  .tuple span:first-child { color: #3159ed; background: white; border-color: #bdcbfa; }
+</style>

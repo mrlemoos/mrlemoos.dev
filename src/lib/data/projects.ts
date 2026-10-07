@@ -21,9 +21,9 @@ export const projects: Project[] = [
     name: "Grabkit",
     url: "https://grabkit.dev",
     description:
-      "TypeScript HTTP client with tuple results, JSON:API by default, and explicit METHOD /path endpoints.",
+      "Make the request. Get on with it. A TypeScript HTTP library with explicit METHOD /path requests and data, error and meta returned together. JSON:API built in, plain JSON when you need it.",
     status: "live",
-    tags: ["TypeScript", "Open source", "HTTP"],
+    tags: ["TypeScript", "JSON:API", "Open source"],
   },
   {
     name: "Madrid",
