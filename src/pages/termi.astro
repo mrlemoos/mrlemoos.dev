@@ -14,6 +14,7 @@ const REPO = "https://github.com/mrlemoos/Termi";
 const ZIP = `${REPO}/releases/latest/download/Termi.zip`;
 const TAP = `brew tap mrlemoos/termi ${REPO}`;
 const CASK = "brew install --cask termi";
+const INSTALL = `${TAP} && ${CASK}`;
 const UNQUARANTINE = "xattr -dr com.apple.quarantine /Applications/Termi.app";
 
 const title = "Termi — the terminal for coding agents";
@@ -157,7 +158,7 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
             <button class="btn btn-light btn-lg" data-open-download>
               <span class="apple" set:html={apple} />Download for macOS
             </button>
-            <button class="btn btn-ghost btn-lg mono" data-copy={CASK}>
+            <button class="btn btn-ghost btn-lg mono" data-copy={INSTALL} title={INSTALL}>
               <span class="c-dim">$</span> {CASK}
               <span class="copy-ico" aria-hidden="true">⧉</span>
             </button>
