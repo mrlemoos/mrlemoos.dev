@@ -21,7 +21,7 @@ const title = "Termi | The aesthetic terminal for coding agents";
 const description =
   "A chromeless macOS terminal that watches your coding agents. Claude, Codex, Grok and Cursor each get a mascot on the status line, and their tabs change colour when they need you.";
 const url = new URL("/termi", Astro.site).href;
-const ogImage = new URL("/og?title=Termi", Astro.site).href;
+const ogImage = new URL(`/og?title=${encodeURIComponent(title)}`, Astro.site).href;
 
 // Powerline prompt: pink · peach.
 const prompt = `<span class="pl"><span class="c-pink">\ue0b6</span><span class="bg-pink">\uf179 leo</span><span class="c-pink bg-peach">\ue0b0</span><span class="bg-peach">~/Termi</span><span class="c-peach">\ue0b4</span></span> <span class="c-green">❯</span> `;
