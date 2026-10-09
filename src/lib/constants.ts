@@ -7,7 +7,7 @@ export const LINKEDIN_USERNAME = "leo-lemos" as const;
 export const LINKEDIN_URL =
   `https://www.linkedin.com/in/${LINKEDIN_USERNAME}` as const;
 
-export const X_USERNAME = "mrlemoos" as const;
+export const X_USERNAME = "leonardo_lemos" as const;
 export const X_URL = `https://x.com/${X_USERNAME}` as const;
 
 export const EMAIL = "me@mrlemoos.dev" as const;
