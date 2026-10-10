@@ -55,3 +55,9 @@ const meta = buildPageMeta(site, {
 <BaseLayout {...meta}>
   <Launch />
 </BaseLayout>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html:has(.launch)) { scroll-behavior: smooth; }
+  }
+</style>

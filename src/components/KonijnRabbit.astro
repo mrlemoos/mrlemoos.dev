@@ -1,0 +1,116 @@
+<div class="rabbit" aria-hidden="true">
+  <svg viewBox="0 0 64 76" fill="none" class="rabbit-body">
+    <g fill="#f45b12" stroke="#a9380b" stroke-width="1.2">
+      <ellipse cx="31" cy="51" rx="19" ry="21" />
+      <g class="ear ear-back"><ellipse cx="29" cy="19" rx="6" ry="17" transform="rotate(-16 29 19)" /><path d="m28 9 5 17" stroke="#ffb583" stroke-width="3" stroke-linecap="round" /></g>
+      <g class="ear ear-front"><ellipse cx="43" cy="18" rx="5" ry="17" transform="rotate(10 43 18)" /><path d="m43 8-1 16" stroke="#ffb583" stroke-width="3" stroke-linecap="round" /></g>
+      <g class="rabbit-head">
+      <path d="M22 38c0-12 8-18 18-16 9 1 12 9 13 14l6 5c2 3-1 7-6 7H35c-8 0-13-3-13-10Z" />
+      <ellipse class="rabbit-eye" cx="46" cy="34" rx="2" ry="2" fill="#251710" stroke="none" />
+      <path d="m56 40 3 1-3 2" fill="#251710" stroke="none" />
+      </g>
+      <g class="hind-leg"><ellipse cx="34" cy="62" rx="12" ry="10" />
+      <path d="M34 68h14c5 0 7 4 4 5H29" />
+      </g>
+      <path class="front-leg" d="m44 48 1 17q8 0 7 5h-9q-3-1-3-5l-2-12" />
+      <circle class="rabbit-tail" cx="12" cy="57" r="7" fill="#ff9753" />
+    </g>
+  </svg>
+</div>
+
+<script>
+  const rabbit = document.querySelector<HTMLElement>('.rabbit')!;
+  const grid = rabbit.parentElement!;
+  const konijn = grid.querySelector<HTMLElement>('.konijn')!;
+  const planria = grid.querySelector<HTMLElement>('.planria')!;
+  const writing = grid.querySelector<HTMLElement>('.writing')!;
+  const desktop = matchMedia('(min-width: 1001px)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let points: { x: number; y: number }[] = [];
+  let start = 0;
+  let end = 1;
+  let progress = 0;
+  let target = 0;
+  let travel = 1;
+  let frame = 0;
+
+  function draw() {
+    frame = 0;
+    const previous = progress;
+    progress += (target - progress) * 0.16;
+    const moving = Math.abs(target - progress) > 0.0001;
+    if (!moving) progress = target;
+    if (progress !== previous) travel = Math.sign(progress - previous);
+    const segment = Math.min(Math.floor(progress * 4), 3);
+    const local = progress * 4 - segment;
+    const from = points[segment];
+    const to = points[segment + 1];
+    const direction = (Math.sign(to.x - from.x) || 1) * travel;
+    const x = from.x + (to.x - from.x) * local;
+    const hop = moving ? Math.abs(Math.sin(progress * 16 * Math.PI)) * 22 : 0;
+    const y = from.y + (to.y - from.y) * local - hop;
+    rabbit.style.transform = `translate(${x}px, ${y}px) scaleX(${direction})`;
+    rabbit.classList.toggle('hopping', moving);
+    if (moving) frame = requestAnimationFrame(draw);
+  }
+
+  function update() {
+    if (!desktop.matches) return;
+    const next = reduced.matches ? 1 : Math.max(0, Math.min(1, (scrollY - start) / (end - start)));
+    if (next === target && frame) return;
+    target = next;
+    if (reduced.matches) progress = target;
+    if (!frame) frame = requestAnimationFrame(draw);
+  }
+
+  function measure() {
+    points = [
+      { x: planria.offsetLeft - 35, y: planria.offsetTop - 73 },
+      { x: planria.offsetLeft - 35, y: writing.offsetTop - 73 },
+      { x: writing.offsetLeft + writing.offsetWidth - 23, y: writing.offsetTop - 73 },
+      { x: writing.offsetLeft + writing.offsetWidth - 23, y: konijn.offsetTop - 73 },
+      { x: konijn.offsetLeft + konijn.offsetWidth - 100, y: konijn.offsetTop - 73 },
+    ];
+    const gridTop = grid.getBoundingClientRect().top + scrollY;
+    start = gridTop + planria.offsetTop - innerHeight * 0.75;
+    end = Math.max(start + 1, Math.min(gridTop + konijn.offsetTop - innerHeight * 0.65, document.documentElement.scrollHeight - innerHeight));
+    rabbit.style.visibility = 'visible';
+    update();
+  }
+
+  new ResizeObserver(measure).observe(grid);
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', measure);
+  desktop.addEventListener('change', measure);
+  reduced.addEventListener('change', update);
+</script>
+
+<style>
+  .rabbit { position:absolute;top:0;left:0;width:64px;height:76px;z-index:3;pointer-events:none;visibility:hidden;filter:drop-shadow(0 3px 2px #60260d24);transform-origin:50% 100%; }
+  svg { width:100%;height:100%;overflow:visible;transform-origin:32px 73px;animation:breathe 3s ease-in-out infinite; }
+  .ear-back { transform-origin:33px 34px; }
+  .ear-front { transform-origin:41px 34px;animation:listen 7s ease-in-out infinite; }
+  .rabbit-head { transform-origin:32px 44px; }
+  .hind-leg { transform-origin:29px 57px; }
+  .front-leg { transform-origin:41px 49px; }
+  .rabbit-tail { transform-origin:12px 57px; }
+  .rabbit-eye { transform-origin:46px 34px;animation:blink 4.6s linear infinite; }
+  .hopping svg { animation:bound 337.5ms linear infinite; }
+  .hopping .ear-back { animation:ear-lag 337.5ms linear infinite; }
+  .hopping .ear-front { animation:ear-lag 337.5ms -45ms linear infinite; }
+  .hopping .rabbit-head { animation:head-bob 337.5ms linear infinite; }
+  .hopping .hind-leg { animation:kick 337.5ms linear infinite; }
+  .hopping .front-leg { animation:reach 337.5ms linear infinite; }
+  .hopping .rabbit-tail { animation:tail-bob 337.5ms linear infinite; }
+  @keyframes bound { 0%,100%{transform:scale(1.12,.88)}25%{transform:scale(.88,1.12)}55%{transform:scale(1.07,.96)}80%{transform:scale(.95,1.06)} }
+  @keyframes ear-lag { 0%,100%{transform:rotate(12deg)}30%{transform:rotate(-24deg)}65%{transform:rotate(-8deg)}85%{transform:rotate(20deg)} }
+  @keyframes kick { 0%,100%{transform:rotate(0)}30%{transform:rotate(-32deg) translate(-3px,-2px)}60%{transform:rotate(20deg) translate(3px,-4px)} }
+  @keyframes reach { 0%,100%{transform:rotate(0)}30%{transform:rotate(-38deg)}65%{transform:rotate(28deg)} }
+  @keyframes head-bob { 0%,100%{transform:rotate(4deg)}35%{transform:rotate(-9deg) translateY(-2px)}70%{transform:rotate(-3deg)} }
+  @keyframes tail-bob { 0%,100%{transform:translateY(0)}40%{transform:translate(-2px,-4px)} }
+  @keyframes breathe { 0%,100%{transform:scale(1)}50%{transform:scale(1.015,1.025)} }
+  @keyframes blink { 0%,42%,46%,100%{transform:scaleY(1)}44%{transform:scaleY(.08)} }
+  @keyframes listen { 0%,65%,80%,100%{transform:rotate(0)}69%,76%{transform:rotate(-12deg)}72%{transform:rotate(5deg)} }
+  @media(prefers-reduced-motion:reduce) { .rabbit * { animation:none!important; } }
+  @media(max-width:1000px) { .rabbit { display:none; } }
+</style>
