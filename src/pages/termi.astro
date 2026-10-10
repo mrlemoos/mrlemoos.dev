@@ -182,6 +182,18 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
         </div>
       </section>
 
+      <section class="wrap section glass-preview" aria-labelledby="glass-title">
+        <div class="head reveal">
+          <p class="eyebrow">Glass mode</p>
+          <h2 id="glass-title">A little light.<br /><span class="c-dim">Behind your work.</span></h2>
+          <p class="sub">Native macOS blur, translucent glass and a violet light that moves in a slow wave. Choose wave, still or off in ⌘,.</p>
+        </div>
+        <figure class="reveal">
+          <img src="/termi/wave-blur.jpg" alt="Termi in translucent wave mode with native macOS blur, a violet glow, file tree and passing terminal test" width="2000" height="1280" loading="lazy" decoding="async" />
+          <figcaption class="fine">Captured in the app with wave mode and blur enabled. The light moves while you work.</figcaption>
+        </figure>
+      </section>
+
       <!-- ── works with ────────────────────────────────── -->
       <section class="logos wrap" id="agents">
         <p class="eyebrow center">Detects the agents you already use</p>
@@ -441,7 +453,7 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
       }
 
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      html { background: var(--bg); scroll-behavior: smooth; scroll-padding-top: 80px; }
+      html { overflow-x: clip; background: var(--bg); scroll-behavior: smooth; scroll-padding-top: 80px; }
       body {
         color: var(--fg);
         font: 400 16px/1.6 var(--sans);
@@ -546,6 +558,9 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
       @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
 
       /* ── the window ──────────────────────────── */
+      .glass-preview figure { margin: 40px 0 0; }
+      .glass-preview img { display: block; width: 100%; height: auto; border-radius: 18px; box-shadow: 0 24px 80px #0005; }
+      .glass-preview figcaption { margin-top: 18px; text-align: center; }
       .stage { margin-top: 80px; perspective: 1600px; position: relative; }
       .window {
         position: relative; height: min(600px, 70vw); border-radius: 14px; overflow: hidden;
