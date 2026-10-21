@@ -1,0 +1,32 @@
+---
+export const prerender = true;
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TextMatchGuide from "@/components/TextMatchGuide.astro";
+import TextMatchEditor from "@/components/text-match/TextMatchEditor.svelte";
+import { buildPageMeta, titleWithBrand } from "@/lib/seo";
+
+const meta = buildPageMeta(Astro.site!, {
+  title: titleWithBrand("Text Match | Free newspaper text video editor"),
+  description: "Make newspaper text match cuts in your browser. Custom fonts, editable print layouts and watermark-free 1080p video. No account needed.",
+  keywords: ["text match cut", "newspaper video editor", "text animation", "free video tool"],
+});
+---
+<BaseLayout {...meta}>
+  <div class="tool-page">
+    <nav aria-label="Tool navigation"><a href="/">← Leonardo Lemos</a><span>TOOLS / TEXT MATCH</span></nav>
+    <header><p>ONE PHRASE. EVERY FRAME.</p><h1>Text Match<span>.</span></h1><p class="intro">Your words. A stack of stories. Make a print cut that lands.</p></header>
+    <TextMatchEditor client:load />
+    <noscript><p>Enable JavaScript to edit and export a video. The examples and guide below remain available.</p></noscript>
+    <TextMatchGuide />
+  </div>
+</BaseLayout>
+<style>
+  .tool-page { max-width: 1280px; margin: auto; padding: 1.5rem 2rem 0; }
+  nav { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; font-size: .8rem; padding-bottom: 2rem; }
+  nav a { text-decoration: none; } nav span { font-family: monospace; opacity: .75; letter-spacing: .08em; }
+  header { margin: 1rem 0 2.3rem; }
+  header > p:first-child { font: .65rem monospace; letter-spacing: .16em; opacity: .6; }
+  h1 { font-family: var(--font-heading,serif); font-size: clamp(3.5rem,9vw,7rem); line-height: 1; letter-spacing: -.055em; font-weight: 400; margin: .6rem 0 1rem; }
+  h1 span { color: #8a7411; } .intro { opacity: .7; max-width: 40rem; line-height: 1.6; }
+  @media(max-width:600px) { .tool-page { padding: 1.2rem 1rem 0; } nav { padding-bottom: 1rem; } }
+</style>

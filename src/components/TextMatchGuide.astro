@@ -1,0 +1,78 @@
+---
+import { X_URL, X_USERNAME } from "@/lib/constants";
+const examples = [
+  { name: "Newspaper", phrase: "Your words, in print", className: "news" },
+  { name: "Book", phrase: "A story worth telling", className: "book" },
+  { name: "Magazine", phrase: "Make some noise", className: "magazine" },
+  { name: "Clean typography", phrase: "Less. But louder.", className: "clean" },
+];
+---
+
+<section class="guide" aria-label="Examples and guide">
+  <h2>Four ways to make your point.</h2>
+  <p>Original print layouts. One phrase holding every cut together.</p>
+  <div class="examples">
+    {examples.map((example) => <figure>
+      <div class:list={["sample", example.className]}><small>TEXT MATCH / SAMPLE EDITION</small><strong>{example.phrase}</strong><span>Ideas find their way onto the page.</span></div>
+      <figcaption>{example.name}</figcaption>
+    </figure>)}
+  </div>
+  <div class="reading">
+    <section>
+      <h2>How to make a text match cut</h2>
+      <ol>
+        <li>Write your focal word or phrase. Every cut keeps it in the same position.</li>
+        <li>Choose a print preset. Edit the headline, surrounding text and colours.</li>
+        <li>Set your format, duration and cut speed. Play when you are ready.</li>
+        <li>Export a watermark-free 1080p video. Download, share or copy it where supported.</li>
+      </ol>
+      <h2>Questions before your first cut?</h2>
+      <details><summary>Is Text Match free?</summary><p>Yes. No account, payment, watermark or ad wait. Editing and rendering happen in your browser.</p></details>
+      <details><summary>Can I export MP4 with sound?</summary><p>MP4 is used when your browser can record it. Otherwise the editor labels its WebM fallback. Optional cut sounds are included. Export support depends on your browser and device.</p></details>
+      <details><summary>Which sizes can I make?</summary><p>TikTok, Reels and Shorts use 1080 × 1920. Square uses 1080 × 1080; landscape uses 1920 × 1080. Platform guides are approximate and never appear in your video.</p></details>
+      <details><summary>Where is my work saved?</summary><p>One draft stays in this browser. Export a project file for a backup or another device. Clearing browser storage removes the draft. Nothing you write or upload is sent to a render server.</p></details>
+      <details><summary>Can I use my own fonts?</summary><p>Yes. Upload a font you have permission to embed, or select a Google Font. The catalogue loads separately from font files. Downloads contact GitHub, which hosts Google's font files. Check embedding permissions before sharing project files.</p></details>
+      <details><summary>Why can I not paste the video?</summary><p>Video clipboard support varies by browser and destination. Use Download video or native sharing when copying is unavailable or refused.</p></details>
+    </section>
+    <aside>
+      <a class="konijn" href="https://konijn.co" target="_blank" rel="noopener noreferrer"><span>Made something worth wearing?</span><strong>Meet konijn.co ↗</strong><span>Independent clothing. Room for a little mischief.</span></a>
+      <div class="follow"><img src="/images/leonardo-lemos.png" width="56" height="56" loading="lazy" alt="Leonardo Lemos" /><div><strong>Leonardo Lemos</strong><span>@{X_USERNAME}</span></div><a href={X_URL} target="_blank" rel="noopener noreferrer">Follow me on X</a></div>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .guide { margin: 5rem auto 3rem; max-width: 1200px; }
+  h2 { font-family: var(--font-heading, serif); font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 400; letter-spacing: -.025em; line-height: 1.15; margin-bottom: .8rem; }
+  p, li { line-height: 1.7; opacity: .8; }
+  .examples { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 1rem; margin: 1.5rem 0 4rem; }
+  figure { margin: 0; min-width: 0; }
+  .sample { min-height: 190px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; background: #ebe5d6; color: #22211e; }
+  .sample small { font: 8px monospace; letter-spacing: .12em; border-bottom: 1px solid; padding-bottom: .7rem; }
+  .sample strong { font: bold 1.7rem Georgia, serif; line-height: 1.12; }
+  .sample span { font: 10px Georgia, serif; }
+  .news strong { background: #f3d94b; }
+  .book { background: #e7ddd0; }
+  .book strong { font-style: italic; font-weight: 400; }
+  .magazine { background: #d7e6ee; }
+  .magazine strong { font: 900 1.9rem Arial, sans-serif; text-transform: uppercase; }
+  .clean { background: #f2f2ef; }
+  .clean strong { font: 500 1.9rem Arial, sans-serif; letter-spacing: -.06em; }
+  figcaption { margin-top: .65rem; font-size: .8rem; opacity: .7; }
+  .reading { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 4rem; }
+  ol { padding-left: 1.4rem; margin: 1.2rem 0 3rem; }
+  li { padding: .3rem 0; }
+  details { border-top: 1px solid color-mix(in srgb,currentColor 20%,transparent); padding: 1rem 0; }
+  summary { cursor: pointer; font-weight: 500; }
+  details p { margin-top: .8rem; font-size: .9rem; }
+  .konijn { display: flex; flex-direction: column; gap: 1rem; padding: 1.8rem; background: #dce8d3; color: #24321f; text-decoration: none; }
+  .konijn strong { font: 2rem var(--font-heading,serif); }
+  .konijn span { font-size: .85rem; line-height: 1.5; }
+  .follow { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; padding: 1.5rem 0; }
+  .follow img { border-radius: 50%; }
+  .follow div { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+  .follow span { opacity: .6; }
+  .follow a { display: block; width: 100%; text-align: center; border: 1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius: 999px; padding: .6rem 1rem; font-size: .85rem; text-decoration: none; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+  @media(max-width: 700px) { .examples { grid-template-columns: repeat(2,minmax(0,1fr)); } .reading { grid-template-columns: 1fr; gap: 2rem; } .sample { min-height: 170px; padding: .9rem; } .sample strong { font-size: 1.5rem; } }
+</style>

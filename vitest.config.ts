@@ -1,11 +1,5 @@
-/// <reference types="vitest/config" />
-import { getViteConfig } from "astro/config";
+import { defineConfig } from "vitest/config";
 
-export default getViteConfig({
-  test: {
-    include: ["src/**/*.test.{js,ts}"],
-    environment: "node",
-    setupFiles: ["./test/setup.js"],
-    passWithNoTests: true,
-  },
+export default defineConfig({
+  test: { projects: ["./vitest.astro.config.ts", "./vitest.svelte.config.ts"] },
 });
