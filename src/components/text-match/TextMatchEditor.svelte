@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount, untrack } from 'svelte';
+  import { onMount, tick, untrack } from 'svelte';
+  import { Accordion, Combobox, RadioGroup } from 'bits-ui';
   import { createProject, validateProject, type Project } from '../../lib/text-match/project';
   import { renderFrame, exportVideo, loadProjectFonts } from '../../lib/text-match/render';
   import { fetchFontCatalogue, loadGoogleFont } from '../../lib/text-match/fonts';
@@ -15,18 +16,23 @@
   let video = $state<Blob | null>(null);
   let videoUrl = $state('');
   let theme = $state('system');
-  let safeAreas = $state(true);
+  let safeAreas = $state(false);
   const curatedFonts = ['Roboto', 'Lora', 'Playfair Display', 'DM Sans', 'Space Grotesk'];
   let catalogue = $state<string[]>([...curatedFonts]);
   let search = $state('');
+  let fontOpen = $state(false);
+  let fontDisplay = $state('');
+  $effect(() => { fontDisplay = project.fontFamily; });
+  const systemFonts = ['Georgia', 'serif', 'sans-serif', 'Arial'];
+  const fontOptions = $derived([...new Set([project.fontFamily, ...systemFonts, ...project.fonts.map((font) => font.family), ...catalogue])]);
   let fontsBusy = $state(false);
   let catalogueBusy = $state(false);
+  let catalogueLoaded = false;
   let fontReady = $state(false);
   let previewAudio: AudioContext | undefined;
   let cutBuffer: AudioBuffer | undefined;
   let lastCut = -1;
   let fontPermission = $state(false);
-  let fontLicence = $state('');
   let recoveredDraft = $state('');
   let controller: AbortController | undefined;
   let animation = 0;
@@ -49,7 +55,7 @@
           if (saved) {
               try {
                   project = validateProject(JSON.parse(saved));
-                  notice = 'Local draft recovered.';
+                  notice = 'Draft restored.';
               }
               catch {
                   recoveredDraft = saved;
@@ -246,9 +252,11 @@
       notice = 'Project reset.';
   }
   async function findFonts() {
+      if (catalogueLoaded || catalogueBusy) return;
       catalogueBusy = true;
       try {
           catalogue = [...new Set([...curatedFonts, ...await fetchFontCatalogue()])];
+          catalogueLoaded = true;
       }
       catch (cause) {
           error = `Font catalogue unavailable. ${message(cause)}`;
@@ -263,19 +271,22 @@
       const weight = project.fontWeight;
       fontsBusy = true;
       try {
-          const font = await loadGoogleFont(family, weight);
+          if (!family) return;
+          const existing = project.fonts.find((font) => font.family === family && font.weight === weight);
+          if (!existing && !systemFonts.includes(family) && !catalogue.includes(family) && project.fonts.some((font) => font.family === family)) throw new Error('This font weight is unavailable. Choose another weight or upload its font file.');
+          const font = existing ? $state.snapshot(existing) : systemFonts.includes(family) ? undefined : await loadGoogleFont(family, weight);
           if (request !== fontRequest)
               return;
           const snapshot = $state.snapshot(project);
           const candidate = validateProject({
               ...snapshot,
               fontFamily: family,
-              fonts: [...snapshot.fonts.filter((f) => !(f.family === font.family && f.weight === font.weight)), font],
+              fonts: font ? [...snapshot.fonts.filter((f) => !(f.family === font.family && f.weight === font.weight)), font] : snapshot.fonts,
           });
           await loadProjectFonts(candidate);
           if (request !== fontRequest)
               return;
-          project = candidate;
+          project = { ...$state.snapshot(project), fontFamily: candidate.fontFamily, fonts: candidate.fonts };
           fontReady = true;
           error = '';
       }
@@ -286,8 +297,11 @@
           }
       }
       finally {
-          if (request === fontRequest)
+          if (request === fontRequest) {
               fontsBusy = false;
+              await tick();
+              if (request === fontRequest) fontDisplay = project.fontFamily;
+          }
       }
   }
   async function uploadFont(event: Event) {
@@ -299,8 +313,8 @@
       const previousReady = fontReady;
       fontsBusy = true;
       try {
-          if (!fontPermission || !fontLicence.trim())
-              throw new Error('Confirm embedding permission and enter the font licence first.');
+          if (!fontPermission)
+              throw new Error('Confirm you have permission to embed this font.');
           if (file.size > 5 * 1024 * 1024)
               throw new Error('Font must be smaller than 5 MB.');
           const extension = file.name.toLowerCase().split('.').pop();
@@ -318,12 +332,12 @@
           const candidate = validateProject({
               ...snapshot,
               fontFamily: family,
-              fonts: [...snapshot.fonts.filter((font) => !(font.family === family && font.weight === snapshot.fontWeight)), { family, weight: snapshot.fontWeight, data, licence: fontLicence }],
+              fonts: [...snapshot.fonts.filter((font) => !(font.family === family && font.weight === snapshot.fontWeight)), { family, weight: snapshot.fontWeight, data, licence: 'User-confirmed embedding permission.' }],
           });
           await loadProjectFonts(candidate);
           if (request !== fontRequest)
               return;
-          project = candidate;
+          project = { ...$state.snapshot(project), fontFamily: candidate.fontFamily, fonts: candidate.fonts };
           fontReady = true;
           error = '';
       }
@@ -354,7 +368,7 @@
           if (!video.size)
               throw new Error('Export produced an empty file.');
           videoUrl = URL.createObjectURL(video);
-          notice = `Video ready: ${video.type.includes('mp4') ? 'MP4' : 'WebM fallback'}.`;
+          notice = '';
       }
       catch (cause) {
           error = message(cause);
@@ -392,30 +406,42 @@
 </script>
 
 <div class="editor" data-theme={theme}>
-  <div class="topline"><span class="eyebrow">YOUR WORDS. EVERY CUT.</span><label class="theme">Appearance <select bind:value={theme} onchange={() => { try { localStorage.setItem('text-match-theme', theme); } catch { error = 'Theme preference could not be saved.'; } }}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></div>
   <div class="workspace">
     <section class="preview" aria-label="Video preview">
-      <div class="preview-meta"><span>PRINT / {project.preset.toUpperCase()}</span><span>1080p · NO WATERMARK</span></div>
+      <div class="preview-meta"><label class="theme">Theme <select bind:value={theme} onchange={() => { try { localStorage.setItem('text-match-theme', theme); } catch { error = 'Theme preference could not be saved.'; } }}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label><span>{project.format === 'landscape' ? '1920 × 1080' : project.format === 'square' ? '1080 × 1080' : '1080 × 1920'}</span></div>
       <div class="stage" class:landscape={project.format === 'landscape'} class:square={project.format === 'square'}>
         <canvas bind:this={canvas} aria-label={`Text Match artwork: ${project.phrase}`}></canvas>
         {#if safeAreas && ['tiktok', 'reels', 'shorts'].includes(project.format)}<div class="safe-area" class:tiktok={project.format === 'tiktok'} class:reels={project.format === 'reels'} aria-hidden="true"><span>{project.format} safe area</span></div>{/if}
       </div>
-      <div class="transport"><button onclick={play} disabled={fontsBusy || !fontReady || progress !== null}>{playing ? 'Pause' : 'Play preview'}</button><span class="counter">{String(Math.floor(time * project.cutSpeed) + 1).padStart(3, '0')} <span>/ {String(Math.ceil(project.duration * project.cutSpeed)).padStart(3, '0')}</span></span><span>{time.toFixed(1)}s</span></div>
-      <p class="small">Static until you press play. Rapid cuts; pause anytime.</p>
+      <div class="transport"><button onclick={play} disabled={fontsBusy || !fontReady || progress !== null}>{playing ? 'Pause' : 'Play preview'}</button><span>{time.toFixed(1)} / {project.duration}s</span></div>
       {#if !fits}<p class="warning" role="status">Phrase does not fit this frame. Reduce zoom, move the focal point, or shorten your phrase. Text stays intact.</p>{/if}
     </section>
     <section class="controls" aria-label="Editor controls">
       <fieldset disabled={progress !== null}>
-      <label class="phrase">Focal word or phrase<textarea bind:value={project.phrase} rows="2" maxlength="2000"></textarea></label>
-      <div class="presets" role="group" aria-label="Print preset">{#each ['newspaper', 'book', 'magazine', 'clean'] as value}<button class:active={project.preset === value} aria-pressed={project.preset === value} onclick={() => preset(value as Project['preset'])}>{value}</button>{/each}</div>
-      <label>Output format<select bind:value={project.format}><option value="tiktok">TikTok · 9:16</option><option value="reels">Reels · 9:16</option><option value="shorts">Shorts · 9:16</option><option value="square">Square · 1:1</option><option value="landscape">Landscape · 16:9</option></select></label>
-      <label class="check"><input type="checkbox" bind:checked={safeAreas} />Show safe-area guides (preview only)</label>
-      <details open><summary>Timing & framing</summary><div class="detail-body">{#each ranges as range}<label for={`text-match-${range.key}`}>{range.label}<output for={`text-match-${range.key}`}>{project[range.key]}{range.unit}</output><input id={`text-match-${range.key}`} type="range" min={range.min} max={range.max} step={range.step} bind:value={project[range.key]} /></label>{/each}<label>Shuffle seed<input type="number" min="0" max="2147483647" step="1" bind:value={project.seed} /></label><button onclick={() => project.seed = Math.floor(Math.random() * 2147483647)}>Shuffle cuts</button><label class="check"><input type="checkbox" bind:checked={project.sound} onchange={stop} />Paper-cut sound</label></div></details>
-      <details><summary>Typography & colour</summary><div class="detail-body"><label>Font family<select bind:value={project.fontFamily} onchange={refreshFonts}><option value="Georgia">Georgia</option><option value="serif">System serif</option><option value="sans-serif">System sans</option><option value="Arial">Arial</option>{#each [...new Set(project.fonts.map((font) => font.family))] as family}<option value={family}>{family}</option>{/each}</select></label><label>Font weight<select bind:value={project.fontWeight} onchange={refreshFonts}>{#each [100,200,300,400,500,600,700,800,900] as weight}<option value={weight}>{weight}</option>{/each}</select></label><button onclick={findFonts} disabled={fontsBusy || catalogueBusy}>Browse Google Fonts</button><p class="small">Browsing contacts the Google Fonts repository on GitHub for metadata. Selecting a font downloads only that family and weight.</p>{#if catalogue.length}<label>Search fonts<input type="search" bind:value={search} placeholder="Search font families" /></label><div class="font-results">{#each catalogue.filter((family) => family.toLowerCase().includes(search.toLowerCase())).slice(0, 30) as family}<button disabled={fontsBusy} onclick={() => selectFont(family)}>{family}</button>{/each}</div>{/if}{#if fontsBusy || catalogueBusy}<p role="status">Loading fonts…</p>{/if}<div class="colours">{#each colourFields as [key, label]}<label>{label}<input type="color" bind:value={project[key]} /></label>{/each}</div><label>Highlight<select bind:value={project.highlight}><option value="marker">Marker</option><option value="underline">Underline</option><option value="box">Box</option><option value="none">None</option></select></label><label class="check"><input type="checkbox" bind:checked={fontPermission} />I have permission to embed these fonts in project files.</label><label>Local font licence<input bind:value={fontLicence} placeholder="Licence name or permission details" /></label><label class="file">Upload local font<input type="file" accept=".woff,.woff2,.ttf,.otf" onchange={uploadFont} /></label><p class="small">Portable projects include selected font files. Check their licences before sharing. System fonts vary between devices.</p></div></details>
-      <details><summary>Surrounding print</summary><div class="detail-body"><label>Headline<input bind:value={project.headline} maxlength="2000" /></label><label>Body text<textarea bind:value={project.body} rows="5" maxlength="20000"></textarea></label></div></details>
-      <details><summary>Project & backup</summary><div class="detail-body"><p class="small">Your working draft saves in this browser. Download a project for a portable backup.</p><button onclick={saveProject}>Download project</button><label class="file">Import project<input type="file" accept=".json,application/json" onchange={importProject} /></label>{#if recoveredDraft}<button onclick={() => download(new Blob([recoveredDraft], { type: 'application/json' }), 'text-match-recovery.json')}>Download unreadable draft</button>{/if}<button onclick={reset}>Reset project…</button></div></details>
-      </fieldset>
-      <div class="export"><button class="primary" onclick={exportClip} disabled={progress !== null || fontsBusy || !fontReady || !fits || !project.phrase.trim()}>Export 1080p video</button>{#if progress !== null}<progress max="1" value={progress} aria-label="Export progress"></progress><p role="status">Exporting {Math.round(progress * 100)}%</p><button onclick={() => controller?.abort()}>Cancel export</button>{/if}{#if video}<p>{video.type.includes('mp4') ? 'MP4' : 'WebM fallback'} · {(video.size / 1024 / 1024).toFixed(1)} MB</p><a class="download" href={videoUrl} download={`text-match.${video.type.includes('mp4') ? 'mp4' : 'webm'}`}>Download video</a><button onclick={copyVideo}>Copy video to clipboard</button><button onclick={shareVideo}>Share video</button>{/if}</div>
+      <label class="phrase">Word or phrase<textarea bind:value={project.phrase} rows="2" maxlength="2000"></textarea></label>
+      <RadioGroup.Root class="presets" orientation="horizontal" value={project.preset} onValueChange={(value) => preset(value as Project['preset'])} disabled={progress !== null} aria-label="Print preset">{#each ['newspaper', 'book', 'magazine', 'clean'] as value}<RadioGroup.Item {value}>{value}</RadioGroup.Item>{/each}</RadioGroup.Root>
+      <label>Format<select bind:value={project.format}><option value="tiktok">TikTok · 9:16</option><option value="reels">Reels · 9:16</option><option value="shorts">Shorts · 9:16</option><option value="square">Square · 1:1</option><option value="landscape">Landscape · 16:9</option></select></label>
+      <label class="check"><input type="checkbox" bind:checked={safeAreas} />Safe-area guides</label>
+      <Accordion.Root type="multiple" disabled={progress !== null}><Accordion.Item value="timing"><Accordion.Header><Accordion.Trigger class="section-trigger">Timing & framing</Accordion.Trigger></Accordion.Header><Accordion.Content class="detail-body">{#each ranges as range}<label for={`text-match-${range.key}`}>{range.label}<output for={`text-match-${range.key}`}>{Number(project[range.key].toFixed(2))}{range.unit}</output><input id={`text-match-${range.key}`} type="range" min={range.min} max={range.max} step={range.step} bind:value={project[range.key]} /></label>{/each}<label>Shuffle seed<input type="number" min="0" max="2147483647" step="1" bind:value={project.seed} /></label><button onclick={() => project.seed = Math.floor(Math.random() * 2147483647)}>Shuffle cuts</button><label class="check"><input type="checkbox" bind:checked={project.sound} onchange={stop} />Sound</label></Accordion.Content></Accordion.Item>
+      <Accordion.Item value="type"><Accordion.Header><Accordion.Trigger class="section-trigger">Font & colour</Accordion.Trigger></Accordion.Header><Accordion.Content class="detail-body"><label for="text-match-font">Font</label>
+      <Combobox.Root type="single" bind:value={() => project.fontFamily, (family) => { fontDisplay = family || project.fontFamily; fontOpen = false; void selectFont(fontDisplay); }} inputValue={fontDisplay} bind:open={fontOpen} allowDeselect={true} disabled={progress !== null || fontsBusy} items={fontOptions.map((family) => ({ value: family, label: family }))} onOpenChange={(open) => { if (open) void findFonts(); else { search = ''; void tick().then(() => { if (!fontOpen && !fontsBusy) fontDisplay = project.fontFamily; }); } }}>
+        <Combobox.Input id="text-match-font" placeholder="Search fonts" autocomplete="off" onfocus={(event) => { event.currentTarget.select(); search = ''; fontDisplay = ''; fontOpen = true; void findFonts(); }} oninput={(event) => search = event.currentTarget.value} />
+        <Combobox.Content class="font-menu" sideOffset={4} preventScroll={false}>
+          <Combobox.Viewport class="font-list">
+            {#each fontOptions.filter((family) => family.toLowerCase().includes(search.toLowerCase())).slice(0, 60) as family (family)}
+              <Combobox.Item value={family} label={family}>{family}</Combobox.Item>
+            {:else}<p class="small">No fonts found.</p>{/each}
+          </Combobox.Viewport>
+          {#if catalogueBusy}<p class="small" role="status">Loading fonts…</p>{/if}
+        </Combobox.Content>
+      </Combobox.Root>
+      <label>Weight<select bind:value={project.fontWeight} onchange={refreshFonts}>{#each [100,200,300,400,500,600,700,800,900] as weight}<option value={weight}>{weight}</option>{/each}</select></label>
+      {#if fontsBusy}<p role="status">Loading fonts…</p>{/if}
+      <div class="colours">{#each colourFields as [key, label]}<label>{label}<input type="color" bind:value={project[key]} /></label>{/each}</div><label>Highlight<select bind:value={project.highlight}><option value="marker">Marker</option><option value="underline">Underline</option><option value="box">Box</option><option value="none">None</option></select></label><label class="check"><input type="checkbox" bind:checked={fontPermission} />I have permission to embed these fonts in project files.</label><label class="file">Upload font<input type="file" accept=".woff,.woff2,.ttf,.otf" onchange={uploadFont} /></label></Accordion.Content></Accordion.Item>
+      <Accordion.Item value="print"><Accordion.Header><Accordion.Trigger class="section-trigger">Print text</Accordion.Trigger></Accordion.Header><Accordion.Content class="detail-body"><label>Headline<input bind:value={project.headline} maxlength="2000" /></label><label>Body text<textarea bind:value={project.body} rows="5" maxlength="20000"></textarea></label></Accordion.Content></Accordion.Item>
+      <Accordion.Item value="project"><Accordion.Header><Accordion.Trigger class="section-trigger">Project</Accordion.Trigger></Accordion.Header><Accordion.Content class="detail-body"><p class="small">Saved in this browser. Download a project to keep a backup.</p><button onclick={saveProject}>Download project</button><label class="file">Import project<input type="file" accept=".json,application/json" onchange={importProject} /></label>{#if recoveredDraft}<button onclick={() => download(new Blob([recoveredDraft], { type: 'application/json' }), 'text-match-recovery.json')}>Download unreadable draft</button>{/if}<button onclick={reset}>Reset project…</button></Accordion.Content></Accordion.Item>
+      </Accordion.Root></fieldset>
+      <div class="export"><button class="primary" onclick={exportClip} disabled={progress !== null || fontsBusy || !fontReady || !fits || !project.phrase.trim()}>Export video</button>{#if progress !== null}<progress max="1" value={progress} aria-label="Export progress"></progress><p role="status">Exporting {Math.round(progress * 100)}%</p><button onclick={() => controller?.abort()}>Cancel export</button>{/if}{#if video}<p>{video.type.includes('mp4') ? 'MP4' : 'WebM fallback'} · {(video.size / 1024 / 1024).toFixed(1)} MB</p><a class="download" href={videoUrl} download={`text-match.${video.type.includes('mp4') ? 'mp4' : 'webm'}`}>Download video</a><button onclick={copyVideo}>Copy video to clipboard</button><button onclick={shareVideo}>Share video</button>{/if}</div>
     </section>
   </div>
   {#if error}<div class="feedback warning" role="alert">{error}<button onclick={() => error = ''} aria-label="Dismiss error">×</button></div>{/if}
@@ -424,346 +450,82 @@
 
 <style>
 .editor {
-  --bg: #f5f5f2;
+  --bg: #fafafa;
   --panel: #fff;
   --ink: #22231f;
-  --muted: #6e7069;
-  --line: #dedfd8;
-  --accent: #e5ed65;
+  --muted: #666860;
+  --field: #eeefeb;
   color: var(--ink);
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 24px;
   font: 14px/1.5 var(--font-sans, "Geist Sans", sans-serif);
-  max-width: 100%;
   color-scheme: light;
 }
-.editor[data-theme="dark"] {
-  --bg: #1a1b19;
-  --panel: #242521;
-  --ink: #efefe9;
-  --muted: #aaada3;
-  --line: #3b3d35;
-  color-scheme: dark;
-}
+.editor[data-theme="dark"] { --bg: #10110f; --panel: #191a17; --ink: #eeeee8; --muted: #aaaDA3; --field: #23241f; color-scheme: dark; }
 @media (prefers-color-scheme: dark) {
-  .editor[data-theme="system"] {
-    --bg: #1a1b19;
-    --panel: #242521;
-    --ink: #efefe9;
-    --muted: #aaada3;
-    --line: #3b3d35;
-    color-scheme: dark;
-  }
+  .editor[data-theme="system"] { --bg: #10110f; --panel: #191a17; --ink: #eeeee8; --muted: #aaada3; --field: #23241f; color-scheme: dark; }
 }
-.topline,
-.preview-meta,
-.transport {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.topline {
-  margin-bottom: 24px;
-}
-.eyebrow,
-.preview-meta,
-.counter {
-  font: 11px/1.4 monospace;
-  letter-spacing: 0.06em;
-}
-.theme {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-.theme select {
-  width: auto;
-}
-.workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
-  gap: 32px;
-}
-.preview {
-  min-width: 0;
-  align-self: start;
-  position: sticky;
-  top: 24px;
-}
-.preview-meta {
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-.stage {
-  position: relative;
-  aspect-ratio: 9/16;
-  width: min(100%, 382px);
-  margin: auto;
-  overflow: hidden;
-  background: #eee4cd;
-  box-shadow: 0 12px 32px #0002;
-}
-.stage.landscape {
-  aspect-ratio: 16/9;
-  width: 100%;
-}
-.stage.square {
-  aspect-ratio: 1;
-  width: 100%;
-}
-.stage canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.safe-area {
-  position: absolute;
-  inset: 9% 17% 23% 6%;
-  border: 1px dashed #6d695ba8;
-  pointer-events: none;
-}
-.safe-area.reels {
-  inset: 12% 14% 24% 6%;
-}
-.safe-area.tiktok {
-  inset: 10% 20% 22% 6%;
-}
-.safe-area span {
-  position: absolute;
-  bottom: 5px;
-  left: 6px;
-  font: 9px monospace;
-  color: #534f43;
-  background: #fff9;
-  padding: 2px 4px;
-}
-.transport {
-  padding-top: 16px;
-}
-.counter {
-  font-size: 19px;
-}
-.counter span {
-  color: var(--muted);
-  font-size: 12px;
-}
-.small {
-  font-size: 12px;
-  color: var(--muted);
-}
-.controls {
-  min-width: 0;
-}
-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  min-width: 0;
-}
-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 550;
-  margin-bottom: 15px;
-}
-input:not([type="checkbox"]),
-textarea,
-select {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 9px 11px;
-  background: var(--panel);
-  color: var(--ink);
-  font: 14px/1.4 inherit;
-  margin-top: 6px;
-}
-textarea {
-  resize: vertical;
-}
-.phrase textarea {
-  font-family: Georgia, serif;
-  font-size: 27px;
-  line-height: 1.2;
-  padding: 14px;
-}
-.presets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin: 0 0 20px;
-}
-button,
-.download,
-.file {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--ink);
-  border-radius: 7px;
-  padding: 9px 12px;
-  cursor: pointer;
-  font: 12px/1.4 var(--font-sans, "Geist Sans", sans-serif);
-  text-decoration: none;
-}
-button.active {
-  background: var(--ink);
-  color: var(--bg);
-}
-button:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-a:focus-visible,
-summary:focus-visible {
-  outline: 2px solid #828c14;
-  outline-offset: 3px;
-}
-.check {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-weight: 400;
-}
-.check input {
-  margin-top: 3px;
-}
-details {
-  border-top: 1px solid var(--line);
-}
-summary {
-  padding: 17px 0;
-  cursor: pointer;
-  font-weight: 600;
-}
-.detail-body {
-  padding-bottom: 16px;
-}
-output {
-  float: right;
-  color: var(--muted);
-}
-input[type="range"] {
-  padding: 0;
-  accent-color: #828c14;
-  border: 0;
-}
-.colours {
-  display: flex;
-  gap: 12px;
-}
-.colours label {
-  flex: 1;
-}
-.colours input {
-  height: 39px;
-  padding: 3px;
-}
-.font-results {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  max-height: 200px;
-  overflow: auto;
-  margin-bottom: 14px;
-}
-.file {
-  display: block;
-  margin-top: 8px;
-}
-.file input {
-  font-size: 11px;
-  padding: 0;
-  border: 0;
-}
-.export {
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.primary {
-  background: var(--accent);
-  color: #222;
-  border: 0;
-  font-weight: 650;
-  padding: 14px;
-}
-.download {
-  text-align: center;
-}
-.export p {
-  margin: 0;
-  font-size: 12px;
-}
-progress {
-  width: 100%;
-  accent-color: #828c14;
-}
-.warning {
-  background: #fff0cc;
-  color: #674600;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 12px;
-}
-.feedback {
-  margin-top: 18px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-.feedback button {
-  padding: 0 8px;
-}
-.feedback:not(.warning) {
-  font-size: 12px;
-  color: var(--muted);
-}
-@media (max-width: 760px) {
-  .editor {
-    padding: 16px;
-    border-radius: 14px;
-  }
-  .workspace {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-  }
-  .preview {
-    position: static;
-  }
-  .stage {
-    width: min(100%, 309px);
-  }
-  .topline {
-    align-items: flex-start;
-  }
-  .eyebrow {
-    max-width: 100px;
-  }
-  .theme {
-    font-size: 0;
-  }
-  .theme select {
-    font-size: 12px;
-  }
-  .preview-meta {
-    font-size: 9px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto;
-  }
-}
+:global(body:has(.editor[data-theme="dark"])) { --background: #10110f; --foreground: #eeeee8; --muted-foreground: #aaada3; --card: #191a17; color-scheme: dark; }
+:global(body:has(.editor[data-theme="light"])) { --background: #fafafa; --foreground: #22231f; --muted-foreground: #666860; --card: #fff; color-scheme: light; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 80px; align-items: start; }
+.preview { min-width: 0; position: sticky; top: 24px; }
+.preview-meta, .transport { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 420px; margin: 0 auto 20px; color: var(--muted); font-size: 12px; }
+.theme { display: flex; align-items: center; gap: 10px; margin: 0; }
+.theme select { width: auto; margin: 0; background: transparent; padding: 8px 0; }
+.stage { position: relative; aspect-ratio: 9/16; width: min(100%, 360px); margin: auto; overflow: hidden; }
+.stage.square { aspect-ratio: 1; width: 100%; }
+.stage.landscape { aspect-ratio: 16/9; width: 100%; }
+.stage canvas { display: block; width: 100%; height: 100%; }
+.safe-area { position: absolute; inset: 9% 17% 23% 6%; border: 1px dashed #6d695ba8; pointer-events: none; }
+.safe-area.reels { inset: 12% 14% 24% 6%; }
+.safe-area.tiktok { inset: 10% 20% 22% 6%; }
+.safe-area span { position: absolute; bottom: 5px; left: 6px; font: 9px monospace; color: #534f43; background: #fff; padding: 2px 4px; }
+.transport { margin-top: 20px; }
+.transport button { background: transparent; padding: 8px 0; text-decoration: underline; text-underline-offset: 4px; }
+.controls, fieldset { min-width: 0; }
+fieldset { border: 0; padding: 0; margin: 0; }
+label { display: block; font-size: 12px; margin-bottom: 16px; }
+input:not([type="checkbox"]), textarea, select, .editor :global([data-combobox-input]) { display: block; width: 100%; box-sizing: border-box; border: 0; border-radius: 0; padding: 10px 12px; background: var(--field); color: var(--ink); font: inherit; font-size: 14px; line-height: 1.4; margin-top: 6px; }
+textarea { resize: vertical; }
+.phrase { margin-bottom: 4px; }
+.phrase textarea { background: transparent; font-size: 28px; font-weight: 400; line-height: 1.25; padding: 8px 0; }
+.editor :global(.presets) { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 22px; }
+.editor :global([data-radio-group-item]) { border: 0; border-radius: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 10px 0; font: inherit; font-size: 12px; text-transform: capitalize; }
+.editor :global([data-radio-group-item][data-state="checked"]) { color: var(--ink); text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 2px; }
+button, .download { border: 0; border-radius: 0; background: var(--field); color: var(--ink); padding: 11px 14px; cursor: pointer; font: inherit; font-size: 12px; line-height: 1.5; text-decoration: none; }
+button:disabled, .editor :global(button:disabled) { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible, .editor :global(button:focus-visible), .editor :global([data-combobox-input]:focus-visible) { outline: 2px solid currentColor; outline-offset: 4px; }
+.check { display: flex; gap: 8px; align-items: flex-start; }
+.check input { margin-top: 3px; accent-color: var(--ink); }
+.editor :global([data-accordion-header]) { margin: 0; }
+.editor :global(.section-trigger) { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 0; border-radius: 0; background: transparent; color: var(--ink); cursor: pointer; padding: 18px 0; font: inherit; font-size: 14px; text-align: left; }
+.editor :global(.section-trigger)::after { content: "+"; color: var(--muted); font-size: 18px; }
+.editor :global(.section-trigger[data-state="open"])::after { content: "−"; }
+.editor :global(.detail-body) { padding: 4px 0 20px; }
+output { float: right; color: var(--muted); }
+input[type="range"] { padding: 0; accent-color: var(--ink); }
+.editor :global([data-combobox-input]) { margin: -10px 0 16px; }
+.editor :global(.font-menu) { z-index: 50; width: var(--bits-combobox-anchor-width); max-width: calc(100vw - 32px); background: var(--panel); color: var(--ink); box-shadow: 0 8px 30px #0002; padding: 6px; }
+.editor :global(.font-list) { max-height: min(280px, var(--bits-combobox-content-available-height)); overflow-y: auto; overscroll-behavior: contain; }
+.editor :global([data-combobox-item]) { padding: 10px; cursor: pointer; font-size: 14px; }
+.editor :global([data-combobox-item][data-highlighted]) { background: var(--field); }
+.editor :global([data-combobox-item][data-selected]) { font-weight: 600; }
+.colours { display: flex; gap: 16px; }
+.colours label { flex: 1; min-width: 0; }
+.colours input { height: 36px; padding: 0; background: transparent; cursor: pointer; }
+.colours input::-webkit-color-swatch-wrapper { padding: 0; }
+.colours input::-webkit-color-swatch { border: 0; }
+.file { margin-top: 14px; }
+.file input { font-size: 12px; padding: 0; background: transparent; }
+.file input::file-selector-button { border: 0; background: var(--field); color: var(--ink); padding: 10px; margin-right: 10px; }
+.small { font-size: 12px; color: var(--muted); }
+.export { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; }
+.primary { background: var(--ink); color: var(--bg); padding: 14px; font-weight: 500; }
+.download { text-align: center; }
+.export p { margin: 0; font-size: 12px; }
+progress { width: 100%; accent-color: var(--ink); }
+.warning { background: #fff0cc; color: #674600; padding: 12px; font-size: 12px; }
+.feedback { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; font-size: 12px; }
+.feedback:not(.warning) { color: var(--muted); }
+.feedback button { padding: 0 8px; background: transparent; }
+@media (max-width: 1000px) { .workspace { grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; } .stage { width: min(100%, 300px); } }
+@media (max-width: 760px) { .workspace { grid-template-columns: minmax(0, 1fr); gap: 36px; } .preview { position: static; } .stage { width: min(100%, 230px); } .stage.square, .stage.landscape { width: 100%; } .preview-meta { margin-bottom: 12px; } }
 </style>

@@ -32,8 +32,8 @@ export function createProject(): Project {
   return {
     version: 1,
     phrase: "make your mark",
-    headline: "Small ideas, lasting impressions",
-    body: "Across the city, a new chapter begins. People gather to share their stories, shaping tomorrow through everyday acts of imagination. Every detail holds a possibility. The ordinary becomes extraordinary when we pause long enough to notice.",
+    headline: "Night trains return to the coast",
+    body: "The first train left Central Station at six on Friday. By the time it reached the harbour, the lights along the pier had come on. Passengers stepped onto a platform that had been closed for nearly a decade. The new service will run twice each evening, with stops at the old market and the northern beach. Tickets are sold at the station. A return costs the same as two single journeys. On board, the windows still open and the tables carry fresh coats of blue paint. A small queue formed outside the ticket office before the doors opened. Some passengers had brought cameras. Others were taking the train home from work. The station cafe stayed open for the last arrival. Its owner said she would try the later hours for a month before deciding whether to keep them.",
     preset: "newspaper",
     duration: 3,
     cutSpeed: 12,

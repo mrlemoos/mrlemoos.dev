@@ -1,0 +1,31 @@
+---
+title: "Text Match, a small tool for words that stay put"
+date: "2026-10-22"
+description: "A free browser tool for making text match cuts, with editable print styles, local projects and video exports. A few notes on getting the effect right."
+tags: ["side projects", "typography", "frontend"]
+status: "draft"
+---
+
+I built [Text Match](/tools/text-match), a small browser tool for that effect where a word stays in place while the print around it keeps changing.
+
+You know the one. A phrase appears in a newspaper clipping, then a book, then another bit of print. Your eye hangs onto the words while everything else cuts underneath them. Quite a lot of fuss for three seconds of video. Fair. I still like it.
+
+Write a phrase, choose a print style, adjust the pace, export a clip. It's free, with no account or watermark.
+
+The first version had a fairly basic problem. It looked like a miniature newspaper. There were columns and headlines, and technically the phrase stayed in place, but the result felt like watching somebody shuffle little pages at you. All the ingredients were there. The video was bad.
+
+So I changed the crop.
+
+The phrase now sits inside a line of surrounding text. Each cut changes the context, type size and slight angle of the print, while the centre of the phrase stays fixed. You see a close bit of a page rather than the whole thing. That matters more than another texture control ever could.
+
+There's still room to fiddle. Newspaper, book, magazine and clean presets give you starting points; you can change fonts, colours, highlights and the surrounding words. Duration and cut speed are separate controls. Portrait, square and landscape outputs cover the usual places you'd put a short clip, with optional sound on the cuts.
+
+One detail worth being clear about, especially when something looks like a newspaper clipping. Text Match makes fictional print from editable text. It doesn't search published articles or generate passages with an AI model. The default story is about night trains returning to a coast. Please don't cite it in your transport policy paper.
+
+The editor runs as a Svelte component inside this Astro site. Preview and export use the same canvas renderer, so changing the phrase or a font doesn't mean maintaining a second version of the layout for the downloaded video. That was a useful constraint. A convincing preview followed by a different-looking export would make the whole thing rather pointless.
+
+Rendering happens in your browser. One working draft stays in browser storage, and you can export a project file to keep a backup or move it elsewhere. Clearing that storage clears the local draft, so save a project file if you've made something you want to keep.
+
+Video export uses MP4 where the browser supports recording it, with a labelled WebM fallback. Keep the tab visible while it records. Encoding depends on your browser and device, so I won't pretend every phone behaves identically. Download is the straightforward way to get the file out.
+
+If you fancy making something with it, [open Text Match](/tools/text-match). Start with a short phrase and watch what happens around it. The crop did most of the work in my version; your words can do the rest.

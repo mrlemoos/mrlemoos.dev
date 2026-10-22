@@ -120,3 +120,30 @@ Build **Text Match** at **/tools/text-match**, a browser-local Svelte editor ins
 - Standards and specification reviews completed. Findings fixed include font limits, stale font registration, repeated local uploads, recovery after font failure, vertical fit, clipped print columns and editing during export.
 - Remaining acceptance: physical Safari/iOS/Android export and memory behaviour, manual listening, native sharing and video paste interoperability in real destinations. These have not been claimed as verified. Real-time recording requires a visible tab and timing can vary with device load. Local font uploads require confirmed embedding permission; system fonts can vary across devices.
 - No push or deployment performed.
+
+## UI correction
+
+- Replaced repeated slogans with a short description and plain control copy. Reduced the header, grouped presets in one row, collapsed advanced controls and brought Export into the first desktop viewport.
+- Added a separate preview surface, turned guides off by default and corrected the invalid form font shorthand. Kept controls labelled and keyboard accessible. Range readouts round to two decimal places; the counter identifies cuts rather than frames.
+- Reduced oversized print, adjusted columns for portrait output, fitted complete headlines inside the margins and cleared surrounding text behind the focal line. New projects use a fictional local news story; existing drafts remain unchanged.
+- Red: a rendering regression showed the default headline exceeded the print margins. Green: the complete headline fits. All 190 tests pass, with lint, type checks and production build passing.
+- Browser checks cover desktop, light/dark, reduced motion and 320/390px layouts without overflow. Editor accessibility audit reports zero violations or incomplete checks. An updated MP4 decoded at 1080 × 1920 and approximately three seconds; sampled focal regions match the shared renderer within normal encoding loss.
+- Physical-device and destination-paste acceptance remains outstanding as listed above. UI corrections are uncommitted.
+
+## Font UI simplification and video recut
+
+- Removed the provider-branded browse action. Focusing font search loads the catalogue once; curated fonts remain available immediately. Provider and network details stay in the privacy policy.
+- Removed the cut counter, redundant preview instructions, duplicate export status and typed font-licence field. Uploads still require embedding permission. Shortened labels and placed Theme beside preview dimensions.
+- Replaced the miniature page renderer with close text crops. The phrase sits on the same baseline as surrounding words. Seeded cuts change context, print scale, source serif and slight scan angle while keeping the focal centre fixed. The chosen font applies to the focal phrase; surrounding type follows the print preset. Headlines appear in occasional source crops rather than every frame. No mastheads or artificial blank strip behind the phrase.
+- Red/green coverage verifies inline context, deterministic crops, stable focal placement, long-text warnings, edge fit and empty surrounding text. Font search, recovery, import safety, upload and export-lock workflow checks remain covered.
+- Browser font search and real Lora selection passed without provider-branded controls. A 320px layout has no overflow; the editor accessibility audit reports zero violations or incomplete checks. Recorded and visually inspected a new H.264 MP4 at 1080 × 1920, approximately three seconds. A temporary review clip is at `/private/tmp/text-match-recut.mp4`.
+- Final lint, Astro/Svelte type checks, all 191 tests and production build pass. All four presets render successfully in portrait, square and landscape. Three decoded video samples place the marker centre within half a pixel of the frame centre.
+- Existing device and destination-paste limitations remain. No commit, push or deployment for these revisions.
+
+## Borderless UI and announcement draft, 22 October 2026
+
+- Removed the editor card, preview mat, decorative borders and section separators. Controls sit directly on the page; focus outlines and optional safe-area guides remain functional.
+- Added Bits UI primitives for the searchable font combobox, collapsible settings and preset radio group. Font search and selection share one field. Export locking, font failures and stale requests preserve the current project and displayed selection.
+- Red/green coverage verifies keyboard font selection, Escape, preset and section navigation, same-font weight recovery and failed/stale font display restoration. Lint, Astro/Svelte checks, all 195 tests across 36 files, production build and whitespace checks pass.
+- Desktop borderless layout visually inspected. Final browser recheck stalled in the automation session; physical-device acceptance remains outstanding. Existing build warnings concern chunk size and local Node 25 versus the target Node 24.
+- Announcement written by a delegated agent at `src/content/blog/text-match.mdx`, reviewed and retained with `status: draft`. Production build excludes its public post route. No publication, commit, push or deployment.

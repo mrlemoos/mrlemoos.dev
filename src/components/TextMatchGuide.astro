@@ -9,8 +9,8 @@ const examples = [
 ---
 
 <section class="guide" aria-label="Examples and guide">
-  <h2>Four ways to make your point.</h2>
-  <p>Original print layouts. One phrase holding every cut together.</p>
+  <h2>Print styles</h2>
+  <p>Choose a layout, then edit the text, type and colours.</p>
   <div class="examples">
     {examples.map((example) => <figure>
       <div class:list={["sample", example.className]}><small>TEXT MATCH / SAMPLE EDITION</small><strong>{example.phrase}</strong><span>Ideas find their way onto the page.</span></div>
@@ -26,16 +26,16 @@ const examples = [
         <li>Set your format, duration and cut speed. Play when you are ready.</li>
         <li>Export a watermark-free 1080p video. Download, share or copy it where supported.</li>
       </ol>
-      <h2>Questions before your first cut?</h2>
+      <h2>Common questions</h2>
       <details><summary>Is Text Match free?</summary><p>Yes. No account, payment, watermark or ad wait. Editing and rendering happen in your browser.</p></details>
       <details><summary>Can I export MP4 with sound?</summary><p>MP4 is used when your browser can record it. Otherwise the editor labels its WebM fallback. Optional cut sounds are included. Export support depends on your browser and device.</p></details>
       <details><summary>Which sizes can I make?</summary><p>TikTok, Reels and Shorts use 1080 × 1920. Square uses 1080 × 1080; landscape uses 1920 × 1080. Platform guides are approximate and never appear in your video.</p></details>
       <details><summary>Where is my work saved?</summary><p>One draft stays in this browser. Export a project file for a backup or another device. Clearing browser storage removes the draft. Nothing you write or upload is sent to a render server.</p></details>
-      <details><summary>Can I use my own fonts?</summary><p>Yes. Upload a font you have permission to embed, or select a Google Font. The catalogue loads separately from font files. Downloads contact GitHub, which hosts Google's font files. Check embedding permissions before sharing project files.</p></details>
+      <details><summary>Can I use my own fonts?</summary><p>Yes. Choose a font or upload your own. Uploaded fonts must permit embedding in project files. System fonts can vary between devices.</p></details>
       <details><summary>Why can I not paste the video?</summary><p>Video clipboard support varies by browser and destination. Use Download video or native sharing when copying is unavailable or refused.</p></details>
     </section>
     <aside>
-      <a class="konijn" href="https://konijn.co" target="_blank" rel="noopener noreferrer"><span>Made something worth wearing?</span><strong>Meet konijn.co ↗</strong><span>Independent clothing. Room for a little mischief.</span></a>
+      <a class="konijn" href="https://konijn.co" target="_blank" rel="noopener noreferrer"><span>Clothing by konijn</span><strong>Explore konijn.co ↗</strong><span>Independent clothing and accessories.</span></a>
       <div class="follow"><img src="/images/leonardo-lemos.png" width="56" height="56" loading="lazy" alt="Leonardo Lemos" /><div><strong>Leonardo Lemos</strong><span>@{X_USERNAME}</span></div><a href={X_URL} target="_blank" rel="noopener noreferrer">Follow me on X</a></div>
     </aside>
   </div>
@@ -62,17 +62,17 @@ const examples = [
   .reading { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 4rem; }
   ol { padding-left: 1.4rem; margin: 1.2rem 0 3rem; }
   li { padding: .3rem 0; }
-  details { border-top: 1px solid color-mix(in srgb,currentColor 20%,transparent); padding: 1rem 0; }
+  details { padding: 1rem 0; }
   summary { cursor: pointer; font-weight: 500; }
   details p { margin-top: .8rem; font-size: .9rem; }
-  .konijn { display: flex; flex-direction: column; gap: 1rem; padding: 1.8rem; background: #dce8d3; color: #24321f; text-decoration: none; }
+  .konijn { display: flex; flex-direction: column; gap: 1rem; padding: 0; color: inherit; text-decoration: none; }
   .konijn strong { font: 2rem var(--font-heading,serif); }
   .konijn span { font-size: .85rem; line-height: 1.5; }
   .follow { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; padding: 1.5rem 0; }
   .follow img { border-radius: 50%; }
   .follow div { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
   .follow span { opacity: .6; }
-  .follow a { display: block; width: 100%; text-align: center; border: 1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius: 999px; padding: .6rem 1rem; font-size: .85rem; text-decoration: none; }
+  .follow a { display: block; width: auto; text-align: left; padding: .4rem 0; font-size: .85rem; text-decoration: none; }
   a:focus-visible, summary:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
   @media(max-width: 700px) { .examples { grid-template-columns: repeat(2,minmax(0,1fr)); } .reading { grid-template-columns: 1fr; gap: 2rem; } .sample { min-height: 170px; padding: .9rem; } .sample strong { font-size: 1.5rem; } }
 </style>

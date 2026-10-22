@@ -1,4 +1,5 @@
 import { frameLayout, type Project } from "./project";
+
 export function renderFrame(
   canvas: HTMLCanvasElement,
   project: Project,
@@ -9,136 +10,154 @@ export function renderFrame(
   if (canvas.height !== f.height) canvas.height = f.height;
   const c = canvas.getContext("2d");
   if (!c) throw new Error("Canvas rendering unavailable.");
+
+  c.save();
+  c.textAlign = "left";
+  c.textBaseline = "alphabetic";
   c.fillStyle = project.paperColour;
   c.fillRect(0, 0, f.width, f.height);
-  c.save();
-  c.fillStyle = project.textColour;
-  c.filter = project.blur ? `blur(${project.blur}px)` : "none";
-  const size = (project.preset === "magazine" ? 50 : 34) * project.zoom;
-  c.font = `400 ${size}px "${project.fontFamily}"`;
-  c.globalAlpha = project.preset === "clean" ? 0.18 : 0.65;
-  const words = project.body.trim().split(/\s+/).filter(Boolean);
-  let index = Math.floor(f.variation * words.length);
-  const columns =
-    project.preset === "newspaper" ? 3 : project.preset === "magazine" ? 2 : 1;
-  const margin = f.width * (project.preset === "book" ? 0.12 : 0.04);
-  const column = (f.width - margin * 2) / columns;
-  const gutter = size * 0.8;
-  const columnWidth = column - gutter;
-  const lineHeight = size * (project.preset === "clean" ? 4 : 1.35);
-  for (
-    let columnIndex = 0;
-    words.length > 0 && columnIndex < columns;
-    columnIndex++
-  ) {
-    const x = margin + columnIndex * column;
-    c.save();
-    c.beginPath();
-    c.rect(x, 0, columnWidth, f.height);
-    c.clip();
-    for (
-      let y = -f.variation * lineHeight;
-      y < f.height + size;
-      y += lineHeight
-    ) {
-      let line = "";
-      while (line.length < 250) {
-        const word = words[index % words.length];
-        const candidate = line ? `${line} ${word}` : word;
-        if (c.measureText(candidate).width > columnWidth) {
-          if (!line) {
-            line = word;
-            index++;
-          }
-          break;
-        }
-        line = candidate;
-        index++;
-      }
-      c.fillText(line, x, y);
-    }
-    c.restore();
-  }
-  const headlineSize =
-    size *
-    (project.preset === "magazine"
-      ? 2.5
-      : project.preset === "book"
-        ? 1.3
-        : 1.8);
-  const headlineY = f.focalY - 160 - f.variation * 180;
-  c.save();
-  c.beginPath();
-  c.rect(
-    margin,
-    headlineY - headlineSize * 1.15,
-    f.width - margin * 2,
-    headlineSize * 1.5,
-  );
-  c.clip();
-  c.globalAlpha = 1;
-  c.fillStyle = project.paperColour;
-  c.fillRect(
-    margin,
-    headlineY - headlineSize * 1.15,
-    f.width - margin * 2,
-    headlineSize * 1.5,
-  );
-  c.globalAlpha = 0.9;
-  c.fillStyle = project.textColour;
-  c.font = `700 ${headlineSize}px "${project.fontFamily}"`;
-  c.fillText(project.headline, margin, headlineY);
-  c.restore();
-  c.restore();
-  if (project.texture > 0) {
-    c.fillStyle = project.textColour;
-    c.globalAlpha = project.texture * 0.18;
-    for (let i = 0; i < 2400; i++) {
-      const n = Math.imul(i + 1, 16807) >>> 0;
-      c.fillRect(n % f.width, (Math.imul(n, 48271) >>> 0) % f.height, 1.5, 1.5);
-    }
-    c.globalAlpha = 1;
-  }
-  let fontSize = 80 * project.zoom;
-  c.font = `${project.fontWeight} ${fontSize}px "${project.fontFamily}"`;
-  const available = Math.min(f.focalX, f.width - f.focalX) * 2 - 60;
-  while (c.measureText(project.phrase).width > available && fontSize > 28) {
-    fontSize -= 2;
-    c.font = `${project.fontWeight} ${fontSize}px "${project.fontFamily}"`;
-  }
+  const italic = project.preset === "book" && f.cut % 3 === 1 ? "italic " : "";
+  const font = (weight: number, size: number) =>
+    `${italic}${weight} ${size}px "${project.fontFamily}"`;
+  const sourceSize = 72 * project.zoom * (0.9 + f.variation * 0.2);
+  let size = sourceSize;
+  const available = Math.min(f.focalX, f.width - f.focalX) * 2 - f.width * 0.1;
+  c.font = font(project.fontWeight, size);
+  const initialWidth = c.measureText(project.phrase).width;
+  const targetWidth = Math.min(available, f.width * 0.74);
+  if (initialWidth > targetWidth)
+    size = Math.max(28, (size * targetWidth) / initialWidth);
+  c.font = font(project.fontWeight, size);
   const metrics = c.measureText(project.phrase);
-  const width = metrics.width;
-  const left = f.focalX - width / 2,
-    top = f.focalY - fontSize * 0.65;
-  const baseline = top + fontSize * 0.9;
-  const artworkTop = Math.min(
-    top - 18,
-    baseline - (metrics.actualBoundingBoxAscent ?? fontSize),
-  );
-  const artworkBottom = Math.max(
-    top + fontSize * 1.3 + 18,
-    baseline + (metrics.actualBoundingBoxDescent ?? fontSize * 0.3),
-  );
+  const ascent = metrics.actualBoundingBoxAscent ?? size * 0.75;
+  const descent = metrics.actualBoundingBoxDescent ?? size * 0.22;
+  const baseline = f.focalY + (ascent - descent) / 2;
+  const left = f.focalX - metrics.width / 2;
+  const top = baseline - ascent;
+  const padding = size * 0.09;
+  const angle = project.preset === "clean" ? 0 : (f.variation - 0.5) * 0.016;
+  const halfHeight =
+    ((ascent + descent) / 2) * Math.cos(angle) +
+    (metrics.width / 2) * Math.abs(Math.sin(angle));
   const fits =
-    width <= available && artworkTop >= 0 && artworkBottom <= f.height;
-  c.fillStyle = project.paperColour;
-  c.fillRect(left - 22, top - 18, width + 44, fontSize * 1.3 + 36);
-  c.fillStyle = project.highlightColour;
-  if (project.highlight === "marker")
-    c.fillRect(left - 12, top, width + 24, fontSize * 1.12);
-  if (project.highlight === "underline")
-    c.fillRect(left - 5, top + fontSize * 1.05, width + 10, 8);
-  if (project.highlight === "box") {
-    c.strokeStyle = project.highlightColour;
-    c.lineWidth = 8;
-    c.strokeRect(left - 14, top - 8, width + 28, fontSize * 1.3);
+    metrics.width <= available + 0.01 &&
+    f.focalY - halfHeight - padding >= 0 &&
+    f.focalY + halfHeight + padding <= f.height;
+  c.translate(f.focalX, f.focalY);
+  c.rotate(angle);
+  c.translate(-f.focalX, -f.focalY);
+
+  const words = project.body.trim().split(/\s+/).filter(Boolean);
+  let wordIndex = Math.floor(f.variation * words.length);
+  const lineHeight =
+    sourceSize *
+    (project.preset === "book"
+      ? 1.65
+      : project.preset === "clean"
+        ? 2.1
+        : 1.42);
+  const columnWidth = f.width * (1.3 + f.variation * 0.5);
+  const columnLeft = f.focalX - columnWidth * (0.35 + f.variation * 0.3);
+  const firstRow = Math.floor(-baseline / lineHeight);
+  const lastRow = Math.ceil((f.height - baseline) / lineHeight);
+  c.fillStyle = project.textColour;
+  c.globalAlpha = project.preset === "clean" ? 0.14 : 0.78;
+  c.filter = project.blur ? `blur(${project.blur}px)` : "none";
+  const printFamily =
+    project.preset === "magazine" || project.preset === "clean"
+      ? "Arial"
+      : f.cut % 3 === 1
+        ? "Times New Roman"
+        : "Georgia";
+  c.font = `${italic}400 ${sourceSize}px "${printFamily}"`;
+
+  for (let row = firstRow; words.length && row <= lastRow; row++) {
+    if (row === 0) continue;
+    let line = "";
+    while (line.length < 500) {
+      const word = words[wordIndex % words.length];
+      const candidate = line ? `${line} ${word}` : word;
+      if (c.measureText(candidate).width > columnWidth && line) break;
+      line = candidate;
+      wordIndex++;
+      if (c.measureText(line).width >= columnWidth) break;
+    }
+    c.fillText(line, columnLeft, baseline + row * lineHeight);
   }
+
+  if (words.length) {
+    const context = Array.from(
+      { length: 18 },
+      (_, i) => words[(wordIndex + i) % words.length],
+    );
+    const prefix = context.slice(0, 8).join(" ");
+    const suffix = context.slice(8).join(" ");
+    const gap = padding + c.measureText(" ").width;
+    c.fillText(prefix, left - gap - c.measureText(prefix).width, baseline);
+    c.fillText(suffix, left + metrics.width + gap, baseline);
+  }
+
+  if (
+    project.headline.trim() &&
+    project.preset !== "clean" &&
+    f.cut % 5 === 0
+  ) {
+    const headingY = baseline - lineHeight * (3 + (f.cut % 2));
+    const headingSize = size * (project.preset === "magazine" ? 1.7 : 1.25);
+    c.fillStyle = project.paperColour;
+    c.globalAlpha = 1;
+    c.fillRect(0, headingY - headingSize, f.width, headingSize + size * 0.25);
+    c.fillStyle = project.textColour;
+    c.font = font(700, headingSize);
+    c.fillText(project.headline, columnLeft, headingY);
+  }
+
+  c.filter = "none";
+  c.globalAlpha = 1;
+  c.fillStyle = project.highlightColour;
+  if (project.highlight === "marker") {
+    c.fillRect(
+      left - padding,
+      top - padding * 0.4,
+      metrics.width + padding * 2,
+      ascent + descent + padding * 0.8,
+    );
+  } else if (project.highlight === "underline") {
+    c.fillRect(
+      left,
+      baseline + descent + padding * 0.4,
+      metrics.width,
+      Math.max(4, size * 0.035),
+    );
+  } else if (project.highlight === "box") {
+    c.strokeStyle = project.highlightColour;
+    c.lineWidth = Math.max(3, size * 0.025);
+    c.strokeRect(
+      left - padding,
+      top - padding,
+      metrics.width + padding * 2,
+      ascent + descent + padding * 2,
+    );
+  }
+  c.font = font(project.fontWeight, size);
   c.fillStyle = project.textColour;
   c.textAlign = "center";
-  c.textBaseline = "alphabetic";
   c.fillText(project.phrase, f.focalX, baseline);
-  c.textAlign = "start";
+
+  if (project.texture > 0) {
+    c.fillStyle = project.textColour;
+    c.globalAlpha = project.texture * 0.16;
+    let noise = (project.seed + f.cut * 1031) >>> 0;
+    for (let i = 0; i < 5000; i++) {
+      noise = Math.imul(noise ^ (noise >>> 15), 2246822507) >>> 0;
+      const x = noise % f.width;
+      noise = (Math.imul(noise, 1664525) + 1013904223) >>> 0;
+      c.fillRect(x, noise % f.height, i % 7 === 0 ? 6 : 1.5, 0.7);
+    }
+  }
+  c.restore();
   return { fits };
 }
+
 export { loadProjectFonts } from "./fonts";
 export { exportVideo } from "./export";
