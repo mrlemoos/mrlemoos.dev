@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick, untrack } from 'svelte';
-  import { Accordion, Combobox, RadioGroup } from 'bits-ui';
+  import { Accordion, Combobox, RadioGroup, Select } from 'bits-ui';
   import { createProject, validateProject, type Project } from '../../lib/text-match/project';
   import { renderFrame, exportVideo, loadProjectFonts } from '../../lib/text-match/render';
   import { fetchFontCatalogue, loadGoogleFont } from '../../lib/text-match/fonts';
@@ -408,7 +408,24 @@
 <div class="editor" data-theme={theme}>
   <div class="workspace">
     <section class="preview" aria-label="Video preview">
-      <div class="preview-meta"><label class="theme">Theme <select bind:value={theme} onchange={() => { try { localStorage.setItem('text-match-theme', theme); } catch { error = 'Theme preference could not be saved.'; } }}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label><span>{project.format === 'landscape' ? '1920 × 1080' : project.format === 'square' ? '1080 × 1080' : '1080 × 1920'}</span></div>
+      <div class="preview-meta"><div class="theme">
+        <span id="text-match-theme-label">Theme</span>
+        <Select.Root type="single" bind:value={theme} onValueChange={(value) => { try { localStorage.setItem('text-match-theme', value); } catch { error = 'Theme preference could not be saved.'; } }}>
+          <Select.Trigger class="theme-trigger" aria-labelledby="text-match-theme-label">
+            {theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System'} <span aria-hidden="true">⌄</span>
+          </Select.Trigger>
+          <Select.Content class="theme-menu" sideOffset={4} align="start">
+            <Select.Viewport>
+              {#each ['system', 'light', 'dark'] as value}
+                <Select.Item {value} label={value[0].toUpperCase() + value.slice(1)}>
+                  {value[0].toUpperCase() + value.slice(1)}
+                  <span aria-hidden="true">{theme === value ? '✓' : ''}</span>
+                </Select.Item>
+              {/each}
+            </Select.Viewport>
+          </Select.Content>
+        </Select.Root>
+      </div><span>{project.format === 'landscape' ? '1920 × 1080' : project.format === 'square' ? '1080 × 1080' : '1080 × 1920'}</span></div>
       <div class="stage" class:landscape={project.format === 'landscape'} class:square={project.format === 'square'}>
         <canvas bind:this={canvas} aria-label={`Text Match artwork: ${project.phrase}`}></canvas>
         {#if safeAreas && ['tiktok', 'reels', 'shorts'].includes(project.format)}<div class="safe-area" class:tiktok={project.format === 'tiktok'} class:reels={project.format === 'reels'} aria-hidden="true"><span>{project.format} safe area</span></div>{/if}
@@ -469,7 +486,11 @@
 .preview { min-width: 0; position: sticky; top: 24px; }
 .preview-meta, .transport { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 420px; margin: 0 auto 20px; color: var(--muted); font-size: 12px; }
 .theme { display: flex; align-items: center; gap: 10px; margin: 0; }
-.theme select { width: auto; margin: 0; background: transparent; padding: 8px 0; }
+.editor :global(.theme-trigger) { display: flex; align-items: center; gap: 12px; min-height: 44px; border: 0; border-radius: 0; background: transparent; color: var(--ink); padding: 8px; cursor: pointer; font: inherit; }
+.editor :global(.theme-menu) { z-index: 50; min-width: 140px; max-height: var(--bits-select-content-available-height); overflow-y: auto; background: var(--panel); color: var(--ink); box-shadow: 0 8px 30px #0002; padding: 6px; }
+.editor :global([data-select-item]) { display: flex; justify-content: space-between; gap: 24px; min-height: 44px; align-items: center; padding: 10px; cursor: pointer; font-size: 14px; }
+.editor :global([data-select-item][data-highlighted]) { background: var(--field); outline: 2px solid var(--ink); outline-offset: -2px; }
+.editor :global([data-select-item][data-selected]) { font-weight: 600; }
 .stage { position: relative; aspect-ratio: 9/16; width: min(100%, 360px); margin: auto; overflow: hidden; }
 .stage.square { aspect-ratio: 1; width: 100%; }
 .stage.landscape { aspect-ratio: 16/9; width: 100%; }

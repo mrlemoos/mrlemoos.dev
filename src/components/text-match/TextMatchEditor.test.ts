@@ -16,6 +16,22 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); localStorage.clear(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe('Text Match editor workflow', () => {
+  it('selects and saves a theme with the keyboard and closes with Escape', async () => {
+    render(Editor);
+    const theme = screen.getByRole('combobox', { name: 'Theme' });
+    expect(theme.tagName).toBe('BUTTON');
+    theme.focus();
+    await fireEvent.keyDown(theme, { key: 'ArrowDown' });
+    await screen.findByRole('listbox');
+    await fireEvent.keyDown(theme, { key: 'End' });
+    await fireEvent.keyDown(theme, { key: 'Enter' });
+    await waitFor(() => expect(localStorage.getItem('text-match-theme')).toBe('dark'));
+    await fireEvent.keyDown(theme, { key: 'ArrowDown' });
+    await screen.findByRole('listbox');
+    await fireEvent.keyDown(theme, { key: 'Escape' });
+    await waitFor(() => expect(theme).toHaveAttribute('aria-expanded', 'false'));
+    expect(localStorage.getItem('text-match-theme')).toBe('dark');
+  });
   it('switches print presets with arrow keys', async () => {
     render(Editor);
     const newspaper = screen.getByRole('radio', { name: /newspaper/i });

@@ -3,6 +3,11 @@ import { renderAstroComponent } from "@/test-utils/render-astro.js";
 import TextMatchGuide from "./TextMatchGuide.astro";
 
 describe("Text Match discovery", () => {
+  it("keeps print samples separate from the homepage book styling", async () => {
+    const html = await renderAstroComponent(TextMatchGuide);
+    expect(html).toContain("sample-book");
+    expect(html).not.toMatch(/class="[^"]*\bsample book\b/);
+  });
   it("explains editing and export without client JavaScript", async () => {
     const html = await renderAstroComponent(TextMatchGuide);
     expect(html).toContain("How to make a text match cut");

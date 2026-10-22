@@ -147,3 +147,9 @@ Build **Text Match** at **/tools/text-match**, a browser-local Svelte editor ins
 - Red/green coverage verifies keyboard font selection, Escape, preset and section navigation, same-font weight recovery and failed/stale font display restoration. Lint, Astro/Svelte checks, all 195 tests across 36 files, production build and whitespace checks pass.
 - Desktop borderless layout visually inspected. Final browser recheck stalled in the automation session; physical-device acceptance remains outstanding. Existing build warnings concern chunk size and local Node 25 versus the target Node 24.
 - Announcement written by a delegated agent at `src/content/blog/text-match.mdx`, reviewed and retained with `status: draft`. Production build excludes its public post route. No publication, commit, push or deployment.
+
+## Book sample and theme selector correction
+
+- Removed the Book sample's collision with the homepage `.book` class, which applied book-stack sizing and 3D transforms. The sample uses its own class.
+- Replaced the native theme select with Bits UI Select: labelled trigger, selected-state indicator, 44px targets, keyboard navigation, Escape dismissal and saved preference. No new dependency.
+- Red: regressions reproduced the shared Book class and native theme select. Green: all 16 focused guide/editor tests pass, alongside lint, Astro/Svelte checks, production build and whitespace checks. Desktop Zen selection, dismissal and repaired sample layout inspected. Mobile and screen-reader checks not repeated.
