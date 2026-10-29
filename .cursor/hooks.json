@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node .galicia/startup.ts cursor",
+        "timeout": 5
+      }
+    ]
+  },
+  "version": 1
+}

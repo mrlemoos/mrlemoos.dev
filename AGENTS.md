@@ -11,9 +11,18 @@
 - `CONTEXT.md` defines domain language (Post, Local Admin, Save/Publish, Body dialect v1) — use it for admin and writing features.
 - Local Admin: DEV-only TipTap editor at `/admin` (list, new, edit); writes blog MDX on disk; explicit Save only; Publish on `main` with `docs(blog):` commit messages.
 - Typography/theme: Geist for body/UI sans, serif (e.g. Instrument Serif) for headings, grey-first palette, deliberate micro-interactions for polished portfolio feel.
-- Agent config consolidated under `.agents/` with `.cursor` and `.claude` symlinks; `CLAUDE.md` symlinks `AGENTS.md`.
+- Agent config consolidated under `.agents/` (no `.cursor` or `.claude` symlinks).
 - Vitest unit tests: colocated `src/**/*.test.js` importing TS/TSX/Astro via Astro `getViteConfig()` in `vitest.config.ts`; `pnpm test` / `pnpm test:run`; jsdom for React tests, node for Astro Container tests.
 - GitHub Actions CI (`.github/workflows/ci.yml`): `pnpm lint` → `check` → `test:run` → `build` on Node 24; checkout, setup-node, and pnpm/action-setup v6.
 - Homepage featured writing merges local blog posts with `src/lib/data/external-writing.ts`; projects page at `/projects` from `src/lib/data/projects.ts`.
 - Google AdSense: consent banner and Consent Mode v2 before loading scripts; in-article ad on blog posts; `public/ads.txt`; privacy policy at `/privacy`.
 - Production-only behaviour uses `import.meta.env.PROD`, not `process.env.NODE_ENV`.
+
+
+<!-- galicia:start -->
+## Galicia
+
+Read context.md first; load relevant domain context only. Domain terms: docs/Language.md. Decisions: docs/adr/. Specs/tickets: docs/specs/. Local Markdown only. No emojis. Preserve checks, exact contracts and uncertainty. Before consequential ADR work, recommend scoped small-model research/review; spawn only when authorised.
+
+Startup review fallback: run `node .galicia/check.ts` once per session if no startup hook ran. Metadata flags are review candidates; never delete without explicit user approval. Follow relevant specs to compare implementation when needed; age alone proves nothing. Grilling cadence: read .galicia/config.json, ask user if unset.
+<!-- galicia:end -->

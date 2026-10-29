@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "agents": [
+    "codex",
+    "claude",
+    "cursor",
+    "grok"
+  ],
+  "skills": [
+    "terse",
+    "rubberduck",
+    "spec",
+    "breakdown",
+    "find-rc"
+  ],
+  "cadence": "batch",
+  "hooks": true
+}

@@ -1,1 +1,3 @@
-AGENTS.md
+<!-- galicia:start -->
+@AGENTS.md
+<!-- galicia:end -->
