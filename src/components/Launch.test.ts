@@ -44,12 +44,41 @@ it("gives tiles a restrained double border", () => {
   expect(source).toContain(".photo-stack:is(:hover,:focus-visible):before{opacity:0}");
 });
 
-it("keeps the travelling rabbit beneath tile content", () => {
+it("keeps early rabbit scenes behind tiles, then reveals it over Konijn", () => {
   const launch = readFileSync(new URL("./Launch.astro", import.meta.url), "utf8");
   const rabbit = readFileSync(new URL("./KonijnRabbit.astro", import.meta.url), "utf8");
   expect(launch).toMatch(/\.bento\{[^}]*isolation:isolate/);
   expect(launch).toContain(".bento>.tile{z-index:1}");
-  expect(rabbit).toMatch(/\.rabbit \{[^}]*z-index:0/);
+  expect(rabbit).toMatch(/\.rabbit-scene \{[^}]*z-index:0/);
+  expect(rabbit).toMatch(/\[data-rabbit-scene="konijn"\] \{[^}]*z-index:2/);
+});
+
+it("gives every rabbit tile encounter its own drawing and choreography", () => {
+  const rabbit = readFileSync(new URL("./KonijnRabbit.astro", import.meta.url), "utf8");
+  for (const scene of ["planria", "writing", "konijn"]) {
+    expect(rabbit).toContain(`data-rabbit-scene="${scene}"`);
+  }
+  expect(rabbit.match(/<svg /g)).toHaveLength(4);
+  for (const drawing of ["planria-peek", "writing-tail", "writing-scout", "konijn-vault"]) {
+    expect(rabbit).toContain(`class="${drawing}`);
+  }
+  for (const animation of ["planria-rise", "tail-burrow", "scout-run", "konijn-vault"]) {
+    expect(rabbit).toContain(`@keyframes ${animation}`);
+  }
+  expect(rabbit).toContain('style.setProperty("--rabbit-progress"');
+  expect(rabbit).toContain('konijnScene.style.setProperty("--scene-width"');
+  expect(rabbit).not.toContain("points = [");
+});
+
+it("draws one restrained screen-print character across every pose", () => {
+  const rabbit = readFileSync(new URL("./KonijnRabbit.astro", import.meta.url), "utf8");
+  expect(rabbit).toContain("--rabbit-ink:#17120f");
+  expect(rabbit).toContain("--rabbit-orange:#f45b12");
+  expect(rabbit.match(/screenprint-pose/g)?.length).toBeGreaterThanOrEqual(4);
+  expect(rabbit).toContain("rim-perch");
+  expect(rabbit).not.toContain("<linearGradient");
+  expect(rabbit).not.toContain("<radialGradient");
+  expect(rabbit).not.toContain("drop-shadow");
 });
 
 it("renders accessible daily counts and styles refreshed client-side squares", async () => {
@@ -139,3 +168,10 @@ it("keeps project tiles legible in dark mode and gives Ludus a chessboard", () =
   expect(board).toContain("group.scale.set(0.72, 1, 0.72)");
   expect(board).toContain("renderer.setSize(element.clientWidth, element.clientHeight, false)");
 });
+
+ it("positions the rabbit against nested project tiles and freezes reduced motion", () => {
+  const rabbit = readFileSync(new URL("./KonijnRabbit.astro", import.meta.url), "utf8");
+  expect(rabbit).toContain("tile.getBoundingClientRect()");
+  expect(rabbit).toContain("grid.getBoundingClientRect()");
+  expect(rabbit).toContain(".rabbit * { animation:none!important;");
+ });
