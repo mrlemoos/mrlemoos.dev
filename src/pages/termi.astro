@@ -19,7 +19,7 @@ const UNQUARANTINE = "xattr -dr com.apple.quarantine /Applications/Termi.app";
 
 const title = "Termi | The aesthetic terminal for coding agents";
 const description =
-  "A chromeless macOS terminal that watches your coding agents. Claude, Codex, Grok and Cursor each get a mascot on the status line, and their tabs change colour when they need you.";
+  "A chromeless macOS terminal that watches your coding agents. Claude, Codex, Grok and Cursor each get a mascot on a glass tab, and the tab changes colour when it needs you.";
 const url = new URL("/termi", Astro.site).href;
 const ogImage = new URL(`/og?title=${encodeURIComponent(title)}`, Astro.site).href;
 
@@ -170,13 +170,13 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
         <div class="wrap stage">
           <div class="window" id="demo">
             <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
-            <div class="t-body" aria-label="Demo: Claude Code running in Termi" role="img"></div>
-            <div class="t-status">
-              <span class="t-tab on" data-t="claude">    ⌘1 <b class="g"></b>claude <pre class="mini" style="--agent:#d97757"></pre></span>
-              <span class="t-tab" data-t="codex"> ⌘2 <b class="g"></b>codex <pre class="mini" style="--agent:#e8e8e8"></pre></span>
-              <span class="t-tab"> ⌘3 zsh </span>
+            <div class="t-bar">
+              <span class="t-tab on" data-t="claude"><pre class="mini" style="--agent:#d97757"></pre>⌘1 <b class="g"></b>claude</span>
+              <span class="t-tab" data-t="codex"><pre class="mini" style="--agent:#e8e8e8"></pre>⌘2 <b class="g"></b>codex</span>
+              <span class="t-tab">⌘3 zsh</span>
               <span class="t-cwd">~/Developer/Termi</span>
             </div>
+            <div class="t-body" aria-label="Demo: Claude Code running in Termi" role="img"></div>
           </div>
           <div class="reflection" aria-hidden="true"></div>
         </div>
@@ -226,14 +226,14 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
                 Termi reads the screen of each tab. A mascot walks while the
                 agent works. The tab turns <span class="c-yellow">yellow</span>
                 when it needs you, and <span class="c-done">green</span> when
-                it's done. Glance down, not around.
+                it's done. Glance up. The glass tab already knows.
               </p>
             </div>
             <div class="vis vis-status">
               <div class="statusbar">
                 {agents.map((a, i) => (
                   <span class="sb-tab" data-mirror={a.name} style={`--agent:${a.color}`}>
-                    {i === 0 ? "  " : " "}⌘{i + 1} <b class="g"></b>{a.name} <pre class="mini"></pre>
+                    <pre class="mini"></pre>⌘{i + 1} <b class="g"></b>{a.name}
                   </span>
                 ))}
               </div>
@@ -342,7 +342,7 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
             </div>
             <div class="card-copy">
               <h3>Keyboard first</h3>
-              <p>Every tab has a number, always on the status line. You'll never reach for the mouse.</p>
+              <p>Every tab has a number, always on the glass bar. You'll never reach for the mouse.</p>
             </div>
           </article>
         </div>
@@ -583,23 +583,36 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
         position: absolute; left: 10%; right: 10%; bottom: -60px; height: 120px; z-index: -1;
         background: radial-gradient(ellipse at center, rgba(217,119,87,0.35), transparent 70%); filter: blur(40px);
       }
-      .lights { position: absolute; top: 12px; left: 14px; display: flex; gap: 8px; opacity: 0; transition: opacity 180ms; z-index: 2; }
+      .lights { position: absolute; top: 13px; left: 14px; display: flex; gap: 8px; opacity: 0; transition: opacity 180ms; z-index: 3; }
       .lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
       .lights i:nth-child(2) { background: #febc2e; }
       .lights i:nth-child(3) { background: #28c840; }
       .window.reach .lights, .chrome-card:hover .lights { opacity: 1; }
-      .t-body { position: absolute; inset: 36px 1.2em 2.4em; overflow: hidden; white-space: pre; display: flex; flex-direction: column; justify-content: flex-end; }
+      .t-bar {
+        position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 40px;
+        display: flex; align-items: center; gap: 6px; padding: 0 16px 0 80px;
+        font: 400 13px/1 -apple-system, system-ui, sans-serif;
+        background: linear-gradient(180deg, rgba(236,240,255,0.22), rgba(236,240,255,0.04));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+      }
+      .t-body { position: absolute; inset: 52px 1.2em 0.8em; overflow: hidden; white-space: pre; display: flex; flex-direction: column; justify-content: flex-end; }
       .t-body p { min-height: 1.5em; }
-      .t-status { position: absolute; left: 0; right: 0; bottom: 0; height: 1.9em; display: flex; align-items: stretch; white-space: pre; font: 400 1.05em/1 -apple-system, system-ui, sans-serif; }
-      .t-tab, .sb-tab { display: flex; align-items: center; color: #a0a0a0; }
-      .t-tab.on, .sb-tab.on { background: #e5e5e5; color: #000; }
-      .t-cwd { margin-left: auto; padding-right: 1.6em; align-self: center; color: #787878; }
-      .t-tab[data-state="working"]:not(.on), .sb-tab[data-state="working"] { animation: pulse-text 1.2s ease-in-out infinite alternate; }
-      .t-tab.on[data-state="working"] { animation: pulse 1.2s ease-in-out infinite alternate; }
+      .t-tab, .sb-tab {
+        display: inline-flex; align-items: center; height: 26px; padding: 0 10px; gap: 4px;
+        border-radius: 999px; color: #a0a0a0; white-space: nowrap;
+        background: rgba(255,255,255,0.17);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 1px 1px rgba(0,0,0,0.35);
+      }
+      .t-tab.on, .sb-tab.on {
+        background: rgba(232,238,255,0.38); color: #e5e5e5;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.4);
+      }
+      .t-cwd { margin-left: auto; color: #787878; font: 400 13px/1 var(--term); }
+      .t-tab[data-state="working"], .sb-tab[data-state="working"] { animation: pulse-text 1.2s ease-in-out infinite alternate; }
       .t-tab[data-state="input"]:not(.on), .sb-tab[data-state="input"] { color: #cdcd00; }
       .t-tab[data-state="done"]:not(.on), .sb-tab[data-state="done"] { color: #00cd00; }
       .g { font-weight: 400; }
-      .mini { font: 400 0.36em/1 var(--term); color: var(--agent, #d97757); white-space: pre; margin-right: 0.4em; }
+      .mini { font: 400 7px/1 var(--term); color: var(--agent, #d97757); white-space: pre; }
       @keyframes pulse { from { background: rgb(110 110 110); } to { background: rgb(255 255 255); } }
       @keyframes pulse-text { from { color: rgb(110 110 110); } to { color: rgb(255 255 255); } }
 
@@ -668,8 +681,15 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
       .vis { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; padding: 28px; min-height: 180px; }
 
       .vis-status { flex-direction: column; gap: 22px; }
-      .statusbar { width: 100%; display: flex; background: #000; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; height: 40px; white-space: pre; font: 400 14px/1 -apple-system, system-ui, sans-serif; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.9); }
-      .statusbar .mini { font-size: 5px; }
+      .statusbar {
+        width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+        padding: 7px 10px; background:
+          linear-gradient(180deg, rgba(236,240,255,0.18), rgba(236,240,255,0.03)), #000;
+        border: 1px solid var(--line-2); border-radius: 12px;
+        font: 400 13px/1 -apple-system, system-ui, sans-serif;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 20px 60px -20px rgba(0,0,0,0.9);
+      }
+      .statusbar .mini { font-size: 6px; }
       .legend { display: flex; gap: 20px; font: 12px/1 var(--mono); color: var(--dim); }
       .legend span { display: flex; align-items: center; gap: 8px; }
       .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -797,6 +817,8 @@ const apple = `<svg viewBox="0 0 814 1000" aria-hidden="true"><path fill="curren
         .logo:nth-child(2) { border-right: 0; }
         .logo:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
         .t-cwd { display: none; }
+        .t-bar { padding-left: 58px; gap: 4px; font-size: 11px; }
+        .t-tab { height: 22px; padding: 0 7px; }
         .window { height: 420px; font-size: 9px; }
         .btn.mono { display: none; }
       }
