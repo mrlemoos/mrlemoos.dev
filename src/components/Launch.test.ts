@@ -153,6 +153,10 @@ it("groups Galicia, Konijn, and Ludus as projects", () => {
   for (const project of ["https://konijn.co", "https://galicia.mrlemoos.dev", "https://ludus.mrlemoos.dev"]) {
     expect(source).toContain(project);
   }
+  expect(source).toContain('aria-label="Eight focused skills"');
+  for (const skill of ["/terse", "/rubberduck", "/spec", "/breakdown", "/find-rc", "/unit-test", "/behavioural-test", "/e2e-test"]) {
+    expect(source).toContain(`<span>${skill}</span>`);
+  }
 });
 
 it("keeps project tiles legible in dark mode and gives Ludus a chessboard", () => {
